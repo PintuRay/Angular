@@ -1,0 +1,132 @@
+import { BranchFinancialYear } from "./branchFinancialYear";
+import { Company } from "./company";
+import { DamageOrder } from "./damageOrder";
+import { DamageTransaction } from "./damageTransaction";
+import { InwardSupplyOrder } from "./inwardSupplyOrder";
+import { InwardSupplyTransaction } from "./inwardSupplyTransaction";
+import { JournalOrder } from "./journalOrder";
+import { JournalTransaction } from "./journalTransaction";
+import { Labour } from "./labour";
+import { LabourOrder } from "./labourOrder";
+import { LabourRate } from "./labourRate";
+import { LabourTransaction } from "./labourTransaction";
+import { LedgerBalance } from "./ledgerBalance";
+import { LedgerSubGroup } from "./ledgerSubGroup";
+import { LedgerSubGroupDev } from "./ledgerSubGroupDev";
+import { OutwardSupplyOrder } from "./outwardSupplyOrder";
+import { OutwardSupplyTransaction } from "./outwardSupplyTransaction";
+import { PaymentOrder } from "./paymentOrder";
+import { PaymentTransaction } from "./paymentTransaction";
+import { PurchaseOrder } from "./purchaseOrder";
+import { PurchaseReturnOrder } from "./purchaseReturnOrder";
+import { PurchaseReturnTransaction } from "./purchaseReturnTransaction";
+import { PurchaseTransaction } from "./purchaseTransaction";
+import { ReceiptOrder } from "./receiptOrder";
+import { ReceiptTransaction } from "./receiptTransaction";
+import { SalesOrder } from "./salesOrder";
+import { SalesReturnOrder } from "./salesReturnOrder";
+import { SalesReturnTransaction } from "./salesReturnTransaction";
+import { SalesTransaction } from "./salesTransaction";
+import { Stock } from "./stock";
+import { SubLedger } from "./subLedger";
+import { SubLedgerBalance } from "./subLedgerBalance";
+import { UserBranch } from "./userBranch";
+
+
+export class BranchModel {
+    branchName: string;
+    branchAddress: string;
+    contactNumber: string;
+    branchCode: string;
+  
+    constructor() {
+      this.branchName = '';
+      this.branchAddress = '';
+      this.contactNumber = '';
+      this.branchCode = '';
+    }
+  }
+  
+  export class Branch extends BranchModel {
+    branchId: string;
+    isActive?: boolean;
+    createdDate?: Date;
+    modifyDate?: Date;
+    createdBy?: string;
+    modifyBy?: string;
+    branchFinancialYears?: BranchFinancialYear[];
+    userBranch?: UserBranch[];
+    labours?: Labour[];
+    stocks?: Stock[];
+    ledgerSubGroup?: LedgerSubGroup[];
+    ledgerSubGroupDev?: LedgerSubGroupDev[];
+    ledgerBalances?: LedgerBalance[];
+    subLedgers?: SubLedger[];
+    subLedgerBalances?: SubLedgerBalance[];
+    purchaseOrders?: PurchaseOrder[];
+    salesOrders?: SalesOrder[];
+    purchaseTransactions?: PurchaseTransaction[];
+    salesTransactions?: SalesTransaction[];
+    labourOrders?: LabourOrder[];
+    labourTransactions?: LabourTransaction[];
+    journalOrders?: JournalOrder[];
+    journalTransactions?: JournalTransaction[];
+    paymentOrders?: PaymentOrder[];
+    paymentTransactions?: PaymentTransaction[];
+    receiptOrders?: ReceiptOrder[];
+    receiptTransactions?: ReceiptTransaction[];
+    salesReturnOrders?: SalesReturnOrder[];
+    purchaseReturnOrders?: PurchaseReturnOrder[];
+    salesReturnTransactions?: SalesReturnTransaction[];
+    purchaseReturnTransactions?: PurchaseReturnTransaction[];
+    inwardSupplyOrders?: InwardSupplyOrder[];
+    outwardSupplyOrders?: OutwardSupplyOrder[];
+    inwardSupplyTransactions?: InwardSupplyTransaction[];
+    outwardSupplyTransactions?: OutwardSupplyTransaction[];
+    damageOrders?: DamageOrder[];
+    damageTransactions?: DamageTransaction[];
+    companies?: Company[];
+    labourRates?: LabourRate[];
+    constructor() {
+      super();
+      this.branchId = '';
+      this.isActive = false;
+      this.createdDate = new Date();
+      this.modifyDate = new Date();
+      this.createdBy = '';
+      this.modifyBy = '';
+      this.branchFinancialYears = [];
+      this.userBranch = [];
+      this.labours = [];
+      this.stocks = [];
+      this.ledgerSubGroup = [];
+      this.ledgerSubGroupDev = [];
+      this.ledgerBalances = [];
+      this.subLedgers = [];
+      this.subLedgerBalances= [];
+      this.purchaseOrders= [];
+      this.salesOrders= [];
+      this.purchaseTransactions= [];
+      this.salesTransactions= [];
+      this.labourOrders= [];
+      this.labourTransactions= [];
+      this.journalOrders= [];
+      this.journalTransactions= [];
+      this.paymentOrders= [];
+      this.paymentTransactions= [];
+      this.receiptOrders= [];
+      this.receiptTransactions= [];
+      this.salesReturnOrders= [];
+      this.purchaseReturnOrders= [];
+      this.salesReturnTransactions= [];
+      this.purchaseReturnTransactions= [];
+      this.inwardSupplyOrders= [];
+      this.outwardSupplyOrders=[];
+      this.inwardSupplyTransactions= [];
+      this.outwardSupplyTransactions= [];
+      this.damageOrders= [];
+      this.damageTransactions= [];
+      this.companies= [];
+      this.labourRates= [];
+    }
+  }
