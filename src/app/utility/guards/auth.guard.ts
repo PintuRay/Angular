@@ -4,11 +4,10 @@ import { inject } from '@angular/core';
 
 export const authGuard: CanActivateFn = (route, state) => {
   const authSvcs =inject(AuthenticationService);
+  const router = inject(Router);
   if(authSvcs.isUserLogedIn()){
     return true;
   }
-  else{
-    inject(Router).navigate(['']);
-    return false;
-  }
+     // Redirect to the login page
+     return router.parseUrl('/auth/login');
 };

@@ -7,6 +7,7 @@ import { AuthenticationService } from 'src/app/api/service/account/authenticatio
 import { LayoutService } from '../../../shared/service/app.layout.service';
 import { MessageService } from 'primeng/api';
 @Component({
+    selector: 'app-twostep-login',
     templateUrl: './twostep-login.component.html',
     styles: [
         `

@@ -1,83 +1,73 @@
 <p-toast />
-<div class="surface-ground flex align-items-center justify-content-center min-h-screen"
-    style="background:var(--surface-ground)">
-    <div class="surface-card p-4 shadow-2 border-round w-full lg:w-4">
-        <div class="text-center mb-5">
-            <img [src]="'assets/layout/images/logo-'+ (layoutSvcs.config().colorScheme === 'light' ? 'dark' : 'light') + '.png'"
-                class="login-logo  mb-4" style=" width: 45px;" />
-            <img [src]="'assets/layout/images/appname-'+ (layoutSvcs.config().colorScheme === 'light' ? 'dark' : 'light') + '.png'"
-                class="login-appname ml-3 mb-4" style="width: 100px;" />
-            <div class="text-900 text-3xl font-medium mb-3">Welcome Back</div>
-            <span class="text-600 font-medium">Sign in to continue</span>
+<form [formGroup]="loginForm" (ngSubmit)="login()" class="p-fluid">
+    <div class="text-center mb-5">
+        <img [src]="'assets/layout/images/logo-'+ (layoutSvcs.config().colorScheme === 'light' ? 'dark' : 'light') + '.png'"
+            class="login-logo  mb-4" style=" width: 45px;" />
+        <img [src]="'assets/layout/images/appname-'+ (layoutSvcs.config().colorScheme === 'light' ? 'dark' : 'light') + '.png'"
+            class="login-appname ml-3 mb-4" style="width: 100px;" />
+        <div class="text-900 text-3xl font-medium mb-3">Welcome Back</div>
+        <span class="text-600 font-medium">Sign in to continue</span>
+    </div>
+    <div class="field mb-4">
+        <div class="p-input-icon-left">
+            <i class="pi pi-envelope"></i>
+            <input id="email" type="text" pInputText formControlName="email" placeholder="Enter your email" />
         </div>
-        <form [formGroup]="loginForm" (ngSubmit)="login()" class="p-fluid">
-            <div class="field mb-4">
-                <div class="p-input-icon-left">
-                    <i class="pi pi-envelope"></i>
-                    <input id="email" type="text" pInputText formControlName="email" placeholder="Enter your email" />
-                </div>
-                <small class="p-error block mt-2"
-                    *ngIf=" emailControl?.hasError('required') && (emailControl?.touched || emailControl?.dirty)">
-                    {{getEmailErrorMessage()}}
-                </small>
-            </div>
-
-            <div class="field mb-4">
-                <div class="p-input-icon-left p-input-icon-right">
-                    <i class="pi pi-key"></i>
-                    <input id="password" [type]="showPassword ? 'text' : 'password'" pInputText
-                        formControlName="password" placeholder="Enter your password">
-                    <i class="pi cursor-pointer pi-eye"
-                        [ngClass]="{'pi-eye-slash' : !showPassword, 'pi-eye': showPassword}"
-                        (click)="togglePasswordVisibility()"></i>
-                </div>
-                <small class="p-error block mt-2"
-                    *ngIf=" passwordControl?.hasError('required') && (passwordControl?.touched || passwordControl?.dirty)">
-                    {{getPasswordErrorMessage()}}
-                </small>
-            </div>
-
-            <div class="flex align-items-center justify-content-between mb-4">
-                <div class="flex align-items-center">
-                    <p-checkbox id="rememberme" [binary]="true" formControlName="rememberMe"></p-checkbox>
-                    <label for="rememberme" class="ml-2">Remember me</label>
-                </div>
-                <a routerLink="/auth/forgotpassword"
-                    class="font-medium no-underline ml-2 text-blue-500 text-right cursor-pointer">
-                    Forgot password?
-                </a>
-            </div>
-
-            <div class="flex justify-content-end">
-                <button pButton type="submit" class="w-3 p-button-primary" [disabled]="!loginForm.valid || isLoading"
-                    style="display: flex; align-items: center; justify-content: center;">
-                    <ng-container *ngIf="isLoading; else signInLabel">
-                        <i class="pi pi-spin pi-spinner"></i> Loading...
-                    </ng-container>
-                    <ng-template #signInLabel>Sign In</ng-template>
-                </button>
-            </div>
-
-            <div class="text-center mt-4">
-                <span class="text-600 font-medium mr-2">Don't have an account?</span>
-                <a routerLink="/auth/register" class="font-medium no-underline text-blue-500">
-                    Create an account
-                </a>
-            </div>
-        </form>
-        <div class="text-center mt-5">
-            <div class="flex align-items-center justify-content-center mb-3">
-                <div class="divider-line" style="flex: 1; height: 1px; background-color: #ccc;"></div>
-                <span class="mx-2">Social Login</span>
-                <div class="divider-line" style="flex: 1; height: 1px; background-color: #ccc;"></div>
-            </div>
+        <small class="p-error block mt-2"
+            *ngIf=" emailControl?.hasError('required') && (emailControl?.touched || emailControl?.dirty)">
+            {{getEmailErrorMessage()}}
+        </small>
+    </div>
+    <div class="field mb-4">
+        <div class="p-input-icon-left p-input-icon-right">
+            <i class="pi pi-key"></i>
+            <input id="password" [type]="showPassword ? 'text' : 'password'" pInputText formControlName="password"
+                placeholder="Enter your password">
+            <i class="pi cursor-pointer pi-eye" [ngClass]="{'pi-eye-slash' : !showPassword, 'pi-eye': showPassword}"
+                (click)="togglePasswordVisibility()"></i>
         </div>
-        <div class="text-center">
-            <div class="flex justify-content-center">
-                <button pButton icon="pi pi-facebook" class="p-button-rounded p-button-secondary mr-2"></button>
-                <button pButton icon="pi pi-google" class="p-button-rounded p-button-danger mr-2"></button>
-                <button pButton icon="pi pi-github" class="p-button-rounded p-button-info"></button>
-            </div>
+        <small class="p-error block mt-2"
+            *ngIf=" passwordControl?.hasError('required') && (passwordControl?.touched || passwordControl?.dirty)">
+            {{getPasswordErrorMessage()}}
+        </small>
+    </div>
+    <div class="flex align-items-center justify-content-between mb-4">
+        <div class="flex align-items-center">
+            <p-checkbox id="rememberme" [binary]="true" formControlName="rememberMe"></p-checkbox>
+            <label for="rememberme" class="ml-2">Remember me</label>
+        </div>
+        <a routerLink="/auth/forgot-password"
+            class="font-medium no-underline ml-2 text-blue-500 text-right cursor-pointer">
+            Forgot password?
+        </a>
+    </div>
+    <div class="flex justify-content-end">
+        <button pButton type="submit" class="w-3 p-button-primary" [disabled]="!loginForm.valid || isLoading"
+            style="display: flex; align-items: center; justify-content: center;">
+            <ng-container *ngIf="isLoading; else signInLabel">
+                <i class="pi pi-spin pi-spinner"></i> Loading...
+            </ng-container>
+            <ng-template #signInLabel>Sign In</ng-template>
+        </button>
+    </div>
+    <div class="text-center mt-4">
+        <span class="text-600 font-medium mr-2">Don't have an account?</span>
+        <a routerLink="/auth/register" class="font-medium no-underline text-blue-500">
+            Create an account
+        </a>
+    </div>
+    <div class="text-center mt-5">
+        <div class="flex align-items-center justify-content-center mb-3">
+            <div class="divider-line" style="flex: 1; height: 1px; background-color: #ccc;"></div>
+            <span class="mx-2">Social Login</span>
+            <div class="divider-line" style="flex: 1; height: 1px; background-color: #ccc;"></div>
         </div>
     </div>
-</div>
+    <div class="text-center">
+        <div class="flex justify-content-center">
+            <button pButton icon="pi pi-facebook" class="p-button-rounded p-button-secondary mr-2"></button>
+            <button pButton icon="pi pi-google" class="p-button-rounded p-button-danger mr-2"></button>
+            <button pButton icon="pi pi-github" class="p-button-rounded p-button-info"></button>
+        </div>
+    </div>
+</form>

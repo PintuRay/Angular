@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { LayoutService } from '../../../shared/service/app.layout.service';
 
 @Component({
+	selector: 'app-forgot-password',
     templateUrl: './forgot-password.component.html'
 })
 export class ForgotPasswordComponent { 

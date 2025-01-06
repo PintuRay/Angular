@@ -6,6 +6,7 @@ import { SignInModel } from 'src/app/api/model/account/authentication/signIn-mod
 import { AuthenticationService } from 'src/app/api/service/account/authentication/authentication.service';
 import { LayoutService } from '../../../shared/service/app.layout.service';
 @Component({
+    selector: 'app-login',
     templateUrl: './login.component.html',
 })
 export class LoginComponent implements OnInit {

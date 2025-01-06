@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MessageService } from 'primeng/api';
 import { RegisterModel } from 'src/app/api/model/account/authentication/register-model';
 import { AuthenticationService } from 'src/app/api/service/account/authentication/authentication.service';
@@ -8,6 +8,7 @@ import { LayoutService } from '../../../shared/service/app.layout.service';
 import { environment } from 'src/app/utility/environment/environment';
 
 @Component({
+	selector: 'app-register',
 	templateUrl: './register.component.html',
 	styles: [
         `
@@ -25,15 +26,13 @@ export class RegisterComponent implements OnInit {
 	msg: string = '';
 	tokenValue: string = '';
 	isLoading = false;
-	get dark(): boolean {
-		return this.layoutService.config().colorScheme !== 'light';
-	}
+
 	//#endregion 
 	
 	//#region constructor
 	constructor(
 		private fb: FormBuilder,
-		public layoutService: LayoutService,
+		public layoutSvcs: LayoutService,
 		private authSvcs: AuthenticationService,
 		private commonSvcs : CommonService,
 		private messageService: MessageService) { }
@@ -49,7 +48,9 @@ export class RegisterComponent implements OnInit {
 		this.registerForm.disable();
 	}
 	//#endregion
-	
+	get dark(): boolean {
+		return this.layoutSvcs.config().colorScheme !== 'light';
+	}
 	//#region Form Initialization
 	private initializeRegisterForm(): void {
 		this.registerForm = this.fb.group({

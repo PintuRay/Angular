@@ -1,0 +1,11 @@
+<p-toast />
+<form [formGroup]="registerForm" (ngSubmit)="signUp()" class="p-fluid">
+    <div class="text-center mb-5">
+        <img [src]="'assets/layout/images/logo-'+ (layoutSvcs.config().colorScheme === 'light' ? 'dark' : 'light') + '.png'"
+            class="login-logo  mb-4" style=" width: 45px;" />
+        <img [src]="'assets/layout/images/appname-'+ (layoutSvcs.config().colorScheme === 'light' ? 'dark' : 'light') + '.png'"
+            class="login-appname ml-3 mb-4" style="width: 100px;" />
+        <div class="text-900 text-3xl font-medium mb-3">Welcome Back</div>
+        <span class="text-600 font-medium">Sign in to continue</span>
+    </div>
+</form>
