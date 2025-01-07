@@ -1,11 +1,102 @@
 <p-toast />
-<form [formGroup]="registerForm" (ngSubmit)="signUp()" class="p-fluid">
-    <div class="text-center mb-5">
-        <img [src]="'assets/layout/images/logo-'+ (layoutSvcs.config().colorScheme === 'light' ? 'dark' : 'light') + '.png'"
-            class="login-logo  mb-4" style=" width: 45px;" />
-        <img [src]="'assets/layout/images/appname-'+ (layoutSvcs.config().colorScheme === 'light' ? 'dark' : 'light') + '.png'"
-            class="login-appname ml-3 mb-4" style="width: 100px;" />
-        <div class="text-900 text-3xl font-medium mb-3">Welcome Back</div>
-        <span class="text-600 font-medium">Sign in to continue</span>
+<div class="surface-ground flex align-items-center justify-content-center min-h-screen"
+    style="background:var(--surface-ground)">
+    <div class="surface-card p-4 shadow-2 border-round w-full lg:w-6">
+        <p-steps [model]="items" [activeIndex]="activeIndex" [readonly]="false"></p-steps>
+
+        <div class="mt-4">
+          <form [formGroup]="registerForm">
+            <!-- Step 1: Account Information -->
+            <div *ngIf="activeIndex === 0" formGroupName="accountInfo">
+              <div class="field">
+                <label for="email">Email</label>
+                <input type="email" pInputText id="email" formControlName="email" class="w-50">
+              </div>
+              <span class="p-float-label">
+                <input id="float-input" type="text" pInputText>
+                <label for="float-input">Username</label>
+            </span>
+              <div class="field">
+                <label for="phoneNumber">Phone Number</label>
+                <input type="tel" pInputText id="phoneNumber" formControlName="phoneNumber" class="w-50">
+              </div>
+              <div class="field">
+                <label for="password">Password</label>
+                <p-password id="password" formControlName="password" [toggleMask]="true" class="w-50"></p-password>
+              </div>
+              <div class="field">
+                <label for="confirmPassword">Confirm Password</label>
+                <p-password id="confirmPassword" formControlName="confirmPassword" [toggleMask]="true" class="w-50"></p-password>
+              </div>
+            </div>
+      
+            <!-- Step 2: Personal Information -->
+            <div *ngIf="activeIndex === 1" formGroupName="personalInfo">
+              <div class="field">
+                <label for="name">Name</label>
+                <input type="text" pInputText id="name" formControlName="name" class="w-full">
+              </div>
+              <div class="field">
+                <label for="birthDate">Birth Date</label>
+                <input type="date" pInputText id="birthDate" formControlName="birthDate" class="w-full">
+              </div>
+              <div class="field">
+                <label for="ProfilePhoto">Profile Photo</label>
+                <input type="file" id="ProfilePhoto" formControlName="ProfilePhoto" class="w-full">
+              </div>
+              <div class="field">
+                <label for="maritalStatus">Marital Status</label>
+                <input type="text" pInputText id="maritalStatus" formControlName="maritalStatus" class="w-full">
+              </div>
+              <div class="field">
+                <label for="gender">Gender</label>
+                <input type="text" pInputText id="gender" formControlName="gender" class="w-full">
+              </div>
+              <div class="field-checkbox">
+                <p-checkbox formControlName="termCondition" [binary]="true" id="termCondition"></p-checkbox>
+                <label for="termCondition">I agree to the terms and conditions</label>
+              </div>
+            </div>
+      
+            <!-- Step 3: Address Information -->
+            <div *ngIf="activeIndex === 2" formGroupName="address">
+              <div class="field">
+                <label for="fk_CountryId">Country</label>
+                <input type="text" pInputText id="fk_CountryId" formControlName="fk_CountryId" class="w-full">
+              </div>
+              <div class="field">
+                <label for="fk_StateId">State</label>
+                <input type="text" pInputText id="fk_StateId" formControlName="fk_StateId" class="w-full">
+              </div>
+              <div class="field">
+                <label for="fk_DistId">District</label>
+                <input type="text" pInputText id="fk_DistId" formControlName="fk_DistId" class="w-full">
+              </div>
+              <div class="field">
+                <label for="at">At</label>
+                <input type="text" pInputText id="at" formControlName="at" class="w-full">
+              </div>
+              <div class="field">
+                <label for="post">Post</label>
+                <input type="text" pInputText id="post" formControlName="post" class="w-full">
+              </div>
+              <div class="field">
+                <label for="city">City</label>
+                <input type="text" pInputText id="city" formControlName="city" class="w-full">
+              </div>
+              <div class="field">
+                <label for="pinCode">Pin Code</label>
+                <input type="text" pInputText id="pinCode" formControlName="pinCode" class="w-full">
+              </div>
+            </div>
+      
+            <!-- Navigation Buttons -->
+            <div class="flex justify-content-between mt-4">
+              <p-button label="Previous" (onClick)="prevStep()" [disabled]="activeIndex === 0"></p-button>
+              <p-button *ngIf="activeIndex < 2" label="Next" (onClick)="nextStep()" [disabled]="!isStepValid(activeIndex)"></p-button>
+              <p-button *ngIf="activeIndex === 2" label="Submit" (onClick)="signUp()" [disabled]="!registerForm.valid"></p-button>
+            </div>
+          </form>
+        </div>
     </div>
-</form>
+</div>

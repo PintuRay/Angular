@@ -6,17 +6,10 @@ import { AuthenticationService } from 'src/app/api/service/account/authenticatio
 import { CommonService } from 'src/app/api/service/common/common.services';
 import { LayoutService } from '../../../shared/service/app.layout.service';
 import { environment } from 'src/app/utility/environment/environment';
-
+import { MenuItem } from 'primeng/api';
 @Component({
 	selector: 'app-register',
 	templateUrl: './register.component.html',
-	styles: [
-        `
-        .p-stepper {
-            flex-basis: 50rem;
-        } 
-        `
-    ]
 })
 export class RegisterComponent implements OnInit {
 	//#region Property Declaration
@@ -26,9 +19,9 @@ export class RegisterComponent implements OnInit {
 	msg: string = '';
 	tokenValue: string = '';
 	isLoading = false;
-
+	items: MenuItem[] = [];
+	activeIndex: number = 0;
 	//#endregion 
-	
 	//#region constructor
 	constructor(
 		private fb: FormBuilder,
@@ -37,46 +30,74 @@ export class RegisterComponent implements OnInit {
 		private commonSvcs : CommonService,
 		private messageService: MessageService) { }
 	//#endregion
-	
+	get dark(): boolean {
+		return this.layoutSvcs.config().colorScheme !== 'light';
+	}
 	//#region Lifecycle Hooks
 	ngOnInit(): void {
 		this.initializeRegisterForm();
+		this.initializeSteps();
 		this.user.routeUls = this.returnUrl;
 		this.registerForm.valueChanges.subscribe((values) => {
 			this.user = { ...this.user, ...values };
 		});
-		this.registerForm.disable();
+		//this.registerForm.disable();
 	}
 	//#endregion
-	get dark(): boolean {
-		return this.layoutSvcs.config().colorScheme !== 'light';
-	}
 	//#region Form Initialization
 	private initializeRegisterForm(): void {
 		this.registerForm = this.fb.group({
-			name: ['', [Validators.required, Validators.minLength(5), Validators.pattern(/^[A-Z\s]+$/)]],
-			email: ['', [Validators.required, Validators.pattern(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)]],
-			phoneNumber: ['', [Validators.required, Validators.pattern(/^\d{10}$/)]],
-			password: ['', [Validators.required, Validators.minLength(8), Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@#$%^&*!])[A-Za-z\d@#$%^&*!]{8,}$/)]],
-			confirmPassword: ['', [Validators.required, Validators.minLength(8)]],
-			ProfilePhoto: [null, [Validators.required]],
-			termCondition: [false, [Validators.required]],
-			birthDate: ['', [Validators.required]],
-			maritalStatus: ['', [Validators.required]],
-			gender: ['', [Validators.required]],
+			// Account Information
+			accountInfo: this.fb.group({
+			  email: ['', [Validators.required, Validators.pattern(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)]],
+			  phoneNumber: ['', [Validators.required, Validators.pattern(/^\d{10}$/)]],
+			  password: ['', [Validators.required, Validators.minLength(8), Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@#$%^&*!])[A-Za-z\d@#$%^&*!]{8,}$/)]],
+			  confirmPassword: ['', [Validators.required, Validators.minLength(8)]]
+			}),
+			// Personal Information
+			personalInfo: this.fb.group({
+			  name: ['', [Validators.required, Validators.minLength(5), Validators.pattern(/^[A-Z\s]+$/)]],
+			  birthDate: ['', [Validators.required]],
+			  ProfilePhoto: [null, [Validators.required]],
+			  maritalStatus: ['', [Validators.required]],
+			  gender: ['', [Validators.required]],
+			  termCondition: [false, [Validators.required]]
+			}),
+			// Address Information
 			address: this.fb.group({
-				fk_CountryId: ['', [Validators.required]],
-				fk_StateId: ['', [Validators.required]],
-				fk_DistId: ['', [Validators.required]],
-				at: ['', [Validators.required]],
-				post: ['', [Validators.required]],
-				city: ['', [Validators.required]],
-				pinCode: ['', [Validators.required, Validators.pattern(/^\d{6}$/)]]
+			  fk_CountryId: ['', [Validators.required]],
+			  fk_StateId: ['', [Validators.required]],
+			  fk_DistId: ['', [Validators.required]],
+			  at: ['', [Validators.required]],
+			  post: ['', [Validators.required]],
+			  city: ['', [Validators.required]],
+			  pinCode: ['', [Validators.required, Validators.pattern(/^\d{6}$/)]]
 			})
-		});
+		  });
 	}
+	private initializeSteps() {
+		this.items = [
+		  {
+			label: 'Account',
+			command: (event: any) => {
+			  this.activeIndex = 0;
+			}
+		  },
+		  {
+			label: 'Personal',
+			command: (event: any) => {
+			  this.activeIndex = 1;
+			}
+		  },
+		  {
+			label: 'Address',
+			command: (event: any) => {
+			  this.activeIndex = 2;
+			}
+		  }
+		];
+	  }
 	//#endregion
-
 	//#region Client Side Vaildation
 	get nameControl() {
 		return this.registerForm.get('name');
@@ -138,7 +159,6 @@ export class RegisterComponent implements OnInit {
 		}
 	}
 	//#endregion
-
 	//#region Server Side Vaildation
 	vaildateToken(): void {
 		if (this.tokenValue) {
@@ -195,8 +215,31 @@ export class RegisterComponent implements OnInit {
 		}
 	}
 	//#endregion
-
 	//#region Operations
+	nextStep() {
+		if (this.activeIndex < 2) {
+		  this.activeIndex++;
+		}
+	  }
+	  prevStep() {
+		if (this.activeIndex > 0) {
+		  this.activeIndex--;
+		}
+	}
+	isStepValid(step: number): boolean {
+		const form = this.registerForm;
+		if (!form) return false;
+		switch (step) {
+			case 0:
+				return form.get('accountInfo')?.valid ?? false;
+			case 1:
+				return form.get('personalInfo')?.valid ?? false;
+			case 2:
+				return form.get('address')?.valid ?? false;
+			default:
+				return false;
+		}
+	}
 	signUp(): void {
 		this.isLoading = true;
 		this.authSvcs.signUp(this.user).subscribe({
@@ -242,5 +285,5 @@ export class RegisterComponent implements OnInit {
 			}
 		});
 	}
-	//#endrgion
+	//#endregion
 }

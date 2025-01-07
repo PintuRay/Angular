@@ -20,6 +20,28 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { PasswordModule } from 'primeng/password';
 import { ToastModule } from 'primeng/toast';
 import { InputOtpModule } from 'primeng/inputotp';
+import {StepsModule} from 'primeng/steps';
+import { AutoCompleteModule } from 'primeng/autocomplete';
+import { CalendarModule } from 'primeng/calendar';
+import { ChipsModule } from 'primeng/chips';
+import { ChipModule } from 'primeng/chip';
+import { DropdownModule } from 'primeng/dropdown';
+import { InputMaskModule } from 'primeng/inputmask';
+import { InputNumberModule } from 'primeng/inputnumber';
+import { CascadeSelectModule } from 'primeng/cascadeselect';
+import { MultiSelectModule } from 'primeng/multiselect';
+import { InputTextareaModule } from 'primeng/inputtextarea';
+import { RatingModule } from 'primeng/rating';
+import { KnobModule } from 'primeng/knob';
+import { ListboxModule } from 'primeng/listbox';
+import { SelectButtonModule } from 'primeng/selectbutton';
+import { InputSwitchModule } from 'primeng/inputswitch';
+import { RadioButtonModule } from 'primeng/radiobutton';
+import { ColorPickerModule } from 'primeng/colorpicker';
+import { ToggleButtonModule } from 'primeng/togglebutton';
+import { SliderModule } from 'primeng/slider';
+import { InputGroupModule } from 'primeng/inputgroup';
+import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
 //import Services
 import { MessageService } from 'primeng/api';
 import { LayoutService } from '../shared/service/app.layout.service';
@@ -47,7 +69,8 @@ import { AuthenticationService } from '../../api/service/account/authentication/
     CheckboxModule,
     PasswordModule,
     ToastModule,
-    InputOtpModule
+    InputOtpModule,
+    StepsModule
   ],
   providers: [
     MessageService,
