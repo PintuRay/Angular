@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
-import { catchError, map, shareReplay, tap } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import { environment } from '../../utility/environment/environment';
 
 interface ApiConfig {
@@ -39,9 +39,9 @@ export class ConfigService {
             devloper: {},
             admin: {},
             common :{
-                getCountries: '{apiUrl}Common/GetCountries',
-                getStates:'{apiUrl}Common/GetStates',
-                getDists:'{apiUrl}Common/GetDists'
+                getCountries: '{apiUrl}Common/Country/Get',
+                getStates:'{apiUrl}Common/State/Get',
+                getDists:'{apiUrl}Common/Dist/Get'
             }
         },
     };

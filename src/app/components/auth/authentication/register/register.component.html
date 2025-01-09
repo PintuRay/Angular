@@ -1,102 +1,140 @@
 <p-toast />
 <div class="surface-ground flex align-items-center justify-content-center min-h-screen"
-    style="background:var(--surface-ground)">
-    <div class="surface-card p-4 shadow-2 border-round w-full lg:w-6">
-        <p-steps [model]="items" [activeIndex]="activeIndex" [readonly]="false"></p-steps>
+  style="background:var(--surface-ground)">
+  <div class="surface-card p-4 shadow-2 border-round w-full lg:w-6">
 
-        <div class="mt-4">
-          <form [formGroup]="registerForm">
-            <!-- Step 1: Account Information -->
-            <div *ngIf="activeIndex === 0" formGroupName="accountInfo">
-              <div class="field">
-                <label for="email">Email</label>
-                <input type="email" pInputText id="email" formControlName="email" class="w-50">
+    <div class="grid">
+      <div class="col-12">
+        <div class="field grid">
+          <div class="col-8 flex flex-wrap gap-2">
+              <p-inputMask mask="999-999-9999" placeholder="xxx-xxx-xxxx" [slotChar]="'_'" [(ngModel)]="tokenValue">
+              </p-inputMask>
+              <button pButton pRipple label="Validate" (click)="vaildateToken()"></button>
+          </div>
+      </div>
+      </div>
+      <div class="col-12">
+        <p-steps [model]="items" [activeIndex]="activeIndex" [readonly]="false"></p-steps>
+        <form [formGroup]="registerForm" class="pt-4">
+          <div *ngIf="activeIndex === 0" formGroupName="accountInfo">
+            <div class="p-fluid p-formgrid grid">
+              <div class="field col-12 md:col-6">
+                <p-inputGroup>
+                  <p-inputGroupAddon>
+                    <i class="pi pi-envelope"></i>
+                  </p-inputGroupAddon>
+                  <input type="email" pInputText id="email" formControlName="email" placeholder="Email" />
+                </p-inputGroup>
               </div>
-              <span class="p-float-label">
-                <input id="float-input" type="text" pInputText>
-                <label for="float-input">Username</label>
-            </span>
-              <div class="field">
-                <label for="phoneNumber">Phone Number</label>
-                <input type="tel" pInputText id="phoneNumber" formControlName="phoneNumber" class="w-50">
+              <div class="field col-12 md:col-6">
+                <p-inputGroup>
+                  <p-inputGroupAddon>
+                    <i class="pi pi-phone"></i>
+                  </p-inputGroupAddon>
+                  <input type="tel" pInputText id="phoneNumber" formControlName="phoneNumber"
+                    placeholder="Phone Number" />
+                </p-inputGroup>
               </div>
-              <div class="field">
-                <label for="password">Password</label>
-                <p-password id="password" formControlName="password" [toggleMask]="true" class="w-50"></p-password>
+              <div class="field col-12 md:col-6">
+                <span class="p-float-label">
+                  <p-password id="password" formControlName="password" [toggleMask]="true" class="w-full"></p-password>
+                  <label htmlFor="password">Password</label>
+                </span>
               </div>
-              <div class="field">
-                <label for="confirmPassword">Confirm Password</label>
-                <p-password id="confirmPassword" formControlName="confirmPassword" [toggleMask]="true" class="w-50"></p-password>
-              </div>
-            </div>
-      
-            <!-- Step 2: Personal Information -->
-            <div *ngIf="activeIndex === 1" formGroupName="personalInfo">
-              <div class="field">
-                <label for="name">Name</label>
-                <input type="text" pInputText id="name" formControlName="name" class="w-full">
-              </div>
-              <div class="field">
-                <label for="birthDate">Birth Date</label>
-                <input type="date" pInputText id="birthDate" formControlName="birthDate" class="w-full">
-              </div>
-              <div class="field">
-                <label for="ProfilePhoto">Profile Photo</label>
-                <input type="file" id="ProfilePhoto" formControlName="ProfilePhoto" class="w-full">
-              </div>
-              <div class="field">
-                <label for="maritalStatus">Marital Status</label>
-                <input type="text" pInputText id="maritalStatus" formControlName="maritalStatus" class="w-full">
-              </div>
-              <div class="field">
-                <label for="gender">Gender</label>
-                <input type="text" pInputText id="gender" formControlName="gender" class="w-full">
-              </div>
-              <div class="field-checkbox">
-                <p-checkbox formControlName="termCondition" [binary]="true" id="termCondition"></p-checkbox>
-                <label for="termCondition">I agree to the terms and conditions</label>
+              <div class="field col-12 md:col-6">
+                <span class="p-float-label">
+                  <p-password id="confirmPassword" formControlName="confirmPassword" [toggleMask]="true"
+                    class="w-full"></p-password>
+                  <label htmlFor="confirmPassword">Confirm Password</label>
+                </span>
               </div>
             </div>
-      
-            <!-- Step 3: Address Information -->
-            <div *ngIf="activeIndex === 2" formGroupName="address">
-              <div class="field">
-                <label for="fk_CountryId">Country</label>
-                <input type="text" pInputText id="fk_CountryId" formControlName="fk_CountryId" class="w-full">
+          </div>
+          <div *ngIf="activeIndex === 1" formGroupName="personalInfo">
+            <div class="p-fluid p-formgrid grid">
+              <div class="field col-12 md:col-6">
+                <p-inputGroup>
+                  <p-inputGroupAddon>
+                    <i class="pi pi-user"></i>
+                  </p-inputGroupAddon>
+                  <input type="text" pInputText id="name" formControlName="name" placeholder="Username">
+                </p-inputGroup>
               </div>
-              <div class="field">
-                <label for="fk_StateId">State</label>
-                <input type="text" pInputText id="fk_StateId" formControlName="fk_StateId" class="w-full">
+              <div class="field col-12 md:col-6">
+                <p-calendar [showIcon]="true" inputId="icon" formControlName="birthDate"
+                  placeholder="Birth Date"></p-calendar>
               </div>
-              <div class="field">
-                <label for="fk_DistId">District</label>
-                <input type="text" pInputText id="fk_DistId" formControlName="fk_DistId" class="w-full">
+              <div class="col-12 md:col-6">
+                <p-autoComplete formControlName="maritalStatus" [suggestions]="filteredMaritalStatus"
+                  (completeMethod)="filterMaritalStatus($event)" field="value" [dropdown]="true"
+                  placeholder="Marital Status"></p-autoComplete>
               </div>
-              <div class="field">
-                <label for="at">At</label>
-                <input type="text" pInputText id="at" formControlName="at" class="w-full">
+              <div class="col-12 md:col-6">
+                <p-autoComplete formControlName="gender" [suggestions]="filteredGender"
+                  (completeMethod)="filterGender($event)" field="value" [dropdown]="true" placeholder="Gender">
+                </p-autoComplete>
               </div>
-              <div class="field">
-                <label for="post">Post</label>
-                <input type="text" pInputText id="post" formControlName="post" class="w-full">
-              </div>
-              <div class="field">
-                <label for="city">City</label>
-                <input type="text" pInputText id="city" formControlName="city" class="w-full">
-              </div>
-              <div class="field">
-                <label for="pinCode">Pin Code</label>
-                <input type="text" pInputText id="pinCode" formControlName="pinCode" class="w-full">
+              <div class="field col-12">
+                <p-fileUpload #fileUpload [maxFileSize]="1000000" [multiple]="false" accept="image/*"
+                  [showUploadButton]="false" [showCancelButton]="false" chooseLabel="Add Profile Photo"
+                  (onSelect)="onProfilePhotoSelect($event)" (onRemove)="onProfilePhotoRemove()" [customUpload]="true">
+                </p-fileUpload>
               </div>
             </div>
-      
-            <!-- Navigation Buttons -->
-            <div class="flex justify-content-between mt-4">
-              <p-button label="Previous" (onClick)="prevStep()" [disabled]="activeIndex === 0"></p-button>
-              <p-button *ngIf="activeIndex < 2" label="Next" (onClick)="nextStep()" [disabled]="!isStepValid(activeIndex)"></p-button>
-              <p-button *ngIf="activeIndex === 2" label="Submit" (onClick)="signUp()" [disabled]="!registerForm.valid"></p-button>
+          </div>
+          <div *ngIf="activeIndex === 2" formGroupName="address">
+            <div class="p-fluid p-formgrid grid">
+              <div class="field col-12 md:col-6">
+                <p-autoComplete formControlName="fk_CountryId" [suggestions]="filteredCountries"
+                  (completeMethod)="filterCountries($event)"  dataKey="countryId" field="countryName"  [dropdown]="true" (onSelect)="onCountrySelect($event)" placeholder="Country">
+                </p-autoComplete>
+              </div>
+              <div class="field col-12 md:col-6">
+                <p-autoComplete formControlName="fk_StateId" [suggestions]="filteredStates"
+                  (completeMethod)="filterStates($event)" dataKey="stateId" field="stateName" [dropdown]="true" (onSelect)="onStateSelect($event)" placeholder="State">
+                </p-autoComplete>
+              </div>
+              <div class="field col-12 md:col-6">
+                <p-autoComplete formControlName="fk_DistId" [suggestions]="filteredDists"
+                  (completeMethod)="filterDists($event)" dataKey="distId" field="distName" [dropdown]="true" placeholder="Dist">
+                </p-autoComplete>
+              </div>
+              <div class="field col-12 md:col-6">
+                <span class="p-float-label">
+                  <input type="text" pInputText id="at" formControlName="at" class="w-full">
+                  <label htmlFor="at">At</label>
+                </span>
+              </div>
+              <div class="field col-12 md:col-6">
+                <span class="p-float-label">
+                  <input type="text" pInputText id="post" formControlName="post" class="w-full">
+                  <label htmlFor="post">Post</label>
+                </span>
+              </div>
+              <div class="field col-12 md:col-6">
+                <span class="p-float-label">
+                  <input type="text" pInputText id="city" formControlName="city" class="w-full">
+                  <label htmlFor="city">City</label>
+                </span>
+              </div>
+              <div class="field col-12 md:col-6">
+                <span class="p-float-label">
+                  <input type="text" pInputText id="pinCode" formControlName="pinCode" class="w-full">
+                  <label htmlFor="pinCode">Pin Code</label>
+                </span>
+              </div>
             </div>
-          </form>
-        </div>
+          </div>
+          <!-- Navigation Buttons -->
+          <div class="flex justify-content-between mt-4">
+            <p-button label="Previous" (onClick)="prevStep()" [disabled]="activeIndex === 0"></p-button>
+            <p-button *ngIf="activeIndex < 2" label="Next" (onClick)="nextStep()"
+              [disabled]="!isStepValid(activeIndex)"></p-button>
+            <p-button *ngIf="activeIndex === 2" label="Submit" (onClick)="signUp()"
+              [disabled]="!registerForm.valid"></p-button>
+          </div>
+        </form>
+      </div>
     </div>
+  </div>
 </div>

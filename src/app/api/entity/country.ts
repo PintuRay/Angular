@@ -11,8 +11,15 @@ export class CountryModel {
         this.countryName = '';
     }
 }
-export class Country extends CountryModel {
+export class CountryUpdateModel extends CountryModel{
     countryId: string;
+    constructor() {
+        super();
+        this.countryId = '';
+    }
+}
+export class Country extends CountryUpdateModel {
+
     isActive?: boolean;
     createdDate?: Date;
     modifyDate?: Date;
@@ -24,7 +31,6 @@ export class Country extends CountryModel {
     dists?: Dist[];
     constructor() {
         super();
-        this.countryId = '';
         this.isActive = false;
         this.createdDate = new Date();
         this.modifyDate = new Date();

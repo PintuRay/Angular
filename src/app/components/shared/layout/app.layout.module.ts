@@ -11,20 +11,10 @@ import { AppTopbarComponent } from './topbar/app.topbar.component';
 import { AppProfileSidebarComponent } from './profile/app.profilesidebar.component';
 import { AppMenuComponent } from './menu/app.menu.component';
 import { AppMenuitemComponent } from './menuitem/app.menuitem.component';
-//Import  ngPrime Modules
 import { AppConfigModule } from './config/app.config.module';
 import { LayoutRoutingModule } from './layout-routing';
-import { ButtonModule } from 'primeng/button';
-import { StyleClassModule } from 'primeng/styleclass';
-import { CalendarModule } from 'primeng/calendar';
-import { InputTextModule } from 'primeng/inputtext';
-import { SidebarModule } from 'primeng/sidebar';
-import { BadgeModule } from 'primeng/badge';
-import { RadioButtonModule } from 'primeng/radiobutton';
-import { InputSwitchModule } from 'primeng/inputswitch';
-import { TooltipModule } from 'primeng/tooltip';
-import { RippleModule } from 'primeng/ripple';
-
+//Import  ngPrime Modules
+import {PrimeNgModule } from '../prime-ng/prime-ng.module';
 @NgModule({
     declarations: [
         AppLayoutComponent,
@@ -40,18 +30,9 @@ import { RippleModule } from 'primeng/ripple';
         FormsModule,
         HttpClientModule,
         LayoutRoutingModule,
-        InputTextModule,
-        SidebarModule,
-        BadgeModule,
-        RadioButtonModule,
-        InputSwitchModule,
-        ButtonModule,
-        TooltipModule,
-        RippleModule,
         RouterModule,
-        AppConfigModule,
-        StyleClassModule,
-        CalendarModule,    
+        AppConfigModule, 
+        PrimeNgModule
     ]
 })
 export class AppLayoutModule { }

@@ -15,25 +15,24 @@ export class CommonService {
     /*-------------------------------Methods----------------------------------*/
     getCountries(): Observable<Base> {
         return this.configService
-            .getEndpoint('common', 'GetCountries')
+            .getEndpoint('common', 'getCountries')
             .pipe(
                 switchMap((endpoint) =>
                     this.http.get<Base>(endpoint)
                 )
             );
     }
-    getStates(countryId: string, token: string): Observable<Base> {
-        const params = new HttpParams().set('CountryId', countryId).set('token', token);
+    getStates(countryId: string): Observable<Base> {
         return this.configService
             .getEndpoint('common', 'getStates')
             .pipe(
                 switchMap((endpoint) =>
-                    this.http.get<Base>(endpoint, { params })
+                    this.http.get<Base>(`${endpoint}/${countryId}`)
                 )
             );
     }
-    getDists(stateId: string, token: string): Observable<Base> {
-        const params = new HttpParams().set('StateId', stateId).set('token', token);
+    getDists(stateId: string): Observable<Base> {
+        const params = new HttpParams().set('StateId', stateId);
         return this.configService
             .getEndpoint('common', 'getDists')
             .pipe(
