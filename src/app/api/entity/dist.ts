@@ -13,8 +13,14 @@ export class DistModel {
         this.distName = '';
     }
 }
-export class Dist extends DistModel {
+export class DistUpdateModel extends DistModel{
     distId: string;
+    constructor() {
+        super();
+        this.distId = '';
+    }
+}
+export class Dist extends DistUpdateModel {
     isActive?: boolean;
     createdDate?: Date;
     modifyDate?: Date;

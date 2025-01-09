@@ -48,11 +48,11 @@ import { ButtonModule } from 'primeng/button';
 // import { TreeModule } from 'primeng/tree';
 // import { TreeTableModule } from 'primeng/treetable';
 /*-----------------------------------------------Panel-----------------------------------------------*/
-// import { AccordionModule } from 'primeng/accordion'; //Accordion
+ import { AccordionModule } from 'primeng/accordion'; //Accordion
 // import { CardModule } from 'primeng/card'; //Card
 // import { DividerModule } from 'primeng/divider'; //Divider
 // import { FieldsetModule } from 'primeng/fieldset'; //Fieldset
-// import { PanelModule } from 'primeng/panel'; //Panel
+ import { PanelModule } from 'primeng/panel'; //Panel
 // import { SplitterModule } from 'primeng/splitter'; //Splitter
 // import { StepperModule } from 'primeng/stepper'; //Stepper
 // import { ScrollPanelModule } from 'primeng/scrollpanel'; //ScrollPanel
@@ -61,7 +61,7 @@ import { ButtonModule } from 'primeng/button';
 /*-----------------------------------------------Overlay-----------------------------------------------*/
 // import { ConfirmDialogModule } from 'primeng/confirmdialog'; //ConfirmDialog
 // import { ConfirmPopupModule } from 'primeng/confirmpopup'; //ConfirmPopup
-// import { DialogModule } from 'primeng/dialog'; //Dialog
+ import { DialogModule } from 'primeng/dialog'; //Dialog
 // import { DynamicDialogModule } from 'primeng/dynamicdialog'; //Dynamic Dialog
 // import { OverlayPanelModule } from 'primeng/overlaypanel'; //OverlayPanel
 import { SidebarModule } from 'primeng/sidebar'; //Sidebar
@@ -161,11 +161,11 @@ import { MessageService } from 'primeng/api';
     // TimelineModule,
     // TreeModule,
     // TreeTableModule,
-    // AccordionModule,
+     AccordionModule,
     // CardModule,
     // DividerModule,
     // FieldsetModule,
-    // PanelModule,
+     PanelModule,
     // SplitterModule,
     // StepperModule,
     // ScrollPanelModule,
@@ -173,7 +173,7 @@ import { MessageService } from 'primeng/api';
     // ToolbarModule,
     // ConfirmDialogModule,
     // ConfirmPopupModule,
-    // DialogModule,
+     DialogModule,
     // DynamicDialogModule,
     // OverlayPanelModule,
     SidebarModule,
@@ -261,11 +261,11 @@ import { MessageService } from 'primeng/api';
     // TimelineModule,
     // TreeModule,
     // TreeTableModule,
-    // AccordionModule,
+     AccordionModule,
     // CardModule,
     // DividerModule,
     // FieldsetModule,
-    // PanelModule,
+     PanelModule,
     // SplitterModule,
     // StepperModule,
     // ScrollPanelModule,
@@ -273,7 +273,7 @@ import { MessageService } from 'primeng/api';
     // ToolbarModule,
     // ConfirmDialogModule,
     // ConfirmPopupModule,
-    // DialogModule,
+     DialogModule,
     // DynamicDialogModule,
     // OverlayPanelModule,
     SidebarModule,

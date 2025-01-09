@@ -1,21 +1,55 @@
 <p-toast />
+
 <div class="surface-ground flex align-items-center justify-content-center min-h-screen"
   style="background:var(--surface-ground)">
   <div class="surface-card p-4 shadow-2 border-round w-full lg:w-6">
-
+    <!--Form Test-->
+    <div class="grid">
+      <div class="col-12">
+        <p-dialog header="Dialog" [(visible)]="display" [modal]="true" showEffect="fade" [style]="{width: '60vw'}"
+          [breakpoints]="{'960px': '75vw'}">
+          <p-accordion>
+            <p-accordionTab header="Form Values" [selected]="true" class="line-height-3 m-0">
+              <pre class="p-2 border rounded bg-gray-100" style="white-space: pre-wrap;">{{ formJson }}</pre>
+            </p-accordionTab>
+            <p-accordionTab header="Model"  class="line-height-3 m-0">
+             <!-- <pre class="p-2 border rounded bg-gray-100" style="white-space: pre-wrap;">{{ FormDataJson }}</pre> -->
+            </p-accordionTab>
+            <p-accordionTab header="Form Errors" class="line-height-3 m-0">
+              <pre class="p-2 border rounded bg-gray-100" style="white-space: pre-wrap;">{{ formErrors }}</pre>
+            </p-accordionTab>
+            <p-accordionTab header="Form Status" class="line-height-3 m-0">
+              <p><strong>Valid:</strong> {{ registerForm.valid }}</p>
+              <p><strong>Touched:</strong> {{ registerForm.touched }}</p>
+              <p><strong>Dirty:</strong> {{ registerForm.dirty }}</p>
+              <p><strong>Status:</strong> {{ registerForm.status }}</p>
+            </p-accordionTab>
+          </p-accordion>
+          <ng-template pTemplate="footer">
+            <button pButton icon="pi pi-check" (click)="display=false" label="Ok" class="p-button-outlined"></button>
+          </ng-template>
+        </p-dialog>
+        <div class="grid">
+          <div class="col-12 flex justify-content-end">
+            <button (click)="display=true" pButton icon="pi pi-external-link" label="Show"></button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!--. end Form Test-->
     <div class="grid">
       <div class="col-12">
         <div class="field grid">
           <div class="col-8 flex flex-wrap gap-2">
-              <p-inputMask mask="999-999-9999" placeholder="xxx-xxx-xxxx" [slotChar]="'_'" [(ngModel)]="tokenValue">
-              </p-inputMask>
-              <button pButton pRipple label="Validate" (click)="vaildateToken()"></button>
+            <p-inputMask mask="999-999-9999" placeholder="xxx-xxx-xxxx" [slotChar]="'_'" [(ngModel)]="tokenValue">
+            </p-inputMask>
+            <button pButton pRipple label="Validate" (click)="vaildateToken()"></button>
           </div>
-      </div>
+        </div>
       </div>
       <div class="col-12">
         <p-steps [model]="items" [activeIndex]="activeIndex" [readonly]="false"></p-steps>
-        <form [formGroup]="registerForm" class="pt-4">
+        <form [formGroup]="registerForm" class="pt-4" >
           <div *ngIf="activeIndex === 0" formGroupName="accountInfo">
             <div class="p-fluid p-formgrid grid">
               <div class="field col-12 md:col-6">
@@ -75,7 +109,7 @@
                 </p-autoComplete>
               </div>
               <div class="field col-12">
-                <p-fileUpload #fileUpload [maxFileSize]="1000000" [multiple]="false" accept="image/*"
+                <p-fileUpload [maxFileSize]="1000000" [multiple]="false" accept="image/*"
                   [showUploadButton]="false" [showCancelButton]="false" chooseLabel="Add Profile Photo"
                   (onSelect)="onProfilePhotoSelect($event)" (onRemove)="onProfilePhotoRemove()" [customUpload]="true">
                 </p-fileUpload>
@@ -85,18 +119,21 @@
           <div *ngIf="activeIndex === 2" formGroupName="address">
             <div class="p-fluid p-formgrid grid">
               <div class="field col-12 md:col-6">
-                <p-autoComplete formControlName="fk_CountryId" [suggestions]="filteredCountries"
-                  (completeMethod)="filterCountries($event)"  dataKey="countryId" field="countryName"  [dropdown]="true" (onSelect)="onCountrySelect($event)" placeholder="Country">
+                <p-autoComplete formControlName="Country" [suggestions]="filteredCountries"
+                  (completeMethod)="filterCountries($event)" dataKey="countryId" field="countryName" [dropdown]="true"
+                  (onSelect)="onCountrySelect($event)" placeholder="Country">
                 </p-autoComplete>
               </div>
               <div class="field col-12 md:col-6">
-                <p-autoComplete formControlName="fk_StateId" [suggestions]="filteredStates"
-                  (completeMethod)="filterStates($event)" dataKey="stateId" field="stateName" [dropdown]="true" (onSelect)="onStateSelect($event)" placeholder="State">
+                <p-autoComplete formControlName="State" [suggestions]="filteredStates"
+                  (completeMethod)="filterStates($event)" dataKey="stateId" field="stateName" [dropdown]="true"
+                  (onSelect)="onStateSelect($event)" placeholder="State">
                 </p-autoComplete>
               </div>
               <div class="field col-12 md:col-6">
-                <p-autoComplete formControlName="fk_DistId" [suggestions]="filteredDists"
-                  (completeMethod)="filterDists($event)" dataKey="distId" field="distName" [dropdown]="true" placeholder="Dist">
+                <p-autoComplete formControlName="Dist" [suggestions]="filteredDists"
+                  (completeMethod)="filterDists($event)" dataKey="distId" field="distName" [dropdown]="true"
+                  placeholder="Dist">
                 </p-autoComplete>
               </div>
               <div class="field col-12 md:col-6">

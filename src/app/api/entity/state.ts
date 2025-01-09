@@ -8,11 +8,17 @@ export class StateModel {
     stateName: string;
     constructor() {
         this.fk_CountryId = '';
-        this.stateName ='';
+        this.stateName = '';
     }
 }
-export class State extends StateModel {
-    stateId:string;
+export class StateUpdateModel extends StateModel {
+    stateId: string;
+    constructor() {
+        super();
+        this.stateId = '';
+    }
+}
+export class State extends StateUpdateModel {
     isActive?: boolean;
     createdDate?: Date;
     modifyDate?: Date;
@@ -21,10 +27,9 @@ export class State extends StateModel {
     country?: Country;
     addresses?: Address[];
     parties?: Party[];
-    dists?:Dist[];
+    dists?: Dist[];
     constructor() {
         super();
-        this.stateId = '';
         this.isActive = false;
         this.createdDate = new Date();
         this.modifyDate = new Date();
@@ -32,6 +37,6 @@ export class State extends StateModel {
         this.modifyBy = '';
         this.country = new Country();
         this.addresses = [];
-        this.dists=[];
+        this.dists = [];
     }
 }

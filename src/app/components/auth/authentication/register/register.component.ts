@@ -19,9 +19,11 @@ export class RegisterComponent implements OnInit {
 	//#region Property Declaration
 	user: RegisterModel = new RegisterModel();
 	registerForm!: FormGroup;
+	 formData = new FormData();
 	returnUrl: string = environment.EmailConfirmation;
 	msg: string = '';
 	tokenValue: string = '';
+	tokenId: string = '';
 	isLoading = false;
 	items: MenuItem[] = [];
 	activeIndex: number = 0;
@@ -37,7 +39,7 @@ export class RegisterComponent implements OnInit {
 	filteredGender: any[] = [];
 	isvalidMail = false;
 	selectedProfilePhoto: File | null = null;
-	@ViewChild('fileUpload') fileUpload!: FileUpload;
+	display: boolean = false;
 	//#endregion 
 	//#region constructor
 	constructor(
@@ -56,10 +58,6 @@ export class RegisterComponent implements OnInit {
 	ngOnInit(): void {
 		this.initializeRegisterForm();
 		this.initializeSteps();
-		this.user.routeUls = this.returnUrl;
-		this.registerForm.valueChanges.subscribe((values) => {
-			this.user = { ...this.user, ...values };
-		});
 		this.registerForm.disable();
 	}
 	//#endregion
@@ -77,16 +75,16 @@ export class RegisterComponent implements OnInit {
 			personalInfo: this.fb.group({
 				name: ['', [Validators.required, Validators.minLength(5), Validators.pattern(/^[A-Z\s]+$/)]],
 				birthDate: ['', [Validators.required]],
-				ProfilePhoto: [null, [Validators.required]],
+				profilePhoto: [null, [Validators.required]],
 				maritalStatus: ['', [Validators.required]],
 				gender: ['', [Validators.required]],
 				termCondition: [false, [Validators.required]]
 			}),
-			// Address Information
+			// Address Information	
 			address: this.fb.group({
-				fk_CountryId: ['', [Validators.required]],
-				fk_StateId: ['', [Validators.required]],
-				fk_DistId: ['', [Validators.required]],
+				Country: ['', [Validators.required]],
+				State: ['', [Validators.required]],
+				Dist: ['', [Validators.required]],
 				at: ['', [Validators.required]],
 				post: ['', [Validators.required]],
 				city: ['', [Validators.required]],
@@ -247,11 +245,11 @@ export class RegisterComponent implements OnInit {
 	}
 	onProfilePhotoSelect(event: any) {
 		this.selectedProfilePhoto = event.files[0];
-		this.registerForm.get('personalInfo.ProfilePhoto')?.setValue(this.selectedProfilePhoto);
+		this.registerForm.get('personalInfo.profilePhoto')?.setValue(this.selectedProfilePhoto);
 	}
 	onProfilePhotoRemove() {
 		this.selectedProfilePhoto = null;
-		this.registerForm.get('personalInfo.ProfilePhoto')?.setValue(null);
+		this.registerForm.get('personalInfo.profilePhoto')?.setValue(null);
 	}
 	filterCountries(event: any) {
 		const query = event.query.toLowerCase();
@@ -272,9 +270,10 @@ export class RegisterComponent implements OnInit {
 		);
 	}
 	onCountrySelect(event: any){
-		this.registerForm.patchValue({
-			fk_StateId: null,
-			fk_DistId: null
+		const addressGroup = this.registerForm.get('address');
+		addressGroup?.patchValue({
+			State: null,
+			Dist: null
 		});
 		this.states = [];
 		this.dists = [];
@@ -285,13 +284,14 @@ export class RegisterComponent implements OnInit {
 		}
 	}
 	onStateSelect(event: any){
-		this.registerForm.patchValue({
-			fk_DistId: null
+		const addressGroup = this.registerForm.get('address');
+		addressGroup?.patchValue({
+			Dist: null
 		});
 		this.dists = [];
 		this.filteredDists = [];
-		if (event.stateId) {
-			this.getDists(event.stateId);
+		if (event.value.stateId) {
+			this.getDists(event.value.stateId);
 		}
 	}
 	//#endregion
@@ -300,7 +300,7 @@ export class RegisterComponent implements OnInit {
 		if (this.tokenValue) {
 			this.authSvcs.validateToken(this.tokenValue).subscribe({
 				next: (response) => {
-					this.user.fkTokenId = response.data.tokenId;
+					this.tokenId = response.data.singleObjData.tokenId;
 					if (response.responseCode == 200) {
 						this.messageService.add({ severity: 'success', summary: 'success', detail: response.message });
 						if (this.registerForm.disabled) {
@@ -326,7 +326,7 @@ export class RegisterComponent implements OnInit {
 					});
 				},
 				complete: () => {
-					console.log('Validation Request completed');
+					// console.log('Validation Request completed');
 				},
 			});
 		} else {
@@ -341,7 +341,6 @@ export class RegisterComponent implements OnInit {
 		this.commonSvcs.getCountries().subscribe({
 			next: (response) => {
 				if (response.responseCode == 200) {
-					console.log(response);
 					this.countries = response.data.collectionObjData as Country[]
 				}
 			},	
@@ -353,7 +352,7 @@ export class RegisterComponent implements OnInit {
 				});
 			},
 			complete: () => {
-				console.log('coutries Request completed');
+				// console.log('coutries Request completed');
 			},
 		});
 	}
@@ -372,7 +371,7 @@ export class RegisterComponent implements OnInit {
 				});
 			},
 			complete: () => {
-				console.log('states Request completed');
+				// console.log('states Request completed');
 			},
 		});
 	}
@@ -391,13 +390,39 @@ export class RegisterComponent implements OnInit {
 				});
 			},
 			complete: () => {
-				console.log('dists Request completed');
+				// console.log('dists Request completed');
 			},
 		});
 	}
+	private convertFormToFormData(formValue: any): FormData {  
+		this.formData.append('fkTokenId', this.tokenId);
+		this.formData.append('routeUls' , this.returnUrl);
+		// Map accountInfo
+		this.formData.append('email', formValue.accountInfo.email); 
+		this.formData.append('phoneNumber', formValue.accountInfo.phoneNumber); 
+		this.formData.append('password', formValue.accountInfo.password); 
+		this.formData.append('confirmPassword', formValue.accountInfo.confirmPassword);
+		// Map personalInfo
+		this.formData.append('birthDate', formValue.personalInfo.birthDate.toISOString()); 
+		this.formData.append('maratialStatus', formValue.personalInfo.maritalStatus.key); 
+		this.formData.append('gender', formValue.personalInfo.gender.key);
+		this.formData.append('termCondition', formValue.personalInfo.termCondition.toString()); 
+		this.formData.append('profilePhoto', formValue.personalInfo.profilePhoto);
+		// Map address
+		this.formData.append('address.fk_CountryId', formValue.address.Country.countryId); 
+		this.formData.append('address.fk_StateId', formValue.address.State.stateId); 
+		this.formData.append('address.fk_DistId', formValue.address.Dist.distId); 
+		this.formData.append('address.at', formValue.address.at); 
+		this.formData.append('address.post', formValue.address.post); 
+		this.formData.append('address.city', formValue.address.city); 
+		this.formData.append('address.pinCode', formValue.address.pinCode);
+		return this.formData;
+	  }
+
 	signUp(): void {
 		this.isLoading = true;
-		this.authSvcs.signUp(this.user).subscribe({
+		const formData = this.convertFormToFormData(this.registerForm.value);
+		this.authSvcs.signUp(formData).subscribe({
 			next: (response) => {
 				if (response.responseCode == 201) {
 					//  this._router.navigate(['auth/confirm-mail',response.message]);
@@ -441,4 +466,16 @@ export class RegisterComponent implements OnInit {
 		});
 	}
 	//#endregion
+//#region Test form
+get formJson(): string {
+    return JSON.stringify(this.registerForm.value, null, 2);
+}
+get FormDataJson(): string {
+    return JSON.stringify(this.formData, null, 2);
+}
+
+get formErrors(): string {
+    return JSON.stringify(this.registerForm.errors, null, 2);
+}
+//#endregion
 }

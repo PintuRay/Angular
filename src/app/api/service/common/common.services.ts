@@ -32,12 +32,11 @@ export class CommonService {
             );
     }
     getDists(stateId: string): Observable<Base> {
-        const params = new HttpParams().set('StateId', stateId);
         return this.configService
             .getEndpoint('common', 'getDists')
             .pipe(
                 switchMap((endpoint) =>
-                    this.http.get<Base>(endpoint, { params })
+                    this.http.get<Base>(`${endpoint}/${stateId}`)
                 )
             );
     }

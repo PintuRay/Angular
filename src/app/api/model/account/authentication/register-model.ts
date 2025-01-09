@@ -5,7 +5,7 @@ export class RegisterModel {
     name: string;
     birthDate: Date;
     maratialStatus:string;
-    genderId:string ;
+    gender:string ;
     profilePhoto: File;
     email: string;
     phoneNumber: string;
@@ -19,7 +19,7 @@ export class RegisterModel {
       this.name = '';
       this.birthDate = new Date();
       this.maratialStatus='';
-      this.genderId=''
+      this.gender =''
       this.email = '';
       this.password = '';
       this.confirmPassword = '';

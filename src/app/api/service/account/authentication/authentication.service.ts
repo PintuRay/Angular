@@ -118,7 +118,7 @@ export class AuthenticationService {
                 )
             );
     }
-    signUp(user: RegisterModel): Observable<Base> {
+    signUp(user: any): Observable<Base> {
         return this.configService
             .getEndpoint('auth', 'signUp')
             .pipe(
