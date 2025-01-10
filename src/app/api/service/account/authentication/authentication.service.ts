@@ -118,6 +118,16 @@ export class AuthenticationService {
                 )
             );
     }
+    isPhoneNumberInUse(phNo: string): Observable<Base> {
+        const params = new HttpParams().set('phoneNumber', phNo);
+        return this.configService
+            .getEndpoint('auth', 'isPhoneNumberInUse')
+            .pipe(
+                switchMap((endpoint) =>
+                    this.http.get<Base>(endpoint, { params })
+                )
+            );
+    }
     signUp(user: any): Observable<Base> {
         return this.configService
             .getEndpoint('auth', 'signUp')

@@ -13,7 +13,7 @@
               <pre class="p-2 border rounded bg-gray-100" style="white-space: pre-wrap;">{{ formJson }}</pre>
             </p-accordionTab>
             <p-accordionTab header="Model"  class="line-height-3 m-0">
-             <!-- <pre class="p-2 border rounded bg-gray-100" style="white-space: pre-wrap;">{{ FormDataJson }}</pre> -->
+             <pre class="p-2 border rounded bg-gray-100" style="white-space: pre-wrap;">{{ modelJson }}</pre>
             </p-accordionTab>
             <p-accordionTab header="Form Errors" class="line-height-3 m-0">
               <pre class="p-2 border rounded bg-gray-100" style="white-space: pre-wrap;">{{ formErrors }}</pre>
@@ -109,10 +109,19 @@
                 </p-autoComplete>
               </div>
               <div class="field col-12">
-                <p-fileUpload [maxFileSize]="1000000" [multiple]="false" accept="image/*"
-                  [showUploadButton]="false" [showCancelButton]="false" chooseLabel="Add Profile Photo"
-                  (onSelect)="onProfilePhotoSelect($event)" (onRemove)="onProfilePhotoRemove()" [customUpload]="true">
-                </p-fileUpload>
+                <p-fileUpload 
+                [maxFileSize]="5 * 1024 * 1024"
+                [multiple]="false" 
+                accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
+                [showUploadButton]="false" 
+                [showCancelButton]="false" 
+                chooseLabel="Add Profile Photo"
+                (onSelect)="onProfilePhotoSelect($event)" 
+                (onRemove)="onProfilePhotoRemove()"
+                [customUpload]="true"
+                [class.ng-invalid]="registerForm.get('personalInfo.profilePhoto')?.errors"
+                [class.ng-dirty]="registerForm.get('personalInfo.profilePhoto')?.touched">
+              </p-fileUpload>
               </div>
             </div>
           </div>

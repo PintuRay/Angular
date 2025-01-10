@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MessageService } from 'primeng/api';
 import { RegisterModel } from 'src/app/api/model/account/authentication/register-model';
@@ -10,16 +10,14 @@ import { MenuItem } from 'primeng/api';
 import { Country } from 'src/app/api/entity/country';
 import { State } from 'src/app/api/entity/state';
 import { Dist } from 'src/app/api/entity/dist';
-import { FileUpload } from 'primeng/fileupload';
 @Component({
 	selector: 'app-register',
 	templateUrl: './register.component.html',
 })
 export class RegisterComponent implements OnInit {
 	//#region Property Declaration
-	user: RegisterModel = new RegisterModel();
 	registerForm!: FormGroup;
-	 formData = new FormData();
+	formData: FormData = new FormData();
 	returnUrl: string = environment.EmailConfirmation;
 	msg: string = '';
 	tokenValue: string = '';
@@ -38,6 +36,7 @@ export class RegisterComponent implements OnInit {
 	gender: any[] = [];
 	filteredGender: any[] = [];
 	isvalidMail = false;
+	isPhoneNumberValid =false;
 	selectedProfilePhoto: File | null = null;
 	display: boolean = false;
 	//#endregion 
@@ -78,7 +77,6 @@ export class RegisterComponent implements OnInit {
 				profilePhoto: [null, [Validators.required]],
 				maritalStatus: ['', [Validators.required]],
 				gender: ['', [Validators.required]],
-				termCondition: [false, [Validators.required]]
 			}),
 			// Address Information	
 			address: this.fb.group({
@@ -91,6 +89,54 @@ export class RegisterComponent implements OnInit {
 				pinCode: ['', [Validators.required, Validators.pattern(/^\d{6}$/)]]
 			})
 		});
+	}
+	//#endregion
+	//#region MultiStep Form
+	private initializeSteps() {
+		this.items = [
+			{
+				label: 'Account',
+				command: (event: any) => {
+					this.activeIndex = 0;
+				}
+			},
+			{
+				label: 'Personal',
+				command: (event: any) => {
+					this.activeIndex = 1;
+				}
+			},
+			{
+				label: 'Address',
+				command: (event: any) => {
+					this.activeIndex = 2;
+				}
+			}
+		];
+	}
+	nextStep() {
+		if (this.activeIndex < 2) {
+			this.activeIndex++;
+		}
+	}
+	prevStep() {
+		if (this.activeIndex > 0) {
+			this.activeIndex--;
+		}
+	}
+	isStepValid(step: number): boolean {
+		const form = this.registerForm;
+		if (!form) return false;
+		switch (step) {
+			case 0:
+				return form.get('accountInfo')?.valid ?? false;
+			case 1:
+				return form.get('personalInfo')?.valid ?? false;
+			case 2:
+				return form.get('address')?.valid ?? false;
+			default:
+				return false;
+		}
 	}
 	//#endregion
 	//#region Client Side Vaildation
@@ -156,21 +202,17 @@ export class RegisterComponent implements OnInit {
 	//#endregion
 	//#region Server Side Vaildation
 	isEmailInUse(): void {
-		const email = this.user.email;
+		const email = this.registerForm.value.accountInfo.email;
 		const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 		if (emailRegex.test(email)) {
-			this.authSvcs.isEmailInUse(this.user.email).subscribe({
+			this.authSvcs.isEmailInUse(email).subscribe({
 				next: (response) => {
 					if (response.responseCode == 200) {
 						this.isvalidMail = true;
 					}
 				},
 				error: (response) => {
-					this.messageService.add({
-						severity: 'error',
-						summary: 'error',
-						detail: response.error.message,
-					});
+					this.messageService.add({severity: 'error', summary: 'error', detail: response.error.message});
 				},
 				complete: () => {
 					console.log('isEmailInUse Request completed');
@@ -179,57 +221,25 @@ export class RegisterComponent implements OnInit {
 		}
 	}
 	isPhoneNumberInUse(): void {
-
-	}
-	//#endregion
-	//#region MultiStep Form
-	private initializeSteps() {
-		this.items = [
-			{
-				label: 'Account',
-				command: (event: any) => {
-					this.activeIndex = 0;
-				}
-			},
-			{
-				label: 'Personal',
-				command: (event: any) => {
-					this.activeIndex = 1;
-				}
-			},
-			{
-				label: 'Address',
-				command: (event: any) => {
-					this.activeIndex = 2;
-				}
-			}
-		];
-	}
-	nextStep() {
-		if (this.activeIndex < 2) {
-			this.activeIndex++;
+		const phoneNumber = this.registerForm.value.accountInfo.phoneNumber;
+		const phNoRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+		if (phNoRegex.test(phoneNumber)) {
+			this.authSvcs.isPhoneNumberInUse(phoneNumber).subscribe({
+				next: (response) => {
+					if (response.responseCode == 200) {
+						this.isPhoneNumberValid = true;
+					}
+				},
+				error: (response) => {
+					this.messageService.add({severity: 'error', summary: 'error', detail: response.error.message});
+				},
+				complete: () => {
+					console.log('isPhoneNumberInUse Request completed');
+				},
+			});
 		}
 	}
-	prevStep() {
-		if (this.activeIndex > 0) {
-			this.activeIndex--;
-		}
-	}
-	isStepValid(step: number): boolean {
-		const form = this.registerForm;
-		if (!form) return false;
-		switch (step) {
-			case 0:
-				return form.get('accountInfo')?.valid ?? false;
-			case 1:
-				return form.get('personalInfo')?.valid ?? false;
-			case 2:
-				return form.get('address')?.valid ?? false;
-			default:
-				return false;
-		}
-	}
-	//#endregion
+	//#endregion      
 	//#region Client Side Operations
 	filterMaritalStatus(event: any) {
 		const query = event.query.toLowerCase();
@@ -244,8 +254,11 @@ export class RegisterComponent implements OnInit {
 		);
 	}
 	onProfilePhotoSelect(event: any) {
-		this.selectedProfilePhoto = event.files[0];
-		this.registerForm.get('personalInfo.profilePhoto')?.setValue(this.selectedProfilePhoto);
+		if (event.files && event.files.length > 0) {
+			const file = event.files[0];
+			this.selectedProfilePhoto = file;
+			this.registerForm.get('personalInfo.profilePhoto')?.setValue(file);
+		}
 	}
 	onProfilePhotoRemove() {
 		this.selectedProfilePhoto = null;
@@ -269,7 +282,7 @@ export class RegisterComponent implements OnInit {
 			status.distName.toLowerCase().includes(query)
 		);
 	}
-	onCountrySelect(event: any){
+	onCountrySelect(event: any) {
 		const addressGroup = this.registerForm.get('address');
 		addressGroup?.patchValue({
 			State: null,
@@ -283,7 +296,7 @@ export class RegisterComponent implements OnInit {
 			this.getStates(event.value.countryId);
 		}
 	}
-	onStateSelect(event: any){
+	onStateSelect(event: any) {
 		const addressGroup = this.registerForm.get('address');
 		addressGroup?.patchValue({
 			Dist: null
@@ -343,7 +356,7 @@ export class RegisterComponent implements OnInit {
 				if (response.responseCode == 200) {
 					this.countries = response.data.collectionObjData as Country[]
 				}
-			},	
+			},
 			error: (response) => {
 				this.messageService.add({
 					severity: 'error',
@@ -394,53 +407,90 @@ export class RegisterComponent implements OnInit {
 			},
 		});
 	}
-	private convertFormToFormData(formValue: any): FormData {  
-		this.formData.append('fkTokenId', this.tokenId);
-		this.formData.append('routeUls' , this.returnUrl);
-		// Map accountInfo
-		this.formData.append('email', formValue.accountInfo.email); 
-		this.formData.append('phoneNumber', formValue.accountInfo.phoneNumber); 
-		this.formData.append('password', formValue.accountInfo.password); 
-		this.formData.append('confirmPassword', formValue.accountInfo.confirmPassword);
-		// Map personalInfo
-		this.formData.append('birthDate', formValue.personalInfo.birthDate.toISOString()); 
-		this.formData.append('maratialStatus', formValue.personalInfo.maritalStatus.key); 
-		this.formData.append('gender', formValue.personalInfo.gender.key);
-		this.formData.append('termCondition', formValue.personalInfo.termCondition.toString()); 
-		this.formData.append('profilePhoto', formValue.personalInfo.profilePhoto);
-		// Map address
-		this.formData.append('address.fk_CountryId', formValue.address.Country.countryId); 
-		this.formData.append('address.fk_StateId', formValue.address.State.stateId); 
-		this.formData.append('address.fk_DistId', formValue.address.Dist.distId); 
-		this.formData.append('address.at', formValue.address.at); 
-		this.formData.append('address.post', formValue.address.post); 
-		this.formData.append('address.city', formValue.address.city); 
-		this.formData.append('address.pinCode', formValue.address.pinCode);
+	private async convertFormToFormData(formValue: any): Promise<FormData> {
+		this.formData = new FormData();
+		this.formData.append('FkTokenId', this.tokenId);
+		this.formData.append('RouteUls', this.returnUrl);
+		if (formValue.accountInfo) {
+			this.formData.append('Email', formValue.accountInfo.email);
+			this.formData.append('PhoneNumber', formValue.accountInfo.phoneNumber);
+			this.formData.append('Password', formValue.accountInfo.password);
+			this.formData.append('ConfirmPassword', formValue.accountInfo.confirmPassword);
+		}
+		if (formValue.personalInfo) {
+			this.formData.append('Name', formValue.personalInfo.name);
+			this.formData.append('BirthDate', formValue.personalInfo.birthDate ? new Date(formValue.personalInfo.birthDate).toISOString() : '');
+			this.formData.append('MaratialStatus', formValue.personalInfo.maritalStatus?.key || '');
+			this.formData.append('Gender', formValue.personalInfo.gender?.key || '');
+			if (this.selectedProfilePhoto instanceof File) {
+				this.formData.append('ProfilePhoto', this.selectedProfilePhoto, this.selectedProfilePhoto.name);
+			} else {
+				this.formData.append('ProfilePhoto', '');
+			}
+		}
+		if (formValue.address) {
+			this.formData.append('Address.Fk_CountryId', formValue.address.Country?.countryId || '');
+			this.formData.append('Address.Fk_StateId', formValue.address.State?.stateId || '');
+			this.formData.append('Address.Fk_DistId', formValue.address.Dist?.distId || '');
+			this.formData.append('Address.At', formValue.address.at || '');
+			this.formData.append('Address.Post', formValue.address.post || '');
+			this.formData.append('Address.City', formValue.address.city || '');
+			this.formData.append('Address.PinCode', formValue.address.pinCode || '');
+		}
 		return this.formData;
-	  }
-
-	signUp(): void {
-		this.isLoading = true;
-		const formData = this.convertFormToFormData(this.registerForm.value);
-		this.authSvcs.signUp(formData).subscribe({
-			next: (response) => {
-				if (response.responseCode == 201) {
-					//  this._router.navigate(['auth/confirm-mail',response.message]);
-				}
-			},
-			error: (response) => {
-				this.isLoading = false;
+	}
+	async signUp(): Promise<void> {	
+		try {
+			if (this.registerForm.invalid) {
+				Object.keys(this.registerForm.controls).forEach(key => {
+					const control = this.registerForm.get(key);
+					control?.markAsTouched();
+				});
 				this.messageService.add({
 					severity: 'error',
-					summary: 'error',
-					detail: response.error.message,
+					summary: 'Validation Error',
+					detail: 'Please fill all required fields correctly'
 				});
-			},
-			complete: () => {
-				this.isLoading = false;
-				this.resetForm();
-			},
-		});
+				return;
+			}
+			else{
+				this.isLoading = true;
+				const formData = await this.convertFormToFormData(this.registerForm.value);
+				this.authSvcs.signUp(formData).subscribe({
+					next: (response) => {
+						if (response.responseCode === 201) {
+							this.messageService.add({
+								severity: 'success',
+								summary: 'Success',
+								detail: 'Registration successful'
+							});
+						}
+					},
+					error: (error) => {
+						console.error('Registration error:', error);
+						this.isLoading = false;
+						this.messageService.add({
+							severity: 'error',
+							summary: 'Error',
+							detail: error.error?.message || 'Registration failed'
+						});
+					},
+					complete: () => {
+						this.isLoading = false; 
+						this.resetForm();
+					},
+				});
+			}
+		}
+		catch (error) {
+			console.error('Error in signup:', error);
+			this.isLoading = false;
+			this.messageService.add({
+				severity: 'error',
+				summary: 'Error',
+				detail: 'An error occurred during registration'
+			});
+		}
 	}
 	private resetForm(): void {
 		this.registerForm.reset({
@@ -466,16 +516,33 @@ export class RegisterComponent implements OnInit {
 		});
 	}
 	//#endregion
-//#region Test form
-get formJson(): string {
-    return JSON.stringify(this.registerForm.value, null, 2);
-}
-get FormDataJson(): string {
-    return JSON.stringify(this.formData, null, 2);
-}
-
-get formErrors(): string {
-    return JSON.stringify(this.registerForm.errors, null, 2);
-}
-//#endregion
+	//#region Test form
+	get formJson(): string {
+		return JSON.stringify(this.registerForm.value, null, 2);
+	}
+	get modelJson(): string {
+		const formDataObj: { [key: string]: any } = {};
+		try {
+			this.formData?.forEach((value, key) => {
+				// Handle File objects specially
+				if (value instanceof File) {
+					formDataObj[key] = {
+						fileName: value.name,
+						type: value.type,
+						size: `${(value.size / 1024).toFixed(2)} KB`
+					};
+				} else {
+					formDataObj[key] = value;
+				}
+			});
+			
+			return JSON.stringify(formDataObj, null, 2);
+		} catch (error) {
+			return 'No form data available';
+		}
+	}
+	get formErrors(): string {
+		return JSON.stringify(this.registerForm.errors, null, 2);
+	}
+	//#endregion
 }

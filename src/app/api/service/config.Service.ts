@@ -21,6 +21,7 @@ export class ConfigService {
             auth: {
                 validateToken: '{apiUrl}Auth/ValidateToken',
                 isEmailInUse: '{apiUrl}Auth/IsEmailInUse',
+                isPhoneNumberInUse: '{apiUrl}Auth/IsPhoneNumberInUse',
                 signUp: '{apiUrl}Auth/SignUp',
                 verifyConfirmEmail: '{apiUrl}Auth/VerifyConfirmEmail',
                 resendConfirmEmail: '{apiUrl}Auth/ResendConfirmEmail',
