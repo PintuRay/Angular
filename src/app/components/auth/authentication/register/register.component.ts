@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MessageService } from 'primeng/api';
-import { RegisterModel } from 'src/app/api/model/account/authentication/register-model';
 import { AuthenticationService } from 'src/app/api/service/account/authentication/authentication.service';
 import { CommonService } from 'src/app/api/service/common/common.services';
 import { LayoutService } from '../../../shared/service/app.layout.service';
@@ -23,6 +22,8 @@ export class RegisterComponent implements OnInit {
 	tokenValue: string = '';
 	tokenId: string = '';
 	isLoading = false;
+	emailLoading = false;
+	phoneNoLoading = false;
 	items: MenuItem[] = [];
 	activeIndex: number = 0;
 	countries: Country[] = [];
@@ -205,39 +206,60 @@ export class RegisterComponent implements OnInit {
 		const email = this.registerForm.value.accountInfo.email;
 		const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 		if (emailRegex.test(email)) {
+			this.emailLoading = true ;
 			this.authSvcs.isEmailInUse(email).subscribe({
 				next: (response) => {
 					if (response.responseCode == 200) {
 						this.isvalidMail = true;
 					}
+					else{
+						this.isvalidMail = false;
+					}
 				},
 				error: (response) => {
+					this.emailLoading = false ;
 					this.messageService.add({severity: 'error', summary: 'error', detail: response.error.message});
 				},
 				complete: () => {
+					this.emailLoading = false ;
 					console.log('isEmailInUse Request completed');
 				},
 			});
 		}
+		else{
+			this.isvalidMail = false;
+		}
 	}
 	isPhoneNumberInUse(): void {
 		const phoneNumber = this.registerForm.value.accountInfo.phoneNumber;
-		const phNoRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+		const phNoRegex = /^\d{10}$/;
 		if (phNoRegex.test(phoneNumber)) {
+			this.phoneNoLoading = true ;
 			this.authSvcs.isPhoneNumberInUse(phoneNumber).subscribe({
 				next: (response) => {
 					if (response.responseCode == 200) {
 						this.isPhoneNumberValid = true;
 					}
+					else{
+						this.isPhoneNumberValid = false;
+					}
 				},
 				error: (response) => {
+					this.phoneNoLoading = false ;
 					this.messageService.add({severity: 'error', summary: 'error', detail: response.error.message});
 				},
 				complete: () => {
+					this.phoneNoLoading = false ;
 					console.log('isPhoneNumberInUse Request completed');
 				},
 			});
 		}
+		else{
+			this.isPhoneNumberValid = false;
+		}
+	}
+	isUserExist():void{
+		
 	}
 	//#endregion      
 	//#region Client Side Operations
@@ -312,7 +334,9 @@ export class RegisterComponent implements OnInit {
 	vaildateToken(): void {
 		if (this.tokenValue) {
 			this.authSvcs.validateToken(this.tokenValue).subscribe({
+				
 				next: (response) => {
+					console.log(response);
 					this.tokenId = response.data.singleObjData.tokenId;
 					if (response.responseCode == 200) {
 						this.messageService.add({ severity: 'success', summary: 'success', detail: response.message });
