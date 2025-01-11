@@ -82,7 +82,7 @@ import { StepsModule } from 'primeng/steps'; //Steps
 /*-----------------------------------------------Chart-----------------------------------------------*/
 // import { ChartModule } from 'primeng/chart'; //Charts
 /*-----------------------------------------------Messages-----------------------------------------------*/
-// import { MessagesModule } from 'primeng/messages'; //Messages
+import { MessagesModule } from 'primeng/messages'; //Messages
 import { ToastModule } from 'primeng/toast'; //Toast
 /*-----------------------------------------------Media-----------------------------------------------*/
 // import { CarouselModule } from 'primeng/carousel'; //Carousel
@@ -190,7 +190,7 @@ import { MessageService } from 'primeng/api';
     // TabMenuModule,
     // TieredMenuModule,
     // ChartModule,
-    // MessagesModule,
+    MessagesModule,
     ToastModule,
     // CarouselModule,
     // GalleriaModule,
@@ -290,7 +290,7 @@ import { MessageService } from 'primeng/api';
     // TabMenuModule,
     // TieredMenuModule,
     // ChartModule,
-    // MessagesModule,
+     MessagesModule,
     ToastModule,
     // CarouselModule,
     // GalleriaModule,

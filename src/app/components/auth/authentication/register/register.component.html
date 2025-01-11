@@ -2,6 +2,7 @@
 <div class="surface-ground flex align-items-center justify-content-center min-h-screen"
   style="background:var(--surface-ground)">
   <div class="surface-card p-4 shadow-2 border-round w-full lg:w-6">
+    <p-messages [(value)]="messages" [enableService]="false" />
     <!--Form Test-->
     <div class="grid">
       <div class="col-12">
@@ -11,8 +12,8 @@
             <p-accordionTab header="Form Values" [selected]="true" class="line-height-3 m-0">
               <pre class="p-2 border rounded bg-gray-100" style="white-space: pre-wrap;">{{ formJson }}</pre>
             </p-accordionTab>
-            <p-accordionTab header="Model"  class="line-height-3 m-0">
-             <pre class="p-2 border rounded bg-gray-100" style="white-space: pre-wrap;">{{ modelJson }}</pre>
+            <p-accordionTab header="Model" class="line-height-3 m-0">
+              <pre class="p-2 border rounded bg-gray-100" style="white-space: pre-wrap;">{{ modelJson }}</pre>
             </p-accordionTab>
             <p-accordionTab header="Form Errors" class="line-height-3 m-0">
               <pre class="p-2 border rounded bg-gray-100" style="white-space: pre-wrap;">{{ formErrors }}</pre>
@@ -48,7 +49,7 @@
       </div>
       <div class="col-12">
         <p-steps [model]="items" [activeIndex]="activeIndex" [readonly]="false"></p-steps>
-        <form [formGroup]="registerForm" class="pt-4" >
+        <form [formGroup]="registerForm" class="pt-4">
           <div *ngIf="activeIndex === 0" formGroupName="accountInfo">
             <div class="p-fluid p-formgrid grid">
               <div class="field col-12 md:col-6">
@@ -56,10 +57,13 @@
                   <p-inputGroupAddon>
                     <i class="pi pi-envelope"></i>
                   </p-inputGroupAddon>
-                  <input type="email" pInputText id="email" formControlName="email" placeholder="Email" (input)="isEmailInUse()" />
-                  <p-inputGroupAddon> 
-                    <i *ngIf="emailLoading" class="pi pi-spinner pi-spin"></i> 
-                    <i *ngIf="!emailLoading && isvalidMail" class="pi pi-verified"></i> 
+                  <span class="p-float-label">
+                    <input type="email" pInputText id="email" formControlName="email" (input)="isEmailInUse()"  (blur)="checkEmailErrors()"  />
+                    <label for="email">Email</label>
+                  </span>
+                  <p-inputGroupAddon>
+                    <i *ngIf="emailLoading" class="pi pi-spinner pi-spin"></i>
+                    <i *ngIf="!emailLoading && isvalidMail" class="pi pi-verified"></i>
                     <i *ngIf="!emailLoading && !isvalidMail" class="pi pi-times-circle"></i> </p-inputGroupAddon>
                 </p-inputGroup>
               </div>
@@ -68,24 +72,28 @@
                   <p-inputGroupAddon>
                     <i class="pi pi-phone"></i>
                   </p-inputGroupAddon>
-                  <input type="tel" pInputText id="phoneNumber" formControlName="phoneNumber" placeholder="Phone Number" (input)="isPhoneNumberInUse()"/>
-                    <p-inputGroupAddon> 
-                      <i *ngIf="phoneNoLoading" class="pi pi-spinner pi-spin"></i> 
-                      <i *ngIf="!phoneNoLoading && isPhoneNumberValid" class="pi pi-verified"></i> 
-                      <i *ngIf="!phoneNoLoading && !isPhoneNumberValid" class="pi pi-times-circle"></i> 
-                    </p-inputGroupAddon>
+                  <span class="p-float-label">
+                    <input type="tel" pInputText id="phoneNumber" formControlName="phoneNumber"
+                      (input)="isPhoneNumberInUse()" (blur)="checkPhoneErrors()"/>
+                    <label for="phoneNumber">Phone Number</label>
+                  </span>
+                  <p-inputGroupAddon>
+                    <i *ngIf="phoneNoLoading" class="pi pi-spinner pi-spin"></i>
+                    <i *ngIf="!phoneNoLoading && isPhoneNumberValid" class="pi pi-verified"></i>
+                    <i *ngIf="!phoneNoLoading && !isPhoneNumberValid" class="pi pi-times-circle"></i>
+                  </p-inputGroupAddon>
                 </p-inputGroup>
               </div>
               <div class="field col-12 md:col-6">
                 <span class="p-float-label">
-                  <p-password id="password" formControlName="password" [toggleMask]="true" class="w-full"></p-password>
+                  <p-password id="password" formControlName="password" [toggleMask]="true" class="w-full" (blur)="checkPasswordErrors()"></p-password>
                   <label htmlFor="password">Password</label>
                 </span>
               </div>
               <div class="field col-12 md:col-6">
                 <span class="p-float-label">
                   <p-password id="confirmPassword" formControlName="confirmPassword" [toggleMask]="true"
-                    class="w-full"></p-password>
+                    class="w-full" (blur)="checkConformPasswordErrors()"></p-password>
                   <label htmlFor="confirmPassword">Confirm Password</label>
                 </span>
               </div>
@@ -98,59 +106,80 @@
                   <p-inputGroupAddon>
                     <i class="pi pi-user"></i>
                   </p-inputGroupAddon>
-                  <input type="text" pInputText id="name" formControlName="name" placeholder="Username">
+                  <span class="p-float-label">
+                    <input type="text" pInputText id="name" formControlName="name" (input)="isUserExist()">
+                    <label for="name">User Name</label>
+                  </span>
+                  <p-inputGroupAddon>
+                    <i *ngIf="userNameLoading" class="pi pi-spinner pi-spin"></i>
+                    <i *ngIf="!userNameLoading && isUserValid" class="pi pi-verified"></i>
+                    <i *ngIf="!userNameLoading && !isUserValid" class="pi pi-times-circle"></i>
+                  </p-inputGroupAddon>
                 </p-inputGroup>
               </div>
               <div class="field col-12 md:col-6">
-                <p-calendar [showIcon]="true" inputId="icon" formControlName="birthDate"
-                  placeholder="Birth Date"></p-calendar>
+                <span class="p-float-label">
+                  <p-calendar [showIcon]="true" inputId="icon" formControlName="birthDate"
+                    name="birthDate"></p-calendar>
+                  <label for="birthDate">Birth Date</label>
+                </span>
               </div>
               <div class="col-12 md:col-6">
-                <p-autoComplete formControlName="maritalStatus" [suggestions]="filteredMaritalStatus"
-                  (completeMethod)="filterMaritalStatus($event)" field="value" [dropdown]="true"
-                  placeholder="Marital Status"></p-autoComplete>
+                <span class="p-float-label">
+                  <p-autoComplete formControlName="maritalStatus" [suggestions]="filteredMaritalStatus"
+                    (completeMethod)="filterMaritalStatus($event)" field="value" [dropdown]="true"
+                    name="maritalStatus"></p-autoComplete>
+                  <label for="maritalStatus">Marital Status</label>
+                </span>
+
               </div>
               <div class="col-12 md:col-6">
+                <span class="p-float-label">
                 <p-autoComplete formControlName="gender" [suggestions]="filteredGender"
-                  (completeMethod)="filterGender($event)" field="value" [dropdown]="true" placeholder="Gender">
+                  (completeMethod)="filterGender($event)" field="value" [dropdown]="true" name="gender">
                 </p-autoComplete>
+                <label for="gender">Gender</label>
+              </span>
               </div>
               <div class="field col-12">
-                <p-fileUpload 
-                [maxFileSize]="5 * 1024 * 1024"
-                [multiple]="false" 
-                accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
-                [showUploadButton]="false" 
-                [showCancelButton]="false" 
-                chooseLabel="Add Profile Photo"
-                (onSelect)="onProfilePhotoSelect($event)" 
-                (onRemove)="onProfilePhotoRemove()"
-                [customUpload]="true"
-                [class.ng-invalid]="registerForm.get('personalInfo.profilePhoto')?.errors"
-                [class.ng-dirty]="registerForm.get('personalInfo.profilePhoto')?.touched">
-              </p-fileUpload>
+                <p-fileUpload [maxFileSize]="5 * 1024 * 1024" [multiple]="false"
+                  accept="image/jpeg,image/jpg,image/png,image/gif,image/webp" [showUploadButton]="false"
+                  [showCancelButton]="false" chooseLabel="Add Profile Photo" (onSelect)="onProfilePhotoSelect($event)"
+                  (onRemove)="onProfilePhotoRemove()" [customUpload]="true"
+                  [class.ng-invalid]="registerForm.get('personalInfo.profilePhoto')?.errors"
+                  [class.ng-dirty]="registerForm.get('personalInfo.profilePhoto')?.touched">
+                </p-fileUpload>
               </div>
             </div>
           </div>
           <div *ngIf="activeIndex === 2" formGroupName="address">
             <div class="p-fluid p-formgrid grid">
               <div class="field col-12 md:col-6">
+                <span class="p-float-label">
                 <p-autoComplete formControlName="Country" [suggestions]="filteredCountries"
                   (completeMethod)="filterCountries($event)" dataKey="countryId" field="countryName" [dropdown]="true"
-                  (onSelect)="onCountrySelect($event)" placeholder="Country">
+                  (onSelect)="onCountrySelect($event)" name="country">
                 </p-autoComplete>
+                <label for="country">Country</label>
+              </span>
               </div>
               <div class="field col-12 md:col-6">
+                <span class="p-float-label">
                 <p-autoComplete formControlName="State" [suggestions]="filteredStates"
                   (completeMethod)="filterStates($event)" dataKey="stateId" field="stateName" [dropdown]="true"
-                  (onSelect)="onStateSelect($event)" placeholder="State">
+                  (onSelect)="onStateSelect($event)" name="state">
                 </p-autoComplete>
+                <label for="state">State</label>
+              </span>
               </div>
               <div class="field col-12 md:col-6">
+                <span class="p-float-label">
                 <p-autoComplete formControlName="Dist" [suggestions]="filteredDists"
                   (completeMethod)="filterDists($event)" dataKey="distId" field="distName" [dropdown]="true"
-                  placeholder="Dist">
+                  name="dist">
                 </p-autoComplete>
+                <label for="dist">Dist</label>
+              </span>
               </div>
               <div class="field col-12 md:col-6">
                 <span class="p-float-label">

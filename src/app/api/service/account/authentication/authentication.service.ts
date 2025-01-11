@@ -128,6 +128,16 @@ export class AuthenticationService {
                 )
             );
     }
+    isUserNameExist(userName: string): Observable<Base> {
+        const params = new HttpParams().set('userName', userName);
+        return this.configService
+            .getEndpoint('auth', 'isUserNameExist')
+            .pipe(
+                switchMap((endpoint) =>
+                    this.http.get<Base>(endpoint, { params })
+                )
+            );
+    }
     signUp(user: any): Observable<Base> {
         return this.configService
             .getEndpoint('auth', 'signUp')
@@ -193,10 +203,10 @@ export class AuthenticationService {
                 'otpExpiredIn',
                 storageData.otpExpiredIn.toString()
             );
-            this.router.navigate(['auth/2fa', email]);
+            this.router.navigate(['auth/twostep-login', email]);
         } else {
             localStorage.setItem('jwtToken', storageData.jwtToken);
-            this.router.navigate(['home/dashboard']);
+            this.router.navigate(['dashboard']);
         }
     }
     handleLoginError(response: any): string {
@@ -262,7 +272,7 @@ export class AuthenticationService {
     }
     private handleSuccessfulLoginWithOTP(storageData: StorageModel): void {
         localStorage.setItem('jwtToken', storageData.jwtToken);
-        this.router.navigate(['home/dashboard']);
+        this.router.navigate(['dashboard']);
     }
     handleLoginWithOTPError(response: any): string {
         let msg: string = '';
@@ -314,13 +324,12 @@ export class AuthenticationService {
                 )
             );
     }
-    resetPassword(uid: string, token: string, data: ResetPasswordModel): Observable<Base> {
-        const params = new HttpParams().set('uid', uid).set('token', token);
+    resetPassword(data: ResetPasswordModel): Observable<Base> {
         return this.configService
             .getEndpoint('auth', 'resetPassword')
             .pipe(
                 switchMap((endpoint) =>
-                    this.http.post<Base>(endpoint, data, { params })
+                    this.http.post<Base>(endpoint, data)
                 )
             );
     }

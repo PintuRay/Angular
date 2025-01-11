@@ -1,8 +1,10 @@
-import { ResetPasswordModel } from "./reset-password-model";
-export class ChangePasswordModel extends ResetPasswordModel{
+export class ChangePasswordModel {
     currentPassword: string;
+    newPassword: string;
+    confirmNewPassword: string;
     constructor(){
-     super();
      this.currentPassword='';
+     this.newPassword='';
+     this.confirmNewPassword='';
     }
 }

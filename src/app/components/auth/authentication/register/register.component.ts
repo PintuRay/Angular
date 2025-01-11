@@ -9,6 +9,7 @@ import { MenuItem } from 'primeng/api';
 import { Country } from 'src/app/api/entity/country';
 import { State } from 'src/app/api/entity/state';
 import { Dist } from 'src/app/api/entity/dist';
+import { Message } from 'primeng/api';
 @Component({
 	selector: 'app-register',
 	templateUrl: './register.component.html',
@@ -18,12 +19,13 @@ export class RegisterComponent implements OnInit {
 	registerForm!: FormGroup;
 	formData: FormData = new FormData();
 	returnUrl: string = environment.EmailConfirmation;
-	msg: string = '';
+	messages: Message[] = [];
 	tokenValue: string = '';
 	tokenId: string = '';
 	isLoading = false;
 	emailLoading = false;
 	phoneNoLoading = false;
+	userNameLoading = false;
 	items: MenuItem[] = [];
 	activeIndex: number = 0;
 	countries: Country[] = [];
@@ -37,7 +39,8 @@ export class RegisterComponent implements OnInit {
 	gender: any[] = [];
 	filteredGender: any[] = [];
 	isvalidMail = false;
-	isPhoneNumberValid =false;
+	isPhoneNumberValid = false;
+	isUserValid = false;
 	selectedProfilePhoto: File | null = null;
 	display: boolean = false;
 	//#endregion 
@@ -141,6 +144,87 @@ export class RegisterComponent implements OnInit {
 	}
 	//#endregion
 	//#region Client Side Vaildation
+	get emailControl() {
+		return this.registerForm.get('accountInfo.email');
+	}
+	getEmailErrorMessage() {
+		this.messages = [];
+		if (this.emailControl?.hasError('required')) {
+			this.messages.push({ severity: 'error', summary: 'Error', detail: 'Email is required.' });
+		}
+		if (this.emailControl?.hasError('pattern')) {
+			this.messages.push({
+				severity: 'error', summary: 'Error', detail: 'Email should be in below Format e.g John@example.com.'
+			});
+		}
+	}
+	checkEmailErrors() {
+		if (this.emailControl?.invalid && (this.emailControl?.dirty || this.emailControl?.touched)) {
+			this.getEmailErrorMessage();
+		} else {
+			this.messages = [];
+		}
+	}
+	get phoneControl() {
+		return this.registerForm.get('accountInfo.phoneNumber');
+	}
+	getPhoneErrorMessage() {
+		this.messages = [];
+		if (this.phoneControl?.hasError('required')) {
+			this.messages.push({ severity: 'error', summary: 'Error', detail: 'Phone Number is required.' });
+		}
+		if (this.phoneControl?.hasError('pattern')) {
+			this.messages.push({ severity: 'error', summary: 'Error', detail: 'Phone Number Must Be 10  digit.' });
+		}
+	}
+	checkPhoneErrors() {
+		if (this.phoneControl?.invalid && (this.phoneControl?.dirty || this.phoneControl?.touched)) {
+			this.getPhoneErrorMessage();
+		} else {
+			this.messages = [];
+		}
+	}
+	get passwordControl() {
+		return this.registerForm.get('accountInfo.password');
+	}
+	getPasswordErrorMessage() {
+		this.messages = [];
+		if (this.passwordControl?.hasError('required')) {
+			this.messages.push({ severity: 'error', summary: 'Error', detail: 'Password is required.' });
+		}
+		if (this.passwordControl?.hasError('minlength')) {
+			this.messages.push({ severity: 'error', summary: 'Error', detail: 'Password must be at least 8 characters long.' });
+		}
+		if (this.passwordControl?.hasError('pattern')) {
+			this.messages.push({ severity: 'error', summary: 'Error', detail: 'Password must contain at least one uppercase letter, one lowercase letter, one digit, and one special character.' });
+		}
+	}
+	checkPasswordErrors() {
+		if (this.passwordControl?.invalid && (this.passwordControl?.dirty || this.passwordControl?.touched)) {
+			this.getPasswordErrorMessage();
+		} else {
+			this.messages = [];
+		}
+	}
+	get conformPasswordControl() {
+		return this.registerForm.get('accountInfo.confirmPassword');
+	}
+	getConformPasswordErrorMessage() {
+		this.messages = [];
+		if (this.passwordControl?.value != this.conformPasswordControl?.value) {
+			this.messages.push({ severity: 'error', summary: 'Error', detail: 'Password and conform password not Matched' });
+		} if (this.conformPasswordControl?.hasError('required')) {
+			this.messages.push({ severity: 'error', summary: 'Error', detail: 'conform password is required' });
+
+		}
+	}
+	checkConformPasswordErrors() {
+		if (this.conformPasswordControl?.invalid && (this.conformPasswordControl?.dirty || this.conformPasswordControl?.touched)) {
+			this.getConformPasswordErrorMessage();
+		} else {
+			this.messages = [];
+		}
+	}
 	get nameControl() {
 		return this.registerForm.get('name');
 	}
@@ -150,116 +234,117 @@ export class RegisterComponent implements OnInit {
 		}
 		return '';
 	}
-	get emailControl() {
-		return this.registerForm.get('email');
-	}
-	getEmailErrorMessage() {
-		if (this.emailControl?.hasError('required')) {
-			return 'Email is required.';
-		}
-		if (this.emailControl?.hasError('pattern')) {
-			return 'Email should be in bellow Format e.g John@example.com.';
-		}
-		return '';
-	}
-	get phoneControl() {
-		return this.registerForm.get('phoneNumber');
-	}
-	getPhoneErrorMessage() {
-		if (this.phoneControl?.hasError('required')) {
-			return 'Phone Number is required.';
-		} else if (this.phoneControl?.hasError('pattern')) {
-			return 'Phone Number Must Be 10  digit.';
-		} else {
-			return '';
-		}
-	}
-	get passwordControl() {
-		return this.registerForm.get('password');
-	}
-	getPasswordErrorMessage() {
-		if (this.passwordControl?.hasError('required')) {
-			return 'Password is required.';
-		} else if (this.passwordControl?.hasError('minlength')) {
-			return 'Password must be at least 8 characters long.';
-		} else if (this.passwordControl?.hasError('pattern')) {
-			return 'Password must contain at least one uppercase letter, one lowercase letter, one digit, and one special character.';
-		} else {
-			return '';
-		}
-	}
-	get conformPasswordControl() {
-		return this.registerForm.get('confirmPassword');
-	}
-	getConformPasswordErrorMessage() {
-		if (this.passwordControl?.value != this.conformPasswordControl?.value) {
-			return 'Password and conform password not Matched';
-		} else if (this.passwordControl?.hasError('required')) {
-			return 'conform password is required';
-		} else {
-			return '';
-		}
-	}
 	//#endregion
 	//#region Server Side Vaildation
-	isEmailInUse(): void {
+	async isEmailInUse(): Promise<void> {
 		const email = this.registerForm.value.accountInfo.email;
 		const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-		if (emailRegex.test(email)) {
-			this.emailLoading = true ;
-			this.authSvcs.isEmailInUse(email).subscribe({
-				next: (response) => {
-					if (response.responseCode == 200) {
-						this.isvalidMail = true;
-					}
-					else{
-						this.isvalidMail = false;
-					}
-				},
-				error: (response) => {
-					this.emailLoading = false ;
-					this.messageService.add({severity: 'error', summary: 'error', detail: response.error.message});
-				},
-				complete: () => {
-					this.emailLoading = false ;
-					console.log('isEmailInUse Request completed');
-				},
+		try {
+			if (emailRegex.test(email)) {
+				this.emailLoading = true;
+				this.authSvcs.isEmailInUse(email).subscribe({
+					next: (response) => {
+						if (response.responseCode == 200) {
+							this.isvalidMail = true;
+						}
+						else {
+							this.isvalidMail = false;
+						}
+					},
+					error: (response) => {
+						this.emailLoading = false;
+						this.messageService.add({ severity: 'error', summary: 'error', detail: response.error.message });
+					},
+					complete: () => {
+						this.emailLoading = false;
+						console.log('isEmailInUse Request completed');
+					},
+				});
+			}
+			else {
+				this.isvalidMail = false;
+			}
+		}
+		catch (error) {
+			console.error('Error in signup:', error);
+			this.emailLoading = false;
+			this.messageService.add({
+				severity: 'error',
+				summary: 'Error',
+				detail: 'An error occurred'
 			});
 		}
-		else{
-			this.isvalidMail = false;
-		}
 	}
-	isPhoneNumberInUse(): void {
+	async isPhoneNumberInUse(): Promise<void> {
 		const phoneNumber = this.registerForm.value.accountInfo.phoneNumber;
 		const phNoRegex = /^\d{10}$/;
-		if (phNoRegex.test(phoneNumber)) {
-			this.phoneNoLoading = true ;
-			this.authSvcs.isPhoneNumberInUse(phoneNumber).subscribe({
+		try {
+			if (phNoRegex.test(phoneNumber)) {
+				this.phoneNoLoading = true;
+				this.authSvcs.isPhoneNumberInUse(phoneNumber).subscribe({
+					next: (response) => {
+						if (response.responseCode == 200) {
+							this.isPhoneNumberValid = true;
+						}
+						else {
+							this.isPhoneNumberValid = false;
+						}
+					},
+					error: (response) => {
+						this.phoneNoLoading = false;
+						this.messageService.add({ severity: 'error', summary: 'error', detail: response.error.message });
+					},
+					complete: () => {
+						this.phoneNoLoading = false;
+						console.log('isPhoneNumberInUse Request completed');
+					},
+				});
+			}
+			else {
+				this.isPhoneNumberValid = false;
+			}
+		}
+		catch (error) {
+			console.error('Error in signup:', error);
+			this.phoneNoLoading = false;
+			this.messageService.add({
+				severity: 'error',
+				summary: 'Error',
+				detail: 'An error occurred'
+			});
+		}
+	}
+	async isUserExist(): Promise<void> {
+		try {
+			this.userNameLoading = true;
+			const userName = this.registerForm.value.personalInfo.name;
+			this.authSvcs.isUserNameExist(userName).subscribe({
 				next: (response) => {
 					if (response.responseCode == 200) {
-						this.isPhoneNumberValid = true;
+						this.isUserValid = true;
 					}
-					else{
-						this.isPhoneNumberValid = false;
+					else {
+						this.isUserValid = false;
 					}
 				},
 				error: (response) => {
-					this.phoneNoLoading = false ;
-					this.messageService.add({severity: 'error', summary: 'error', detail: response.error.message});
+					this.userNameLoading = false;
+					this.messageService.add({ severity: 'error', summary: 'error', detail: response.error.message });
 				},
 				complete: () => {
-					this.phoneNoLoading = false ;
+					this.userNameLoading = false;
 					console.log('isPhoneNumberInUse Request completed');
 				},
 			});
+		} catch (error) {
+			console.error('Error in signup:', error);
+			this.userNameLoading = false;
+			this.messageService.add({
+				severity: 'error',
+				summary: 'Error',
+				detail: 'An error occurred'
+			});
 		}
-		else{
-			this.isPhoneNumberValid = false;
-		}
-	}
-	isUserExist():void{
-		
 	}
 	//#endregion      
 	//#region Client Side Operations
@@ -331,18 +416,17 @@ export class RegisterComponent implements OnInit {
 	}
 	//#endregion
 	//#region Server Side Operations
-	vaildateToken(): void {
+	async vaildateToken(): Promise<void> {
 		if (this.tokenValue) {
 			this.authSvcs.validateToken(this.tokenValue).subscribe({
-				
-				next: (response) => {
+				next: async (response) => {
 					console.log(response);
 					this.tokenId = response.data.singleObjData.tokenId;
 					if (response.responseCode == 200) {
 						this.messageService.add({ severity: 'success', summary: 'success', detail: response.message });
 						if (this.registerForm.disabled) {
 							this.registerForm.enable();
-							this.getCountries();
+							await this.getCountries();
 							this.marriedStatus = [
 								{ key: 'married', value: 'Married' },
 								{ key: 'unmarred', value: 'UnMarried' },
@@ -374,7 +458,7 @@ export class RegisterComponent implements OnInit {
 			});
 		}
 	}
-	getCountries() {
+	async getCountries(): Promise<void> {
 		this.commonSvcs.getCountries().subscribe({
 			next: (response) => {
 				if (response.responseCode == 200) {
@@ -393,7 +477,7 @@ export class RegisterComponent implements OnInit {
 			},
 		});
 	}
-	getStates(counryId: any) {
+	async getStates(counryId: any): Promise<void> {
 		this.commonSvcs.getStates(counryId).subscribe({
 			next: (response) => {
 				if (response.responseCode == 200) {
@@ -412,7 +496,7 @@ export class RegisterComponent implements OnInit {
 			},
 		});
 	}
-	getDists(stateId: any) {
+	async getDists(stateId: any): Promise<void> {
 		this.commonSvcs.getDists(stateId).subscribe({
 			next: (response) => {
 				if (response.responseCode == 200) {
@@ -463,7 +547,7 @@ export class RegisterComponent implements OnInit {
 		}
 		return this.formData;
 	}
-	async signUp(): Promise<void> {	
+	async signUp(): Promise<void> {
 		try {
 			if (this.registerForm.invalid) {
 				Object.keys(this.registerForm.controls).forEach(key => {
@@ -477,7 +561,7 @@ export class RegisterComponent implements OnInit {
 				});
 				return;
 			}
-			else{
+			else {
 				this.isLoading = true;
 				const formData = await this.convertFormToFormData(this.registerForm.value);
 				this.authSvcs.signUp(formData).subscribe({
@@ -500,7 +584,7 @@ export class RegisterComponent implements OnInit {
 						});
 					},
 					complete: () => {
-						this.isLoading = false; 
+						this.isLoading = false;
 						this.resetForm();
 					},
 				});
@@ -559,7 +643,7 @@ export class RegisterComponent implements OnInit {
 					formDataObj[key] = value;
 				}
 			});
-			
+
 			return JSON.stringify(formDataObj, null, 2);
 		} catch (error) {
 			return 'No form data available';
