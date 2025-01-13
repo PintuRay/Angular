@@ -16,14 +16,14 @@ export class ForgotPasswordComponent {
 	//#endregion
 	//#region constructor
 	constructor(
-		public layoutService: LayoutService,
+		public layoutSvcs: LayoutService,
 		private authSvcs: AuthenticationService,
 		private messageService: MessageService
 	) { }
 	//#endregion
 	//#region Themme
 	get dark(): boolean {
-		return this.layoutService.config().colorScheme !== 'light';
+		return this.layoutSvcs.config().colorScheme !== 'light';
 	}
 	//#endregion
 	//#region Server Side Operations
