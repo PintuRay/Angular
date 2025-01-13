@@ -9,7 +9,7 @@ import { MenuItem } from 'primeng/api';
 import { Country } from 'src/app/api/entity/country';
 import { State } from 'src/app/api/entity/state';
 import { Dist } from 'src/app/api/entity/dist';
-import { Message } from 'primeng/api';
+
 @Component({
 	selector: 'app-register',
 	templateUrl: './register.component.html',
@@ -19,7 +19,6 @@ export class RegisterComponent implements OnInit {
 	registerForm!: FormGroup;
 	formData: FormData = new FormData();
 	returnUrl: string = environment.EmailConfirmation;
-	messages: Message[] = [];
 	tokenValue: string = '';
 	tokenId: string = '';
 	isLoading = false;
@@ -70,13 +69,13 @@ export class RegisterComponent implements OnInit {
 			// Account Information
 			accountInfo: this.fb.group({
 				email: ['', [Validators.required, Validators.pattern(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)]],
-				phoneNumber: ['', [Validators.required, Validators.pattern(/^\d{10}$/)]],
+				phoneNumber: ['', [Validators.required, Validators.maxLength(10),Validators.pattern(/^\d{10}$/)]],
 				password: ['', [Validators.required, Validators.minLength(8), Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@#$%^&*!])[A-Za-z\d@#$%^&*!]{8,}$/)]],
-				confirmPassword: ['', [Validators.required, Validators.minLength(8)]]
+				confirmPassword: ['', [Validators.required]]
 			}),
 			// Personal Information
 			personalInfo: this.fb.group({
-				name: ['', [Validators.required, Validators.minLength(5), Validators.pattern(/^[A-Z\s]+$/)]],
+				name: ['', [Validators.required, Validators.minLength(5), Validators.pattern(/^[A-Za-z\s]+$/)]],
 				birthDate: ['', [Validators.required]],
 				profilePhoto: [null, [Validators.required]],
 				maritalStatus: ['', [Validators.required]],
@@ -84,9 +83,9 @@ export class RegisterComponent implements OnInit {
 			}),
 			// Address Information	
 			address: this.fb.group({
-				Country: ['', [Validators.required]],
-				State: ['', [Validators.required]],
-				Dist: ['', [Validators.required]],
+				country: ['', [Validators.required]],
+				state: ['', [Validators.required]],
+				dist: ['', [Validators.required]],
 				at: ['', [Validators.required]],
 				post: ['', [Validators.required]],
 				city: ['', [Validators.required]],
@@ -148,91 +147,177 @@ export class RegisterComponent implements OnInit {
 		return this.registerForm.get('accountInfo.email');
 	}
 	getEmailErrorMessage() {
-		this.messages = [];
 		if (this.emailControl?.hasError('required')) {
-			this.messages.push({ severity: 'error', summary: 'Error', detail: 'Email is required.' });
+			return 'Email is required.';
 		}
 		if (this.emailControl?.hasError('pattern')) {
-			this.messages.push({
-				severity: 'error', summary: 'Error', detail: 'Email should be in below Format e.g John@example.com.'
-			});
+			return 'Email should be in bellow Format e.g John@example.com.';
 		}
-	}
-	checkEmailErrors() {
-		if (this.emailControl?.invalid && (this.emailControl?.dirty || this.emailControl?.touched)) {
-			this.getEmailErrorMessage();
-		} else {
-			this.messages = [];
-		}
+		return '';
 	}
 	get phoneControl() {
 		return this.registerForm.get('accountInfo.phoneNumber');
 	}
 	getPhoneErrorMessage() {
-		this.messages = [];
 		if (this.phoneControl?.hasError('required')) {
-			this.messages.push({ severity: 'error', summary: 'Error', detail: 'Phone Number is required.' });
-		}
-		if (this.phoneControl?.hasError('pattern')) {
-			this.messages.push({ severity: 'error', summary: 'Error', detail: 'Phone Number Must Be 10  digit.' });
-		}
-	}
-	checkPhoneErrors() {
-		if (this.phoneControl?.invalid && (this.phoneControl?.dirty || this.phoneControl?.touched)) {
-			this.getPhoneErrorMessage();
+			return 'Phone Number is required.';
+		} else if (this.phoneControl?.hasError('pattern')) {
+			return 'Phone Number Must Be 10  digit.';
 		} else {
-			this.messages = [];
+			return '';
 		}
 	}
 	get passwordControl() {
 		return this.registerForm.get('accountInfo.password');
 	}
 	getPasswordErrorMessage() {
-		this.messages = [];
 		if (this.passwordControl?.hasError('required')) {
-			this.messages.push({ severity: 'error', summary: 'Error', detail: 'Password is required.' });
-		}
-		if (this.passwordControl?.hasError('minlength')) {
-			this.messages.push({ severity: 'error', summary: 'Error', detail: 'Password must be at least 8 characters long.' });
-		}
-		if (this.passwordControl?.hasError('pattern')) {
-			this.messages.push({ severity: 'error', summary: 'Error', detail: 'Password must contain at least one uppercase letter, one lowercase letter, one digit, and one special character.' });
-		}
-	}
-	checkPasswordErrors() {
-		if (this.passwordControl?.invalid && (this.passwordControl?.dirty || this.passwordControl?.touched)) {
-			this.getPasswordErrorMessage();
+			return 'Password is required.';
+		} else if (this.passwordControl?.hasError('minlength')) {
+			return 'Password must be at least 8 characters long.';
+		} else if (this.passwordControl?.hasError('pattern')) {
+			return 'Password must contain at least one uppercase letter, one lowercase letter, one digit, and one special character.';
 		} else {
-			this.messages = [];
+			return '';
 		}
 	}
 	get conformPasswordControl() {
 		return this.registerForm.get('accountInfo.confirmPassword');
 	}
 	getConformPasswordErrorMessage() {
-		this.messages = [];
-		if (this.passwordControl?.value != this.conformPasswordControl?.value) {
-			this.messages.push({ severity: 'error', summary: 'Error', detail: 'Password and conform password not Matched' });
-		} if (this.conformPasswordControl?.hasError('required')) {
-			this.messages.push({ severity: 'error', summary: 'Error', detail: 'conform password is required' });
-
-		}
-	}
-	checkConformPasswordErrors() {
-		if (this.conformPasswordControl?.invalid && (this.conformPasswordControl?.dirty || this.conformPasswordControl?.touched)) {
-			this.getConformPasswordErrorMessage();
+		if (this.passwordControl?.value !== this.conformPasswordControl?.value) {
+			return 'Password and conform password not Matched';
+		} else if (this.conformPasswordControl?.hasError('required')) {
+			return 'conform password is required';
 		} else {
-			this.messages = [];
+			return '';
 		}
 	}
 	get nameControl() {
-		return this.registerForm.get('name');
+		return this.registerForm.get('personalInfo.name');
 	}
 	getNameErrorMessage() {
 		if (this.nameControl?.hasError('required')) {
 			return 'Name is required.';
 		}
-		return '';
+		else if (this.nameControl?.hasError('pattern')) {
+			return 'name field only allow small , capital Letter  and spaces.';
+		}
+		else if (this.nameControl?.hasError('minlength')) {
+			return 'name minimum length should be greater than 5 .';
+		} else {
+			return '';
+		}
+	}
+	get birthDateControl() {
+		return this.registerForm.get('personalInfo.birthDate');
+	}
+	getBirthDateErrorMessage() {
+		if (this.birthDateControl?.hasError('required')) {
+			return 'Birth Date is required.';
+		}
+		else {
+			return '';
+		}
+	}
+	get maritalStatusControl() {
+		return this.registerForm.get('personalInfo.maritalStatus');
+	}
+	getMaritalStatusErrorMessage() {
+		if (this.maritalStatusControl?.hasError('required')) {
+			return 'Marital Status is required.';
+		}
+		else {
+			return '';
+		}
+	}
+	get genderControl() {
+		return this.registerForm.get('personalInfo.gender');
+	}
+	getGenderErrorMessage() {
+		if (this.genderControl?.hasError('required')) {
+			return 'gender is required.';
+		}
+		else {
+			return '';
+		}
+	}
+	get countryControl() {
+		return this.registerForm.get('address.country');
+	}
+	getCountryErrorMessage() {
+		if (this.countryControl?.hasError('required')) {
+			return 'Country is required.';
+		}
+		else {
+			return '';
+		}
+	}
+	get stateControl() {
+		return this.registerForm.get('address.state');
+	}
+	getStateErrorMessage() {
+		if (this.stateControl?.hasError('required')) {
+			return 'State is required.';
+		}
+		else {
+			return '';
+		}
+	}
+	get distControl() {
+		return this.registerForm.get('address.dist');
+	}
+	getDistErrorMessage() {
+		if (this.distControl?.hasError('required')) {
+			return 'State is required.';
+		}
+		else {
+			return '';
+		}
+	}
+	get atControl() {
+		return this.registerForm.get('address.at');
+	}
+	getAtErrorMessage() {
+		if (this.atControl?.hasError('required')) {
+			return 'At is required.';
+		}
+		else {
+			return '';
+		}
+	}
+	get postControl() {
+		return this.registerForm.get('address.post');
+	}
+	getPostErrorMessage() {
+		if (this.postControl?.hasError('required')) {
+			return 'Post is required.';
+		}
+		else {
+			return '';
+		}
+	}
+	get cityControl() {
+		return this.registerForm.get('address.city');
+	}
+	getCityErrorMessage() {
+		if (this.cityControl?.hasError('required')) {
+			return 'City is required.';
+		}
+		else {
+			return '';
+		}
+	}
+	get pinCodeControl() {
+		return this.registerForm.get('address.pinCode');
+	}
+	getPinCodeErrorMessage() {
+		if (this.pinCodeControl?.hasError('required')) {
+			return 'Pin Code is required.';
+		}
+		else {
+			return '';
+		}
 	}
 	//#endregion
 	//#region Server Side Vaildation
@@ -316,26 +401,33 @@ export class RegisterComponent implements OnInit {
 	}
 	async isUserExist(): Promise<void> {
 		try {
-			this.userNameLoading = true;
 			const userName = this.registerForm.value.personalInfo.name;
-			this.authSvcs.isUserNameExist(userName).subscribe({
-				next: (response) => {
-					if (response.responseCode == 200) {
-						this.isUserValid = true;
-					}
-					else {
-						this.isUserValid = false;
-					}
-				},
-				error: (response) => {
-					this.userNameLoading = false;
-					this.messageService.add({ severity: 'error', summary: 'error', detail: response.error.message });
-				},
-				complete: () => {
-					this.userNameLoading = false;
-					console.log('isPhoneNumberInUse Request completed');
-				},
-			});
+			const userNameRegex = /^[A-Za-z\s]+$/;
+			if (userNameRegex.test(userName) && userName.length > 5) {
+				this.userNameLoading = true;
+				this.authSvcs.isUserNameExist(userName).subscribe({
+					next: (response) => {
+						if (response.responseCode == 200) {
+							this.isUserValid = true;
+						}
+						else {
+							this.isUserValid = false;
+						}
+					},
+					error: (response) => {
+						this.userNameLoading = false;
+						this.messageService.add({ severity: 'error', summary: 'error', detail: response.error.message });
+					},
+					complete: () => {
+						this.userNameLoading = false;
+						console.log('isPhoneNumberInUse Request completed');
+					},
+				});
+			}
+			else {
+				this.isUserValid = false;
+			}
+
 		} catch (error) {
 			console.error('Error in signup:', error);
 			this.userNameLoading = false;
@@ -392,8 +484,8 @@ export class RegisterComponent implements OnInit {
 	onCountrySelect(event: any) {
 		const addressGroup = this.registerForm.get('address');
 		addressGroup?.patchValue({
-			State: null,
-			Dist: null
+			state: null,
+			dist: null
 		});
 		this.states = [];
 		this.dists = [];
@@ -406,7 +498,7 @@ export class RegisterComponent implements OnInit {
 	onStateSelect(event: any) {
 		const addressGroup = this.registerForm.get('address');
 		addressGroup?.patchValue({
-			Dist: null
+			dist: null
 		});
 		this.dists = [];
 		this.filteredDists = [];
@@ -517,7 +609,7 @@ export class RegisterComponent implements OnInit {
 	}
 	private async convertFormToFormData(formValue: any): Promise<FormData> {
 		this.formData = new FormData();
-		this.formData.append('FkTokenId', this.tokenId);
+		this.formData.append('Fk_TokenId', this.tokenId);
 		this.formData.append('RouteUls', this.returnUrl);
 		if (formValue.accountInfo) {
 			this.formData.append('Email', formValue.accountInfo.email);
@@ -537,9 +629,9 @@ export class RegisterComponent implements OnInit {
 			}
 		}
 		if (formValue.address) {
-			this.formData.append('Address.Fk_CountryId', formValue.address.Country?.countryId || '');
-			this.formData.append('Address.Fk_StateId', formValue.address.State?.stateId || '');
-			this.formData.append('Address.Fk_DistId', formValue.address.Dist?.distId || '');
+			this.formData.append('Address.Fk_CountryId', formValue.address.country?.countryId || '');
+			this.formData.append('Address.Fk_StateId', formValue.address.state?.stateId || '');
+			this.formData.append('Address.Fk_DistId', formValue.address.dist?.distId || '');
 			this.formData.append('Address.At', formValue.address.at || '');
 			this.formData.append('Address.Post', formValue.address.post || '');
 			this.formData.append('Address.City', formValue.address.city || '');
@@ -602,16 +694,19 @@ export class RegisterComponent implements OnInit {
 	}
 	private resetForm(): void {
 		this.registerForm.reset({
-			name: '',
-			email: '',
-			phoneNumber: '',
-			password: '',
-			confirmPassword: '',
-			profilePhoto: null,
-			termCondition: false,
-			birthDate: '',
-			maritalStatus: '',
-			gender: '',
+			accountInfo: {
+				email: '',
+				phoneNumber: '',
+				password: '',
+				confirmPassword: ''
+			},
+			personalInfo: {
+				name: '',
+				birthDate: '',
+				profilePhoto: null,
+				maritalStatus: '',
+				gender: ''
+			},
 			address: {
 				fk_CountryId: '',
 				fk_StateId: '',
@@ -623,6 +718,7 @@ export class RegisterComponent implements OnInit {
 			}
 		});
 	}
+	
 	//#endregion
 	//#region Test form
 	get formJson(): string {

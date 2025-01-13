@@ -23,11 +23,12 @@ export class VerifyConformationMailComponent {
         this.token
       ).subscribe({
         next: (response) => {
-          console.log(response);
-          this.message = response.message;
+          if (response.responseCode === 200) {
+            this.message = response.message
+          }
         },
         error: (error) => {
-          console.log('Some Error Occoured', error);
+           this.message = error.error.message
         },
         complete: () => {
           console.log('Request completed');

@@ -6,32 +6,36 @@ import { Directive, ElementRef, HostListener } from '@angular/core';
 })
 export class TransformToUppercaseDirective {
   constructor(private el: ElementRef) {}
-  @HostListener('input', ['$event']) onInputChange(event: Event): void {
-    const inputElement = this.el.nativeElement as HTMLInputElement;
-    const originalValue = inputElement.value;
-    const newValue = originalValue.toUpperCase();
-    if (originalValue !== newValue) {
-      inputElement.value = newValue;
-      inputElement.dispatchEvent(new Event('input'));
+
+  @HostListener('input', ['$event'])
+  onInputChange(event: InputEvent) {
+    const input = event.target as HTMLInputElement;
+    const sanitized = input.value.replace(/[^A-Za-z\s]/g, '').toUpperCase();
+    input.value = sanitized;
+    // Trigger input event if value was changed
+    if (input.value !== sanitized) {
+      const inputEvent = new Event('input', { bubbles: true });
+      input.dispatchEvent(inputEvent);
     }
   }
-  @HostListener('paste', ['$event']) onPaste(event: ClipboardEvent): void {
-    const clipboardData =
-      event.clipboardData || (window as any)['clipboardData'];
-    const pastedData = clipboardData.getData('text');
+  @HostListener('keypress', ['$event'])
+  onKeyPress(event: KeyboardEvent) {
+    const pattern = /[A-Za-z\s]/;
+    const inputChar = String.fromCharCode(event.charCode);
+    
+    if (!pattern.test(inputChar)) {
+      event.preventDefault();
+    }
+  }
+  @HostListener('paste', ['$event'])
+  onPaste(event: ClipboardEvent) {
     event.preventDefault();
-    const transformedData = pastedData.toUpperCase();
-    const inputElement = this.el.nativeElement as HTMLInputElement;
-    const start = inputElement.selectionStart ?? 0;
-    const end = inputElement.selectionEnd ?? 0;
-    inputElement.value =
-      inputElement.value.substring(0, start) +
-      transformedData +
-      inputElement.value.substring(end);
-    inputElement.setSelectionRange(
-      start + transformedData.length,
-      start + transformedData.length
-    );
-    inputElement.dispatchEvent(new Event('input'));
+    const clipboardData = event.clipboardData?.getData('text') || '';
+    const sanitized = clipboardData.replace(/[^A-Za-z\s]/g, '').toUpperCase();
+    
+    const input = this.el.nativeElement as HTMLInputElement;
+    input.value = sanitized;
+    const inputEvent = new Event('input', { bubbles: true });
+    input.dispatchEvent(inputEvent);
   }
 }

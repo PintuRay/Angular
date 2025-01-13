@@ -13,7 +13,6 @@ export class ResendConfirmMailComponent {
   message:string ='';
   mail: string = '';
   constructor(
-    private route: ActivatedRoute,
     private authSvcs: AuthenticationService,
     private messageService: MessageService
   ) { }
@@ -28,6 +27,7 @@ export class ResendConfirmMailComponent {
             summary: 'success',
             detail: response.message,
           });
+          this.isLoading = false;
         },
         error: (response) => {
           this.isLoading = false;  

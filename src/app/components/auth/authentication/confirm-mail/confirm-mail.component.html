@@ -1,1 +1,15 @@
-<p>confirm-mail works!</p>
+<div class="surface-ground flex align-items-center justify-content-center min-h-screen"
+    style="background:var(--surface-ground)">
+    <div class="surface-card p-2 shadow-2 border-round w-full lg:w-4">
+        <div class="grid">
+            <div class="col-12">
+               {{message}}
+               <div class="flex justify-content-end">
+                <a routerLink="/auth/resend-confirm-mail" class="font-medium no-underline text-blue-500">
+                   Send Again
+                </a>
+               </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -50,7 +50,7 @@ import { ButtonModule } from 'primeng/button';
 /*-----------------------------------------------Panel-----------------------------------------------*/
  import { AccordionModule } from 'primeng/accordion'; //Accordion
 // import { CardModule } from 'primeng/card'; //Card
-// import { DividerModule } from 'primeng/divider'; //Divider
+ import { DividerModule } from 'primeng/divider'; //Divider
 // import { FieldsetModule } from 'primeng/fieldset'; //Fieldset
  import { PanelModule } from 'primeng/panel'; //Panel
 // import { SplitterModule } from 'primeng/splitter'; //Splitter
@@ -163,7 +163,7 @@ import { MessageService } from 'primeng/api';
     // TreeTableModule,
      AccordionModule,
     // CardModule,
-    // DividerModule,
+     DividerModule,
     // FieldsetModule,
      PanelModule,
     // SplitterModule,
@@ -263,7 +263,7 @@ import { MessageService } from 'primeng/api';
     // TreeTableModule,
      AccordionModule,
     // CardModule,
-    // DividerModule,
+     DividerModule,
     // FieldsetModule,
      PanelModule,
     // SplitterModule,

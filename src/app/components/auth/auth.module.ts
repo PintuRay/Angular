@@ -15,9 +15,13 @@ import { ChangePasswordComponent } from './authentication/change-password/change
 import { ResendConfirmMailComponent } from './authentication/resend-confirm-mail/resend-confirm-mail.component';
 //Import  ngPrime Modules
 import {PrimeNgModule} from '../shared/prime-ng/prime-ng.module'
+//Import  Field Restriction & Validation Modules
+import {FieldsRestrictionModule} from '../../utility/directives/fields-restriction/fields-restriction.module';
+import {FieldsValidationModule} from '../../utility/directives/fields-validation/fields-validation.module'
 //import Services
 import { LayoutService } from '../shared/service/app.layout.service';
 import { AuthenticationService } from '../../api/service/account/authentication/authentication.service';
+
 @NgModule({
   declarations: [
     AuthComponent,
@@ -36,7 +40,9 @@ import { AuthenticationService } from '../../api/service/account/authentication/
     FormsModule,
     ReactiveFormsModule,
     AuthRoutingModule,
-    PrimeNgModule
+    PrimeNgModule,
+    FieldsRestrictionModule,
+    FieldsValidationModule
   ],
   providers: [
     LayoutService,

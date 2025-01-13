@@ -9,12 +9,10 @@ import { AuthenticationService } from 'src/app/api/service/account/authenticatio
   templateUrl: './reset-password.component.html',
 })
 export class ResetPasswordComponent {
-
   message: string = '';
   isLoading = false;
   resetPass: ResetPasswordModel = new ResetPasswordModel();
-  passwordVisible: boolean = false;
-  confirmPasswordVisible: boolean = false;
+  showPasswordMismatch = false;
   constructor(
     private route: ActivatedRoute,
     private authSvcs: AuthenticationService,
@@ -22,10 +20,29 @@ export class ResetPasswordComponent {
   ) { }
   ngOnInit(): void {
     this.resetPass.uid = this.route.snapshot.paramMap.get('uid') ?? '';
-    this.resetPass.token = this.route.snapshot.paramMap.get('token') ??'';
+    this.resetPass.token = this.route.snapshot.paramMap.get('token') ?? '';
+  }
+ 
+  checkPasswordMatch() {
+    if (this.resetPass.newPassword && this.resetPass.confirmNewPassword) {
+      this.showPasswordMismatch = !this.resetPass.passwordsMatch();
+    }
+  }
+ 
+  isFormValid(): boolean {
+    return this.resetPass.isValid() && !this.isLoading;
   }
   async submit(): Promise<void> {
     try {
+      if (!this.resetPass.passwordsMatch()) {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Passwords do not match'
+        });
+        return;
+      }
+      else {
         this.isLoading = true;
         this.authSvcs.resetPassword(this.resetPass)
           .subscribe({
@@ -43,12 +60,13 @@ export class ResetPasswordComponent {
               this.isLoading = false;
               console.log('reset password Request completed');
             },
-        });
+          });
+      }
+
     }
     catch (error) {
-      console.error('Error in signup:', error);
       this.isLoading = false;
-      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'An error occurred'});
+      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'An error occurred' });
     }
   }
 }

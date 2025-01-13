@@ -4,7 +4,7 @@ import { Directive, ElementRef, HostListener } from '@angular/core';
   selector: '[LettersAndSpaces]',
   standalone: false,
 })
-export class AllowOnlyLettersAndSpacesDirective {
+export class LettersAndSpacesDirective {
   constructor(private el: ElementRef) {}
   private readonly allowedCharacterPattern: RegExp = /^[a-zA-Z\s]*$/;
   @HostListener('keypress', ['$event']) onKeyPress(event: KeyboardEvent): void {
