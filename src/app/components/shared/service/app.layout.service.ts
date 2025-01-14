@@ -38,7 +38,7 @@ export class LayoutService {
     _config: AppConfig = {
         ripple: false,
         menuMode: 'static',
-        colorScheme: 'dark',
+        colorScheme: 'light',
         theme: 'magenta',
         scale: 14,
     };

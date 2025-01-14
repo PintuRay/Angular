@@ -9,7 +9,7 @@ const routes: Routes = [
   },
   {
     path: '',
-    loadChildren: () => import('./shared/layout/app.layout.module').then(m => m.AppLayoutModule),
+    loadChildren: () => import('./shared/layout/layout.module').then(m => m.AppLayoutModule),
     canActivate: [authGuard]
   },
   { path: '**', redirectTo: 'auth/login' }

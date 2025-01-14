@@ -2,7 +2,6 @@ import { SignInModel } from '../../../model/account/authentication/signIn-model'
 import { ResetPasswordModel } from '../../../model/account/authentication/reset-password-model';
 import { ChangePasswordModel } from '../../../model/account/authentication/change-password-model';
 import { SignIn2faModel } from '../../../model/account/authentication/signin-2fa-model';
-import { RegisterModel } from '../../../model/account/authentication/register-model';
 import { JwtModel } from '../../../model/jwt-model';
 import { Base } from '../../../base';
 import { Injectable } from '@angular/core';
@@ -223,7 +222,7 @@ export class AuthenticationService {
     //#endregion
 
     //#region 2FA
-    /*----------------------------------------Api Service------------------------------------------------*/
+    //----------------------------------------Api Service------------------------------------------------*/
     loginWithOTP(data: SignIn2faModel): Observable<Base> {
         return this.configService
             .getEndpoint('auth', 'loginWithOTP')
@@ -344,13 +343,16 @@ export class AuthenticationService {
 
     //#region LogOut
     Logout(): Observable<Base> {
+        this.clearLocalStorage();
         return this.configService
             .getEndpoint('auth', 'logOut')
             .pipe(
                 switchMap((endpoint) => this.http.get<Base>(endpoint))
             );
-        // localStorage.removeItem('jwtToken');
-        // localStorage.removeItem('2fa');
     }
     //#endregion
+    clearLocalStorage(): void {
+        localStorage.removeItem('jwtToken');
+        localStorage.removeItem('2fa');
+    }
 }

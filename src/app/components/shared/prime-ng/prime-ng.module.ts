@@ -232,7 +232,7 @@ import { MessageService } from 'primeng/api';
     InputGroupModule,
     InputGroupAddonModule,
      InputMaskModule,
-    // InputSwitchModule,
+  InputSwitchModule,
     // InputTextareaModule,
     // InputNumberModule,
     InputOtpModule,

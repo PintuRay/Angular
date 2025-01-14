@@ -8,7 +8,7 @@ import { ResetPasswordComponent } from './authentication/reset-password/reset-pa
 import { ConfirmMailComponent } from './authentication/confirm-mail/confirm-mail.component';
 import { TwostepLoginComponent } from './authentication/twostep-login/twostep-login.component';
 import { ResendConfirmMailComponent } from './authentication/resend-confirm-mail/resend-confirm-mail.component';
-import { ChangePasswordComponent } from './authentication/change-password/change-password.component';
+import { ChangePasswordComponent } from '../shared/layout/change-password/change-password.component';
 import { VerifyConformationMailComponent } from './authentication/verify-conformation-mail/verify-conformation-mail.component';
 // Import other auth components...
 
@@ -17,6 +17,7 @@ const routes: Routes = [
     path: '',
     component: AuthComponent,
     children: [
+      { path: 'login/:message', component: LoginComponent },
       { path: 'login', component: LoginComponent },
       { path: 'register', component: RegisterComponent },
       { path: 'forgot-password', component: ForgotPasswordComponent },
@@ -24,7 +25,6 @@ const routes: Routes = [
       { path: 'confirm-mail/:message', component: ConfirmMailComponent },
       { path: 'twostep-login/:email', component: TwostepLoginComponent },
       { path: 'verify-confirmation-mail/:uid/:token', component: VerifyConformationMailComponent },
-      { path: 'change-password', component: ChangePasswordComponent },
       { path: 'resend-confirm-mail', component: ResendConfirmMailComponent },
       { path: '', redirectTo: 'login', pathMatch: 'full' }
     ]

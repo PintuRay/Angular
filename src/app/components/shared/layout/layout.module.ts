@@ -15,6 +15,7 @@ import { AppConfigModule } from './config/app.config.module';
 import { LayoutRoutingModule } from './layout-routing';
 //Import  ngPrime Modules
 import {PrimeNgModule } from '../prime-ng/prime-ng.module';
+import { ChangePasswordComponent } from './change-password/change-password.component';
 @NgModule({
     declarations: [
         AppLayoutComponent,
@@ -23,7 +24,8 @@ import {PrimeNgModule } from '../prime-ng/prime-ng.module';
         AppTopbarComponent,
         AppProfileSidebarComponent,
         AppMenuComponent,
-        AppMenuitemComponent
+        AppMenuitemComponent,
+        ChangePasswordComponent
     ],
     imports: [
         CommonModule,

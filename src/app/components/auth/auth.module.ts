@@ -11,7 +11,6 @@ import { ResetPasswordComponent } from './authentication/reset-password/reset-pa
 import { ConfirmMailComponent } from './authentication/confirm-mail/confirm-mail.component';
 import { TwostepLoginComponent } from './authentication/twostep-login/twostep-login.component';
 import { VerifyConformationMailComponent } from './authentication/verify-conformation-mail/verify-conformation-mail.component';
-import { ChangePasswordComponent } from './authentication/change-password/change-password.component';
 import { ResendConfirmMailComponent } from './authentication/resend-confirm-mail/resend-confirm-mail.component';
 //Import  ngPrime Modules
 import {PrimeNgModule} from '../shared/prime-ng/prime-ng.module'
@@ -32,7 +31,6 @@ import { AuthenticationService } from '../../api/service/account/authentication/
     ConfirmMailComponent,
     TwostepLoginComponent,
     VerifyConformationMailComponent,
-    ChangePasswordComponent,
     ResendConfirmMailComponent
   ],
   imports: [

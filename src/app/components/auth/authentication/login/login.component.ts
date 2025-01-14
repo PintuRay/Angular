@@ -5,6 +5,7 @@ import { Subject, takeUntil } from 'rxjs';
 import { SignInModel } from 'src/app/api/model/account/authentication/signIn-model';
 import { AuthenticationService } from 'src/app/api/service/account/authentication/authentication.service';
 import { LayoutService } from '../../../shared/service/app.layout.service';
+import { ActivatedRoute } from '@angular/router';
 @Component({
     selector: 'app-login',
     templateUrl: './login.component.html',
@@ -25,6 +26,7 @@ export class LoginComponent implements OnInit {
     //#region Constructor
     constructor(
         private fb: FormBuilder,
+        public route: ActivatedRoute,
         public layoutSvcs: LayoutService,
         private authSvcs: AuthenticationService,
         private messageService: MessageService
@@ -33,6 +35,10 @@ export class LoginComponent implements OnInit {
 
     //#region Lifecycle Hooks
     ngOnInit(): void {
+        this.msg = this.route.snapshot.paramMap.get('message') ?? '';
+        if(this.msg!==''){
+            this.messageService.add({ severity: 'success', summary: 'success', detail: this.msg, });
+        }
         this.initializeLoginForm();
         this.loginForm.valueChanges.subscribe((values) => {
             this.user = { ...this.user, ...values };
