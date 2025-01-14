@@ -1,11 +1,10 @@
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { NgForm } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import {  Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { Subscription } from 'rxjs';
 import { ChangePasswordModel } from 'src/app/api/model/account/authentication/change-password-model';
 import { AuthenticationService } from 'src/app/api/service/account/authentication/authentication.service';
-import { DialogService } from 'src/app/components/shared/service/dialog.service';
+import { TopBarService } from 'src/app/components/shared/service/topbar.service';
 
 @Component({
   selector: 'app-change-password',
@@ -19,13 +18,13 @@ export class ChangePasswordComponent implements OnInit, OnDestroy {
   private subscription!: Subscription;
   constructor(
     private router: Router,
-    private dialogService: DialogService,
+    private topBarService: TopBarService,
     private authSvcs: AuthenticationService,
     private messageService: MessageService
 
   ) { }
   ngOnInit() {
-    this.subscription = this.dialogService.dialogVisibility$.subscribe(
+    this.subscription = this.topBarService.changePassworddialogVisibility$.subscribe(
       isVisible => {
         this.visible = isVisible;
       }
@@ -38,7 +37,7 @@ export class ChangePasswordComponent implements OnInit, OnDestroy {
     }
   }
   hideDialog() {
-    this.dialogService.hideDialog();
+    this.topBarService.hideChangePasswordDialog();
   }
   checkPasswordMatch() {
     if (this.changePass.newPassword && this.changePass.confirmNewPassword) {

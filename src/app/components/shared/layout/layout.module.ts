@@ -5,7 +5,6 @@ import { HttpClientModule } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
 // Import components
 import { AppLayoutComponent } from './app.layout.component';
-import { AppBreadcrumbComponent } from './breadcrumb/app.breadcrumb.component';
 import { AppSidebarComponent } from './sidebar/app.sidebar.component';
 import { AppTopbarComponent } from './topbar/app.topbar.component';
 import { AppProfileSidebarComponent } from './profile/app.profilesidebar.component';
@@ -21,7 +20,6 @@ import {PrimeNgModule } from '../prime-ng/prime-ng.module';
 @NgModule({
     declarations: [
         AppLayoutComponent,
-        AppBreadcrumbComponent,
         AppSidebarComponent,
         AppTopbarComponent,
         AppProfileSidebarComponent,

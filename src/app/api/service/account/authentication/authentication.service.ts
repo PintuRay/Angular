@@ -16,7 +16,14 @@ import { Router } from '@angular/router';
     providedIn: 'root',
 })
 export class AuthenticationService {
-    /*------------------------------Property Declaration--------------------------*/
+    //#region Constructor
+    constructor(
+        private http: HttpClient,
+        private configService: ConfigService,
+        private router: Router
+    ) { }
+    //#endregion
+    //#region local storage
     getJwtToken = (): string | null => localStorage.getItem('jwtToken');
     isTwoFactorEnabled = (): boolean => {
         const storedValue = localStorage.getItem('2fa');
@@ -34,13 +41,6 @@ export class AuthenticationService {
             return !this.isTokenExpired();
         }
     };
-    /*-------------------------------Constructor----------------------------------*/
-    constructor(
-        private http: HttpClient,
-        private configService: ConfigService,
-        private router: Router
-    ) { }
-    /*-------------------------------Methods----------------------------------*/
     private isTokenExpired(): boolean {
         try {
             const token = this.getJwtToken();
@@ -95,6 +95,11 @@ export class AuthenticationService {
         };
         return userDetails;
     }
+    clearLocalStorage(): void {
+        localStorage.removeItem('jwtToken');
+        localStorage.removeItem('2fa');
+    }
+    //#endregion
     //#region SignUp 
     /*-------------------------------Api Service----------------------------------*/
     validateToken(token: string): Observable<Base> {
@@ -167,7 +172,6 @@ export class AuthenticationService {
             );
     }
     //#endregion
-
     //#region Login
     /*-----------------------------------------Api Service-----------------------------------*/
     login(user: SignInModel): Observable<Base> {
@@ -287,7 +291,6 @@ export class AuthenticationService {
         return msg;
     }
     //#endregion
-
     //#region 2FA
     //----------------------------------------Api Service------------------------------------------------*/
     verifyTwoFactorToken(token: string): Observable<Base> {
@@ -300,17 +303,16 @@ export class AuthenticationService {
                 )
             );
     }
-    sendTwoFactorToken(uid:string): Observable<Base> {
+    sendTwoFactorToken(uid: string): Observable<Base> {
         const params = new HttpParams().set('uid', uid);
         return this.configService
             .getEndpoint('auth', 'sendTwoFactorToken')
             .pipe(switchMap((endpoint) => this.http.get<Base>(endpoint, { params })));
     }
     /*------------------------------------Component Service------------------------------------------------*/
-   
+
     /*------------------------------------------------------------------------------------------------------------------*/
     //#endregion 
-
     //#region Forgot, Reset && Change Password
     /*-------------------------------Api Service----------------------------------*/
     forgetPassword(email: string, routeUrl: string): Observable<Base> {
@@ -342,7 +344,6 @@ export class AuthenticationService {
             );
     }
     //#endregion
-
     //#region LogOut
     Logout(): Observable<Base> {
         this.clearLocalStorage();
@@ -353,8 +354,4 @@ export class AuthenticationService {
             );
     }
     //#endregion
-    clearLocalStorage(): void {
-        localStorage.removeItem('jwtToken');
-        localStorage.removeItem('2fa');
-    }
 }

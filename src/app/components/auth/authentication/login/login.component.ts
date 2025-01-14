@@ -18,11 +18,7 @@ export class LoginComponent implements OnInit {
     loginForm!: FormGroup;
     isLoading = false;
     showPassword = false;
-    get dark(): boolean {
-        return this.layoutSvcs.config().colorScheme !== 'light';
-    }
     //#endregion
-
     //#region Constructor
     constructor(
         private fb: FormBuilder,
@@ -32,12 +28,20 @@ export class LoginComponent implements OnInit {
         private messageService: MessageService
     ) { }
     //#endregion
-
+    //#region Themme
+    get dark(): boolean {
+        return this.layoutSvcs.config().colorScheme !== 'light';
+    }
+    //#endregion
     //#region Lifecycle Hooks
     ngOnInit(): void {
         this.msg = this.route.snapshot.paramMap.get('message') ?? '';
-        if(this.msg!==''){
-            this.messageService.add({ severity: 'success', summary: 'success', detail: this.msg, });
+        if (this.msg !== '') {
+            this.messageService.add({
+                severity: 'success',
+                summary: 'success',
+                detail: this.msg,
+            });
         }
         this.initializeLoginForm();
         this.loginForm.valueChanges.subscribe((values) => {
@@ -49,7 +53,6 @@ export class LoginComponent implements OnInit {
         this.destroy$.complete();
     }
     //#endregion
-
     //#region Form Initialization
     private initializeLoginForm(): void {
         this.loginForm = this.fb.group({
@@ -68,7 +71,6 @@ export class LoginComponent implements OnInit {
         });
     }
     //#endregion
-
     //#region Client side Vaildation
     get emailControl() {
         return this.loginForm.get('email');
@@ -76,8 +78,7 @@ export class LoginComponent implements OnInit {
     getEmailErrorMessage() {
         if (this.emailControl?.hasError('required')) {
             return 'Email is required.';
-        }
-        else {
+        } else {
             return '';
         }
     }
@@ -87,20 +88,24 @@ export class LoginComponent implements OnInit {
     getPasswordErrorMessage() {
         if (this.passwordControl?.hasError('required')) {
             return 'Password is required.';
-        }
-        else {
+        } else {
             return '';
         }
     }
     //#endregion
-
-    //#region field Operation
+    //#region Client Side Operations
     togglePasswordVisibility() {
         this.showPassword = !this.showPassword;
     }
+    private resetForm(): void {
+        this.loginForm.reset({
+            email: '',
+            password: '',
+            rememberMe: false,
+        });
+    }
     //#endregion
-
-    //#region Operations
+    //#region Server Side Operations
     login(): void {
         if (this.loginForm.invalid) {
             this.loginForm.markAllAsTouched();
@@ -113,15 +118,26 @@ export class LoginComponent implements OnInit {
                 .subscribe({
                     next: (response) => {
                         this.isLoading = false;
-                        this.msg = this.authSvcs.handleLoginResponse(response, this.user.email);
+                        this.msg = this.authSvcs.handleLoginResponse(
+                            response,
+                            this.user.email
+                        );
                         if (this.msg !== '') {
-                            this.messageService.add({ severity: 'warn', summary: 'warn', detail: this.msg });
+                            this.messageService.add({
+                                severity: 'warn',
+                                summary: 'warn',
+                                detail: this.msg,
+                            });
                         }
                     },
                     error: (response) => {
                         this.isLoading = false;
                         this.msg = this.authSvcs.handleLoginError(response);
-                        this.messageService.add({ severity: 'error', summary: 'Error', detail: this.msg });
+                        this.messageService.add({
+                            severity: 'error',
+                            summary: 'Error',
+                            detail: this.msg,
+                        });
                     },
                     complete: () => {
                         this.resetForm();
@@ -129,13 +145,6 @@ export class LoginComponent implements OnInit {
                     },
                 });
         }
-    }
-    private resetForm(): void {
-        this.loginForm.reset({
-            email: '',
-            password: '',
-            rememberMe: false,
-        });
     }
     //#endregion
 }

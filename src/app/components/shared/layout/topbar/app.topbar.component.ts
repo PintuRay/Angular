@@ -1,10 +1,8 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { LayoutService } from '../../service/app.layout.service';
 import { AppSidebarComponent } from '../sidebar/app.sidebar.component';
-import { DialogService } from '../../service/dialog.service';
+import { TopBarService } from '../../service/topbar.service';
 import { AuthenticationService } from 'src/app/api/service/account/authentication/authentication.service';
-
-
 
 @Component({
     selector: 'app-topbar',
@@ -17,7 +15,7 @@ export class AppTopbarComponent implements OnInit{
     valSwitch: boolean = false;
     constructor(
         public layoutService: LayoutService,
-        private dialogService: DialogService,
+        private topBarService: TopBarService,
         private authSvcs:AuthenticationService,
         public el: ElementRef) { }
         ngOnInit(){
@@ -29,10 +27,11 @@ export class AppTopbarComponent implements OnInit{
             this.authSvcs.sendTwoFactorToken(uid).subscribe({
                 next: (response) => {
                     if(response.responseCode === 200){
-                    
+                        this.topBarService.showVerifyTwFactorDialog();
                     }
                 },
                 error: (response) => {
+                    console.log(response);
 
                 },
                 complete: () => {
@@ -59,7 +58,7 @@ export class AppTopbarComponent implements OnInit{
         }
     }
     openChangePassword() {
-        this.dialogService.showDialog();
+        this.topBarService.showChangePasswordDialog();
       }
     onMenuButtonClick() {
         this.layoutService.onMenuToggle();

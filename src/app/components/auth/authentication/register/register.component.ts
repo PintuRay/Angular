@@ -506,6 +506,64 @@ export class RegisterComponent implements OnInit {
 			this.getDists(event.value.stateId);
 		}
 	}
+	private async convertFormToFormData(formValue: any): Promise<FormData> {
+		this.formData = new FormData();
+		this.formData.append('Fk_TokenId', this.tokenId);
+		this.formData.append('RouteUls', this.returnUrl);
+		if (formValue.accountInfo) {
+			this.formData.append('Email', formValue.accountInfo.email);
+			this.formData.append('PhoneNumber', formValue.accountInfo.phoneNumber);
+			this.formData.append('Password', formValue.accountInfo.password);
+			this.formData.append('ConfirmPassword', formValue.accountInfo.confirmPassword);
+		}
+		if (formValue.personalInfo) {
+			this.formData.append('Name', formValue.personalInfo.name);
+			this.formData.append('BirthDate', formValue.personalInfo.birthDate ? new Date(formValue.personalInfo.birthDate).toISOString() : '');
+			this.formData.append('MaratialStatus', formValue.personalInfo.maritalStatus?.key || '');
+			this.formData.append('Gender', formValue.personalInfo.gender?.key || '');
+			if (this.selectedProfilePhoto instanceof File) {
+				this.formData.append('ProfilePhoto', this.selectedProfilePhoto, this.selectedProfilePhoto.name);
+			} else {
+				this.formData.append('ProfilePhoto', '');
+			}
+		}
+		if (formValue.address) {
+			this.formData.append('Address.Fk_CountryId', formValue.address.country?.countryId || '');
+			this.formData.append('Address.Fk_StateId', formValue.address.state?.stateId || '');
+			this.formData.append('Address.Fk_DistId', formValue.address.dist?.distId || '');
+			this.formData.append('Address.At', formValue.address.at || '');
+			this.formData.append('Address.Post', formValue.address.post || '');
+			this.formData.append('Address.City', formValue.address.city || '');
+			this.formData.append('Address.PinCode', formValue.address.pinCode || '');
+		}
+		return this.formData;
+	}
+	private resetForm(): void {
+		this.registerForm.reset({
+			accountInfo: {
+				email: '',
+				phoneNumber: '',
+				password: '',
+				confirmPassword: ''
+			},
+			personalInfo: {
+				name: '',
+				birthDate: '',
+				profilePhoto: null,
+				maritalStatus: '',
+				gender: ''
+			},
+			address: {
+				fk_CountryId: '',
+				fk_StateId: '',
+				fk_DistId: '',
+				at: '',
+				post: '',
+				city: '',
+				pinCode: ''
+			}
+		});
+	}
 	//#endregion
 	//#region Server Side Operations
 	async vaildateToken(): Promise<void> {
@@ -607,38 +665,6 @@ export class RegisterComponent implements OnInit {
 			},
 		});
 	}
-	private async convertFormToFormData(formValue: any): Promise<FormData> {
-		this.formData = new FormData();
-		this.formData.append('Fk_TokenId', this.tokenId);
-		this.formData.append('RouteUls', this.returnUrl);
-		if (formValue.accountInfo) {
-			this.formData.append('Email', formValue.accountInfo.email);
-			this.formData.append('PhoneNumber', formValue.accountInfo.phoneNumber);
-			this.formData.append('Password', formValue.accountInfo.password);
-			this.formData.append('ConfirmPassword', formValue.accountInfo.confirmPassword);
-		}
-		if (formValue.personalInfo) {
-			this.formData.append('Name', formValue.personalInfo.name);
-			this.formData.append('BirthDate', formValue.personalInfo.birthDate ? new Date(formValue.personalInfo.birthDate).toISOString() : '');
-			this.formData.append('MaratialStatus', formValue.personalInfo.maritalStatus?.key || '');
-			this.formData.append('Gender', formValue.personalInfo.gender?.key || '');
-			if (this.selectedProfilePhoto instanceof File) {
-				this.formData.append('ProfilePhoto', this.selectedProfilePhoto, this.selectedProfilePhoto.name);
-			} else {
-				this.formData.append('ProfilePhoto', '');
-			}
-		}
-		if (formValue.address) {
-			this.formData.append('Address.Fk_CountryId', formValue.address.country?.countryId || '');
-			this.formData.append('Address.Fk_StateId', formValue.address.state?.stateId || '');
-			this.formData.append('Address.Fk_DistId', formValue.address.dist?.distId || '');
-			this.formData.append('Address.At', formValue.address.at || '');
-			this.formData.append('Address.Post', formValue.address.post || '');
-			this.formData.append('Address.City', formValue.address.city || '');
-			this.formData.append('Address.PinCode', formValue.address.pinCode || '');
-		}
-		return this.formData;
-	}
 	async signUp(): Promise<void> {
 		try {
 			if (this.registerForm.invalid) {
@@ -692,33 +718,6 @@ export class RegisterComponent implements OnInit {
 			});
 		}
 	}
-	private resetForm(): void {
-		this.registerForm.reset({
-			accountInfo: {
-				email: '',
-				phoneNumber: '',
-				password: '',
-				confirmPassword: ''
-			},
-			personalInfo: {
-				name: '',
-				birthDate: '',
-				profilePhoto: null,
-				maritalStatus: '',
-				gender: ''
-			},
-			address: {
-				fk_CountryId: '',
-				fk_StateId: '',
-				fk_DistId: '',
-				at: '',
-				post: '',
-				city: '',
-				pinCode: ''
-			}
-		});
-	}
-	
 	//#endregion
 	//#region Test form
 	get formJson(): string {

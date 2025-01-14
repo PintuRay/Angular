@@ -96,7 +96,6 @@ export class AppConfigComponent implements OnInit {
             { name: 'yellow', color: '#EEE500' },
         ];
     }
-
     onConfigButtonClick() {
         this.layoutService.showConfigSidebar();
     }
