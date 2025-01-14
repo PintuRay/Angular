@@ -11,11 +11,13 @@ import { AppTopbarComponent } from './topbar/app.topbar.component';
 import { AppProfileSidebarComponent } from './profile/app.profilesidebar.component';
 import { AppMenuComponent } from './menu/app.menu.component';
 import { AppMenuitemComponent } from './menuitem/app.menuitem.component';
+import { VerifyTwoFactorTokenComponent } from './topbar/verify-two-factor-token/verify-two-factor-token.component';
+import { ChangePasswordComponent } from './topbar/change-password/change-password.component';
 import { AppConfigModule } from './config/app.config.module';
 import { LayoutRoutingModule } from './layout-routing';
 //Import  ngPrime Modules
 import {PrimeNgModule } from '../prime-ng/prime-ng.module';
-import { ChangePasswordComponent } from './change-password/change-password.component';
+
 @NgModule({
     declarations: [
         AppLayoutComponent,
@@ -25,7 +27,8 @@ import { ChangePasswordComponent } from './change-password/change-password.compo
         AppProfileSidebarComponent,
         AppMenuComponent,
         AppMenuitemComponent,
-        ChangePasswordComponent
+        ChangePasswordComponent,
+        VerifyTwoFactorTokenComponent
     ],
     imports: [
         CommonModule,

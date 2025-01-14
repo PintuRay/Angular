@@ -8,7 +8,6 @@ import { ResetPasswordComponent } from './authentication/reset-password/reset-pa
 import { ConfirmMailComponent } from './authentication/confirm-mail/confirm-mail.component';
 import { TwostepLoginComponent } from './authentication/twostep-login/twostep-login.component';
 import { ResendConfirmMailComponent } from './authentication/resend-confirm-mail/resend-confirm-mail.component';
-import { ChangePasswordComponent } from '../shared/layout/change-password/change-password.component';
 import { VerifyConformationMailComponent } from './authentication/verify-conformation-mail/verify-conformation-mail.component';
 // Import other auth components...
 

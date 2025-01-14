@@ -177,6 +177,23 @@ export class AuthenticationService {
                 switchMap((endpoint) => this.http.post<Base>(endpoint, user))
             );
     }
+    loginWithOTP(data: SignIn2faModel): Observable<Base> {
+        return this.configService
+            .getEndpoint('auth', 'loginWithOTP')
+            .pipe(
+                switchMap((endpoint) => this.http.post<Base>(endpoint, data))
+            );
+    }
+    resendTwoFactorToken(mail: string): Observable<Base> {
+        const params = new HttpParams().set('mail', mail);
+        return this.configService
+            .getEndpoint('auth', 'reSendTwoFactorToken')
+            .pipe(
+                switchMap((endpoint) =>
+                    this.http.get<Base>(endpoint, { params })
+                )
+            );
+    }
     /*----------------------------------Component Service-------------------------------------------*/
     handleLoginResponse(response: Base, email: string): string {
         let msg: string = '';
@@ -219,43 +236,6 @@ export class AuthenticationService {
         }
         return msg;
     }
-    //#endregion
-
-    //#region 2FA
-    //----------------------------------------Api Service------------------------------------------------*/
-    loginWithOTP(data: SignIn2faModel): Observable<Base> {
-        return this.configService
-            .getEndpoint('auth', 'loginWithOTP')
-            .pipe(
-                switchMap((endpoint) => this.http.post<Base>(endpoint, data))
-            );
-    }
-    resendTwoFactorToken(mail: string): Observable<Base> {
-        const params = new HttpParams().set('mail', mail);
-        return this.configService
-            .getEndpoint('auth', 'reSendTwoFactorToken')
-            .pipe(
-                switchMap((endpoint) =>
-                    this.http.get<Base>(endpoint, { params })
-                )
-            );
-    }
-    verifyTwoFactorToken(token: string): Observable<Base> {
-        const params = new HttpParams().set('Token', token);
-        return this.configService
-            .getEndpoint('auth', 'verifyTwoFactorToken')
-            .pipe(
-                switchMap((endpoint) =>
-                    this.http.get<Base>(endpoint, { params })
-                )
-            );
-    }
-    sendTwoFactorToken(): Observable<Base> {
-        return this.configService
-            .getEndpoint('auth', 'sendTwoFactorToken')
-            .pipe(switchMap((endpoint) => this.http.get<Base>(endpoint)));
-    }
-    /*------------------------------------Component Service------------------------------------------------*/
     handleLoginWithOTPResponse(response: Base): string {
         let msg: string = '';
         switch (response.responseCode) {
@@ -306,6 +286,28 @@ export class AuthenticationService {
         }
         return msg;
     }
+    //#endregion
+
+    //#region 2FA
+    //----------------------------------------Api Service------------------------------------------------*/
+    verifyTwoFactorToken(token: string): Observable<Base> {
+        const params = new HttpParams().set('Token', token);
+        return this.configService
+            .getEndpoint('auth', 'verifyTwoFactorToken')
+            .pipe(
+                switchMap((endpoint) =>
+                    this.http.get<Base>(endpoint, { params })
+                )
+            );
+    }
+    sendTwoFactorToken(uid:string): Observable<Base> {
+        const params = new HttpParams().set('uid', uid);
+        return this.configService
+            .getEndpoint('auth', 'sendTwoFactorToken')
+            .pipe(switchMap((endpoint) => this.http.get<Base>(endpoint, { params })));
+    }
+    /*------------------------------------Component Service------------------------------------------------*/
+   
     /*------------------------------------------------------------------------------------------------------------------*/
     //#endregion 
 

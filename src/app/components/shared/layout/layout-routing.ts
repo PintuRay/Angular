@@ -1,7 +1,6 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { AppLayoutComponent } from './app.layout.component';
-import { ChangePasswordComponent } from './change-password/change-password.component';
 import { UserProfileComponent } from './user-profile/user-profile.component';
 const routes: Routes = [
     {
