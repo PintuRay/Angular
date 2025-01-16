@@ -38,7 +38,6 @@ export class BranchModel {
     branchAddress: string;
     contactNumber: string;
     branchCode: string;
-  
     constructor() {
       this.branchName = '';
       this.branchAddress = '';
@@ -46,9 +45,15 @@ export class BranchModel {
       this.branchCode = '';
     }
   }
-  
-  export class Branch extends BranchModel {
-    branchId: string;
+  export class BranchUpdateModel extends BranchModel{
+    branchId:string ='';
+    constructor() {
+      super();
+      this.branchId = '';
+    }
+  }
+  export class Branch extends BranchUpdateModel {
+   
     isActive?: boolean;
     createdDate?: Date;
     modifyDate?: Date;

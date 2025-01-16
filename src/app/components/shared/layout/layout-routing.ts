@@ -7,6 +7,7 @@ const routes: Routes = [
         path: '',
         component: AppLayoutComponent,
         children: [
+            { path: 'user-profile', component: UserProfileComponent },
             {
                 path: 'dashboard',
                 loadChildren: () =>
@@ -14,7 +15,13 @@ const routes: Routes = [
                         (m) => m.DashboardModule
                     ),
             },
-            { path: 'user-profile', component: UserProfileComponent },
+            {
+                path: 'branch',
+                loadChildren: () =>
+                    import('../../branch/branch.module').then(
+                        (m) => m.BranchModule
+                    ),
+            },
             { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
         ],
     },

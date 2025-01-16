@@ -342,14 +342,4 @@ export class AuthenticationService {
             );
     }
     //#endregion
-    //#region LogOut
-    // Logout(): Observable<Base> {
-    //     this.clearLocalStorage();
-    //     return this.configService
-    //         .getEndpoint('auth', 'logout')
-    //         .pipe(
-    //             switchMap((endpoint) => this.http.get<Base>(endpoint))
-    //         );
-    // }
-    //#endregion
 }
