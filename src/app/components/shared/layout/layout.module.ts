@@ -13,7 +13,7 @@ import { AppMenuitemComponent } from './menuitem/app.menuitem.component';
 import { VerifyTwoFactorTokenComponent } from './topbar/verify-two-factor-token/verify-two-factor-token.component';
 import { ChangePasswordComponent } from './topbar/change-password/change-password.component';
 import { AppConfigModule } from './config/app.config.module';
-import { LayoutRoutingModule } from './layout-routing';
+import { LayoutRoutingModule } from './layout-routing.module';
 //Import  ngPrime Modules
 import {PrimeNgModule } from '../prime-ng/prime-ng.module';
 

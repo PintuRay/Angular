@@ -35,7 +35,6 @@ export class ChangePasswordComponent implements OnInit, OnDestroy {
         this.visible = isVisible;
       }
     );
-    console.log('visible', this.visible);
   }
   ngOnDestroy() {
     if (this.subscription) {

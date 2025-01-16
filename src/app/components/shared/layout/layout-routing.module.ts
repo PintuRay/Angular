@@ -9,14 +9,14 @@ const routes: Routes = [
         children: [
             { path: 'user-profile', component: UserProfileComponent },
             {
-                path: 'dashboard',
+                path: 'dashboard', data: { breadcrumb: 'Dashboard' },
                 loadChildren: () =>
                     import('../../dashboard/dashboard.module').then(
                         (m) => m.DashboardModule
                     ),
             },
             {
-                path: 'branch',
+                path: 'branch', data: { breadcrumb: 'Branch' },
                 loadChildren: () =>
                     import('../../branch/branch.module').then(
                         (m) => m.BranchModule

@@ -29,6 +29,4 @@ import { OnlyDecimalNumberDirective } from './only-decimal-number.directive';
     PreventSpecialCharactersDirective,
   ]
 })
-export class FieldsRestrictionModule {
-
- }
+export class FieldsRestrictionModule {}

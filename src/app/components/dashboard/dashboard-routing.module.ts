@@ -6,9 +6,7 @@ import { DashboardComponent } from './dashboard.component';
     imports: [
         RouterModule.forChild([
             {
-                path: '',
-                component: DashboardComponent,
-                data: { breadcrumb: 'Dashboard' },
+                path: '', component: DashboardComponent, data: { breadcrumb: 'Dashboard' },
             },
         ]),
     ],
