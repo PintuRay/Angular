@@ -59,9 +59,9 @@ export class ForgotPasswordComponent {
 			}
 			else {
 				this.messageService.add({
-					severity: 'error',
-					summary: 'Error',
-					detail: 'invalid mail'
+					severity: 'warn',
+					summary: 'warn',
+					detail: 'Please Enter Valid Email',
 				});
 			}
 		}

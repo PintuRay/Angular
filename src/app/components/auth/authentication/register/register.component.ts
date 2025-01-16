@@ -570,7 +570,6 @@ export class RegisterComponent implements OnInit {
 		if (this.tokenValue) {
 			this.authSvcs.validateToken(this.tokenValue).subscribe({
 				next: async (response) => {
-					console.log(response);
 					this.tokenId = response.data.singleObjData.tokenId;
 					if (response.responseCode == 200) {
 						this.messageService.add({ severity: 'success', summary: 'success', detail: response.message });
@@ -622,9 +621,7 @@ export class RegisterComponent implements OnInit {
 					detail: response.error.message,
 				});
 			},
-			complete: () => {
-				// console.log('coutries Request completed');
-			},
+			complete: () => {},
 		});
 	}
 	async getStates(counryId: any): Promise<void> {

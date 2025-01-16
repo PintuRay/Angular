@@ -5,8 +5,8 @@
     <div class="text-center mb-5">
       <img [src]="'assets/layout/images/logo-'+ (layoutSvcs.config().colorScheme === 'light' ? 'dark' : 'light') + '.png'"
           class="login-logo  mb-4" style=" width: 45px;" />
-      <img [src]="'assets/layout/images/appname-'+ (layoutSvcs.config().colorScheme === 'light' ? 'dark' : 'light') + '.png'"
-          class="login-appname ml-3 mb-4" style="width: 100px;" />
+      <!-- <img [src]="'assets/layout/images/appname-'+ (layoutSvcs.config().colorScheme === 'light' ? 'dark' : 'light') + '.png'"
+          class="login-appname ml-3 mb-4" style="width: 100px;" /> -->
       <div class="text-900 text-3xl font-medium mb-3">New Account</div>
       <span class="text-600 font-medium">(Register a new membership)</span>
   </div>
@@ -51,7 +51,7 @@
       <div class="col-12">
         <div class="field grid">
           <div class="col-8 flex flex-wrap gap-2">
-            <p-inputMask mask="999-999-9999" placeholder="xxx-xxx-xxxx" [slotChar]="'_'" [(ngModel)]="tokenValue">
+            <p-inputMask mask="999-999-9999" placeholder="xxx-xxx-xxxx" [slotChar]="'_'" [(ngModel)]="tokenValue" autocomplete="off">
             </p-inputMask>
             <button pButton pRipple label="Validate" (click)="vaildateToken()"></button>
           </div>
@@ -68,7 +68,7 @@
                     <i class="pi pi-envelope"></i>
                   </p-inputGroupAddon>
                   <span class="p-float-label">
-                    <input type="email" pInputText id="email" formControlName="email" (input)="isEmailInUse()" />
+                    <input type="email" pInputText id="email" formControlName="email" (input)="isEmailInUse()" autocomplete="off"/>
                     <label for="email">Email</label>
                   </span>
                   <p-inputGroupAddon>
@@ -85,7 +85,7 @@
                   </p-inputGroupAddon>
                   <span class="p-float-label">
                     <input type="tel" pInputText id="phoneNumber" formControlName="phoneNumber"
-                      (input)="isPhoneNumberInUse()" onlyNumbers [maxLength]="10"/>
+                      (input)="isPhoneNumberInUse()" onlyNumbers [maxLength]="10" autocomplete="off"/>
                     <label for="phoneNumber">Phone Number</label>
                   </span>
                   <p-inputGroupAddon>
@@ -98,15 +98,15 @@
               </div>
               <div class="field col-12 md:col-6">
                 <span class="p-float-label">
-                  <p-password id="password" formControlName="password" [toggleMask]="true" class="w-full"></p-password>
+                  <p-password id="password" formControlName="password" [toggleMask]="true" [feedback]="false"  autocomplete="off"></p-password>
                   <label htmlFor="password">Password</label>
                 </span>
                 <small class="p-error block" *ngIf="passwordControl?.invalid && (passwordControl?.dirty || passwordControl?.touched)">{{ getPasswordErrorMessage() }}</small>
               </div>
               <div class="field col-12 md:col-6">
                 <span class="p-float-label">
-                  <p-password id="confirmPassword" formControlName="confirmPassword" [toggleMask]="true"
-                    class="w-full"></p-password>
+                  <p-password id="confirmPassword" formControlName="confirmPassword" [toggleMask]="true" [feedback]="false"
+                  autocomplete="off"></p-password>
                   <label htmlFor="confirmPassword">Confirm Password</label>
                 </span>
                 <small class="p-error block" *ngIf="conformPasswordControl?.invalid && (conformPasswordControl?.dirty || conformPasswordControl?.touched)">{{ getConformPasswordErrorMessage() }}</small>
@@ -121,7 +121,7 @@
                     <i class="pi pi-user"></i>
                   </p-inputGroupAddon>
                   <span class="p-float-label">
-                    <input type="text" pInputText id="name" formControlName="name" (input)="isUserExist()" transformToUppercase>
+                    <input type="text" pInputText transformToUppercase id="name" formControlName="name" (input)="isUserExist()"  autocomplete="off">
                     <label for="name">User Name</label>
                   </span>
                   <p-inputGroupAddon>
@@ -134,8 +134,8 @@
               </div>
               <div class="field col-12 md:col-6">
                 <span class="p-float-label">
-                  <p-calendar [showIcon]="true" inputId="icon" formControlName="birthDate"
-                    name="birthDate"   appDateFormat [minYear]="1800">></p-calendar>
+                  <p-calendar [showIcon]="true" appDateFormat inputId="icon" formControlName="birthDate"
+                    name="birthDate" [minYear]="1800" autocomplete="off">></p-calendar>
                   <label for="birthDate">Birth Date</label>
                 </span>
                 <small class="p-error block" *ngIf="birthDateControl?.invalid && (birthDateControl?.dirty || birthDateControl?.touched)">{{ getBirthDateErrorMessage() }}</small>
@@ -203,28 +203,28 @@
               </div>
               <div class="field col-12 md:col-6">
                 <span class="p-float-label">
-                  <input type="text" pInputText id="at" formControlName="at" class="w-full" transformToUppercase>
+                  <input type="text" pInputText id="at" formControlName="at" transformToUppercase autocomplete="off">
                   <label htmlFor="at">At</label>
                 </span>
                 <small class="p-error block" *ngIf="atControl?.invalid && (atControl?.dirty || atControl?.touched)">{{ getAtErrorMessage() }}</small>
               </div>
               <div class="field col-12 md:col-6">
                 <span class="p-float-label">
-                  <input type="text" pInputText id="post" formControlName="post" class="w-full" transformToUppercase>
+                  <input type="text" pInputText id="post" formControlName="post" class="w-full" transformToUppercase autocomplete="off">
                   <label htmlFor="post">Post</label>
                 </span>
                 <small class="p-error block" *ngIf="postControl?.invalid && (postControl?.dirty || postControl?.touched)">{{ getPostErrorMessage() }}</small>
               </div>
               <div class="field col-12 md:col-6">
                 <span class="p-float-label">
-                  <input type="text" pInputText id="city" formControlName="city" class="w-full" transformToUppercase>
+                  <input type="text" pInputText id="city" formControlName="city" class="w-full" transformToUppercase autocomplete="off">
                   <label htmlFor="city">City</label>
                 </span>
                 <small class="p-error block" *ngIf="cityControl?.invalid && (cityControl?.dirty || cityControl?.touched)">{{ getCityErrorMessage() }}</small>
               </div>
               <div class="field col-12 md:col-6">
                 <span class="p-float-label">
-                  <input type="text" pInputText id="pinCode" formControlName="pinCode" class="w-full" onlyNumbers [maxLength]="6">
+                  <input type="text" pInputText id="pinCode" formControlName="pinCode" class="w-full" onlyNumbers [maxLength]="6" autocomplete="off">
                   <label htmlFor="pinCode">Pin Code</label>
                 </span>
                 <small class="p-error block" *ngIf="pinCodeControl?.invalid && (pinCodeControl?.dirty || pinCodeControl?.touched)">{{ getPinCodeErrorMessage() }}</small>

@@ -1,4 +1,25 @@
-<p-dialog header="Edit Profile" [modal]="true" [(visible)]="visible" [style]="{ width: '25rem' }">
-    <span class="p-text-secondary block mb-5">Update your information.</span>
-
+<p-dialog header="Edit Profile" [modal]="true" [(visible)]="visible" [style]="{ width: '30rem' }">
+    <div class="flex flex-column align-items-center">
+        <p class="text-color-secondary block mb-1">Please enter OTP sent to your Email</p>
+        <p class="text-color-primary block mb-3">{{twoFactor.Email }}</p>
+        <p-inputOtp [(ngModel)]="twoFactor.OTP" [length]="6" [integerOnly]="true" style="gap: 0">
+            <ng-template pTemplate="input" let-token let-events="events" let-index="index">
+                <input pInputText type="text" [maxLength]="1" (input)="events.input($event)"
+                    (keydown)="events.keydown($event)" (paste)="events.paste($event)" [attr.value]="token"
+                    class="custom-otp-input" />
+                <span *ngIf="index === 3" class="px-3">
+                    <i class="pi pi-minus"></i>
+                </span>
+            </ng-template>
+        </p-inputOtp>
+    </div>
+    <div class="flex justify-content-end mt-5 align-self-stretch">
+        <button pButton type="button" (click)="verifyOtp()" class="w-3 p-button-primary"
+            style="display: flex; align-items: center; justify-content: center;">
+            <ng-container *ngIf="isLoading; else signInLabel">
+                <i class="pi pi-spin pi-spinner"></i> Loading...
+            </ng-container>
+            <ng-template #signInLabel>Verify</ng-template>
+        </button>
+    </div>
 </p-dialog>

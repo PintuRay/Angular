@@ -3,12 +3,13 @@ import { LayoutService } from '../../service/app.layout.service';
 import { AppSidebarComponent } from '../sidebar/app.sidebar.component';
 import { TopBarService } from '../../service/topbar.service';
 import { AuthenticationService } from 'src/app/api/service/account/authentication/authentication.service';
+import { Router } from '@angular/router';
 
 @Component({
     selector: 'app-topbar',
     templateUrl: './app.topbar.component.html'
 })
-export class AppTopbarComponent implements OnInit{
+export class AppTopbarComponent implements OnInit {
     @ViewChild('menubutton') menuButton!: ElementRef;
     @ViewChild('searchinput') searchInput!: ElementRef;
     @ViewChild(AppSidebarComponent) appSidebar!: AppSidebarComponent;
@@ -16,17 +17,18 @@ export class AppTopbarComponent implements OnInit{
     constructor(
         public layoutService: LayoutService,
         private topBarService: TopBarService,
-        private authSvcs:AuthenticationService,
+        private authSvcs: AuthenticationService,
+        private router: Router,
         public el: ElementRef) { }
-        ngOnInit(){
-            this.valSwitch = this.authSvcs.isTwoFactorEnabled();
-        }
+    ngOnInit() {
+        this.valSwitch = this.authSvcs.isTwoFactorEnabled();
+    }
     async onToggle2FA() {
         try {
-           const uid = this.authSvcs.getUserDetails().id;
+            const uid = this.authSvcs.getUserDetails().id;
             this.authSvcs.sendTwoFactorToken(uid).subscribe({
                 next: (response) => {
-                    if(response.responseCode === 200){
+                    if (response.responseCode === 200) {
                         this.topBarService.showVerifyTwFactorDialog();
                     }
                 },
@@ -35,7 +37,7 @@ export class AppTopbarComponent implements OnInit{
 
                 },
                 complete: () => {
-             
+
                 },
             });
             // Call your API here
@@ -49,26 +51,22 @@ export class AppTopbarComponent implements OnInit{
             // Add your error handling here
         }
     }
-    async logout(){
-        try{
-
-        }
-        catch (error) {
-          
-        }
+     logout() {
+       this.authSvcs.clearLocalStorage();
+       this.router.navigate(['auth/login']);
     }
     openChangePassword() {
         this.topBarService.showChangePasswordDialog();
-      }
+    }
     onMenuButtonClick() {
         this.layoutService.onMenuToggle();
     }
 
     onConfigButtonClick() {
         this.layoutService.showConfigSidebar();
-    }  
+    }
     onSidebarButtonClick() {
         this.layoutService.showSidebar();
     }
-  
+
 }

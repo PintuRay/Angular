@@ -18,6 +18,7 @@ export class LoginComponent implements OnInit {
     loginForm!: FormGroup;
     isLoading = false;
     showPassword = false;
+    display: boolean = false;
     //#endregion
     //#region Constructor
     constructor(
@@ -26,7 +27,7 @@ export class LoginComponent implements OnInit {
         public layoutSvcs: LayoutService,
         private authSvcs: AuthenticationService,
         private messageService: MessageService
-    ) { }
+    ) {}
     //#endregion
     //#region Themme
     get dark(): boolean {
@@ -145,6 +146,17 @@ export class LoginComponent implements OnInit {
                     },
                 });
         }
+    }
+    //#endregion
+    //#region Test form
+    get formJson(): string {
+        return JSON.stringify(this.loginForm.value, null, 2);
+    }
+    get modelJson(): string {
+        return JSON.stringify(this.user, null, 2);
+    }
+    get formErrors(): string {
+        return JSON.stringify(this.loginForm.errors, null, 2);
     }
     //#endregion
 }

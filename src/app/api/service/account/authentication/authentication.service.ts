@@ -53,7 +53,7 @@ export class AuthenticationService {
                 } else {
                     const istokenExpired = Date.now() >= decoded['exp']! * 1000;
                     if (istokenExpired) {
-                        this.Logout();
+                        this.clearLocalStorage();
                     }
                     return istokenExpired;
                 }
@@ -212,7 +212,7 @@ export class AuthenticationService {
                 this.router.navigate(['auth/confirm-mail', response.message]);
                 break;
             default:
-                msg = "Unhandled response code:', response.responseCode";
+                msg = `Unhandled response code: ${response.responseCode}`;
         }
         return msg;
     }
@@ -293,21 +293,19 @@ export class AuthenticationService {
     //#endregion
     //#region 2FA
     //----------------------------------------Api Service------------------------------------------------*/
-    verifyTwoFactorToken(token: string): Observable<Base> {
-        const params = new HttpParams().set('Token', token);
-        return this.configService
-            .getEndpoint('auth', 'verifyTwoFactorToken')
-            .pipe(
-                switchMap((endpoint) =>
-                    this.http.get<Base>(endpoint, { params })
-                )
-            );
-    }
+
     sendTwoFactorToken(uid: string): Observable<Base> {
         const params = new HttpParams().set('uid', uid);
         return this.configService
             .getEndpoint('auth', 'sendTwoFactorToken')
             .pipe(switchMap((endpoint) => this.http.get<Base>(endpoint, { params })));
+    }
+    verifyTwoFactorToken(data: SignIn2faModel): Observable<Base> {
+        return this.configService
+        .getEndpoint('auth', 'verifyTwoFactorToken')
+        .pipe(
+            switchMap((endpoint) => this.http.post<Base>(endpoint, data))
+        );
     }
     /*------------------------------------Component Service------------------------------------------------*/
 
@@ -345,13 +343,13 @@ export class AuthenticationService {
     }
     //#endregion
     //#region LogOut
-    Logout(): Observable<Base> {
-        this.clearLocalStorage();
-        return this.configService
-            .getEndpoint('auth', 'logOut')
-            .pipe(
-                switchMap((endpoint) => this.http.get<Base>(endpoint))
-            );
-    }
+    // Logout(): Observable<Base> {
+    //     this.clearLocalStorage();
+    //     return this.configService
+    //         .getEndpoint('auth', 'logout')
+    //         .pipe(
+    //             switchMap((endpoint) => this.http.get<Base>(endpoint))
+    //         );
+    // }
     //#endregion
 }
