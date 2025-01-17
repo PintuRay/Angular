@@ -1,9 +1,115 @@
-<p-dialog header="{{ operationType === 'add' ? 'Add Branch' : 'Update Branch' }}" [modal]="true" [(visible)]="visible" [style]="{ width: '25rem' }">
-    <div class="grid">
-        <div class="col-12">
-            <div class="p-fluid">
-          
+<p-dialog header="{{ operationType === 'add' ? 'Add Branch' : 'Update Branch' }}" [modal]="true" [(visible)]="visible"
+    [style]="{ width: '25rem' }">
+    <form [formGroup]="branchForm" class="pt-4">
+        <div class="grid">
+            <div class="col-12 flex justify-content-end">
+                <button (click)="display=true" pButton icon="pi pi-external-link" label="Show"></button>
+            </div>
+            <div class="col-12">
+                <div class="p-fluid">
+                    <div class="field mb-6">
+                        <p-inputGroup>
+                            <p-inputGroupAddon>
+                                <i class="pi pi-user"></i>
+                            </p-inputGroupAddon>
+                            <span class="p-float-label">
+                                <input type="text" pInputText transformToUppercase id="branchName"
+                                    formControlName="branchName" autocomplete="off">
+                                <label for="name">Branch Name</label>
+                            </span>
+                        </p-inputGroup>
+                    </div>
+                    <div class="field mb-6">
+                        <p-inputGroup>
+                            <p-inputGroupAddon>
+                                <i class="pi pi-user"></i>
+                            </p-inputGroupAddon>
+                            <span class="p-float-label">
+                                <input type="text" pInputText id="branchCode" formControlName="branchCode"
+                                    autocomplete="off">
+                                <label for="name">Code</label>
+                            </span>
+                        </p-inputGroup>
+                    </div>
+                    <div class="field mb-6">
+                        <p-inputGroup>
+                            <p-inputGroupAddon>
+                                <i class="pi pi-user"></i>
+                            </p-inputGroupAddon>
+                            <span class="p-float-label">
+                                <input type="text" pInputText id="contactNumber" formControlName="contactNumber"
+                                    autocomplete="off">
+                                <label for="name">Phone Number</label>
+                            </span>
+                        </p-inputGroup>
+                    </div>
+                    <div class="field mb-6">
+                        <p-inputGroup>
+                            <p-inputGroupAddon>
+                                <i class="pi pi-user"></i>
+                            </p-inputGroupAddon>
+                            <span class="p-float-label">
+                                <input type="text" pInputText id="branchAddress" formControlName="branchAddress"
+                                    autocomplete="off">
+                                <label for="name">Address</label>
+                            </span>
+                        </p-inputGroup>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
+        <div class="grid">
+            <div class="col-6 flex justify-content-start">
+                <p-button label="Cancel" severity="secondary" (onClick)="hideDialog()" />
+            </div>
+            <div class="col-6 flex justify-content-end">
+                <button pButton type="button" [disabled]="!branchForm.valid" (click)="submit()">
+                    <ng-container *ngIf="isLoading; else branchLabel">
+                        <i class="pi pi-spin pi-spinner"></i> Loading...
+                    </ng-container>
+                    <ng-template #branchLabel>Save</ng-template>
+                </button>
+            </div>
+        </div>
+    </form>
 </p-dialog>
+
+<div class="grid">
+    <div class="col-12">
+        <p-dialog header="Dialog" [(visible)]="display" [modal]="true" showEffect="fade" [style]="{width: '60vw'}"
+            [breakpoints]="{'960px': '75vw'}">
+            <p-accordion>
+                <p-accordionTab header="Form Values" [selected]="true" class="line-height-3 m-0">
+                    <pre class="p-2 border rounded bg-gray-100" style="white-space: pre-wrap;">{{ formJson }}</pre>
+                </p-accordionTab>
+                <p-accordionTab header="Branch" class="line-height-3 m-0">
+                    <pre class="p-2 border rounded bg-gray-100" style="white-space: pre-wrap;">{{ branchJson }}</pre>
+                </p-accordionTab>
+                <p-accordionTab header="Branch Model" class="line-height-3 m-0">
+                    <pre class="p-2 border rounded bg-gray-100"
+                        style="white-space: pre-wrap;">{{ branchModelJson }}</pre>
+                </p-accordionTab>
+                <p-accordionTab header="Branch Update Model" class="line-height-3 m-0">
+                    <pre class="p-2 border rounded bg-gray-100"
+                        style="white-space: pre-wrap;">{{ BranchUpdatemodelJson }}</pre>
+                </p-accordionTab>
+                <p-accordionTab header="Form Errors" class="line-height-3 m-0">
+                    <pre class="p-2 border rounded bg-gray-100" style="white-space: pre-wrap;">{{ formErrors }}</pre>
+                </p-accordionTab>
+                <p-accordionTab header="Form Status" class="line-height-3 m-0">
+                    <p><strong>Valid:</strong> {{ branchForm.valid }}</p>
+                    <p><strong>Touched:</strong> {{ branchForm.touched }}</p>
+                    <p><strong>Dirty:</strong> {{ branchForm.dirty }}</p>
+                    <p><strong>Status:</strong> {{ branchForm.status }}</p>
+                </p-accordionTab>
+                <p-accordionTab header="Property Status" class="line-height-3 m-0">
+                    <p><strong>Operation Type:</strong> {{ operationType }}</p>
+                </p-accordionTab>
+            </p-accordion>
+            <ng-template pTemplate="footer">
+                <button pButton icon="pi pi-check" (click)="display=false" label="Ok"
+                    class="p-button-outlined"></button>
+            </ng-template>
+        </p-dialog>
+    </div>
+</div>
