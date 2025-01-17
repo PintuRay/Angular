@@ -71,7 +71,8 @@
                             <td>
                                 <div class="flex">
                                     <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2" (click)="editBranch(branch)"></button>
-                                    <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-warning" (click)="removeBranch(branch.branchId)"></button>
+                                    <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-warning" (click)="removeBranch(branch.branchId, $event )"></button>
+                                    <!-- <p-confirmPopup key="confirm2"></p-confirmPopup> -->
                                 </div>
                             </td>
                         </tr>

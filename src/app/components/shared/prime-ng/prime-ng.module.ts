@@ -59,7 +59,7 @@ import { PanelModule } from 'primeng/panel'; //Panel
 // import { TabViewModule } from 'primeng/tabview'; //TabView
 import { ToolbarModule } from 'primeng/toolbar'; //Toolbar  
 /*-----------------------------------------------Overlay-----------------------------------------------*/
-// import { ConfirmDialogModule } from 'primeng/confirmdialog'; //ConfirmDialog
+ import { ConfirmDialogModule } from 'primeng/confirmdialog'; //ConfirmDialog
 // import { ConfirmPopupModule } from 'primeng/confirmpopup'; //ConfirmPopup
 import { DialogModule } from 'primeng/dialog'; //Dialog
 // import { DynamicDialogModule } from 'primeng/dynamicdialog'; //Dynamic Dialog
@@ -171,7 +171,7 @@ import { MessageService } from 'primeng/api';
     // ScrollPanelModule,
     // TabViewModule,
     ToolbarModule,
-    // ConfirmDialogModule,
+     ConfirmDialogModule,
     // ConfirmPopupModule,
     DialogModule,
     // DynamicDialogModule,
@@ -271,7 +271,7 @@ import { MessageService } from 'primeng/api';
     // ScrollPanelModule,
     // TabViewModule,
     ToolbarModule,
-    // ConfirmDialogModule,
+     ConfirmDialogModule,
     // ConfirmPopupModule,
     DialogModule,
     // DynamicDialogModule,

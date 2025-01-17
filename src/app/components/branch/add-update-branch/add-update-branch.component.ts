@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import {  Subscription } from 'rxjs';
+import { Subscription } from 'rxjs';
 import { Branch, BranchModel, BranchUpdateModel } from 'src/app/api/entity/branch';
 import { BranchService } from 'src/app/api/service/devloper/branch.service';
 import { LayoutService } from '../../shared/service/app.layout.service';
@@ -40,18 +40,20 @@ export class AddUpdateBranchComponent {
       }
     );
     this.branchDataSub = this.branchSvcs.getBranch().subscribe((branch) => {
-      this.branch = branch;
-      this.updatebranch.branchId = branch.branchId;
-      this.branchForm.patchValue({
-        branchCode: branch.branchCode,
-        branchName: branch.branchName,
-        branchAddress: branch.branchAddress,
-        contactNumber: branch.contactNumber
-      });
+      if (branch != null) {
+        this.branch = branch;
+        this.updatebranch.branchId = branch.branchId;
+        this.branchForm.patchValue({
+          branchCode: branch.branchCode,
+          branchName: branch.branchName,
+          branchAddress: branch.branchAddress,
+          contactNumber: branch.contactNumber
+        });
+      }
     });
     this.operationTypeSub = this.branchSvcs.getOperationType().subscribe((data) => {
       this.operationType = data;
-      if (this.operationType ===  'add') {
+      if (this.operationType === 'add') {
         this.branchForm.valueChanges.subscribe((values) => {
           this.addbranch = { ...this.addbranch, ...values };
         });
@@ -78,7 +80,7 @@ export class AddUpdateBranchComponent {
 
   //#region Form Initialization
   private initializeBranchForm(): FormGroup {
-    return  this.fb.group({
+    return this.fb.group({
       branchCode: ['', [Validators.required]],
       branchName: ['', [Validators.required]],
       branchAddress: ['', [Validators.required]],
@@ -105,17 +107,55 @@ export class AddUpdateBranchComponent {
   //#endregion
 
   //# Server Side Operation
-  submit() {
-    if (this.branchForm.valid) {
-      if (this.operationType === 'add') {
-        console.log('Adding branch:', this.addbranch);
-      } else {
-    
-        console.log('Updating branch:', this.updatebranch);
+  async submit(): Promise<void> {
+    try {
+      if (this.branchForm.valid) {
+        if (this.operationType === 'add') {
+          this.branchSvcs.createBranch(this.addbranch).subscribe({
+            next: (response) => {
+              if (response.responseCode == 201) {
+                this.branch = {
+                  ...this.addbranch,
+                  branchId: response.data.id
+                };
+                this.branchSvcs.setBranch(this.branch);
+                this.hideDialog();
+              }
+            },
+            error: (response) => {
+
+            },
+            complete: () => {
+
+            }
+          })
+        } else {
+          this.branchSvcs.updateBranch(this.updatebranch).subscribe({
+            next: (response) => {
+              if (response.responseCode == 200) {
+                this.branch = {
+                  ...this.updatebranch,
+                  branchId: response.data.id
+                };
+                this.branchSvcs.setBranch(this.branch);
+                this.hideDialog();
+              }
+            },
+            error: (response) => {
+
+            },
+            complete: () => {
+
+            }
+          })
+        }
       }
+    }
+    catch (error) {
     }
   }
   //#endregion
+
   //#region Test form
   get formJson(): string {
     return JSON.stringify(this.branchForm.value, null, 2);

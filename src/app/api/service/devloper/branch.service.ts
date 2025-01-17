@@ -14,7 +14,8 @@ export class BranchService {
   //#region Property Declaration
   private addUpdateBranchVisibilitySubject = new BehaviorSubject<boolean>(false);
   changeAddUpdateBranchDialogVisibility$ = this.addUpdateBranchVisibilitySubject.asObservable();
-  private branchSubject = new Subject<Branch>();
+  private branchSubject = new BehaviorSubject<Branch | null>(null);
+  private branchListSubject = new BehaviorSubject<Branch[]>([]);
   operationTypeSubject = new Subject<string>();
 
   //#endregion
@@ -147,8 +148,14 @@ export class BranchService {
   setBranch(user: Branch): void {
     this.branchSubject.next(user);
   }
-  getBranch(): Observable<Branch> {
+  getBranch(): Observable<Branch | null> {
     return this.branchSubject.asObservable();
+  }
+  setBranchList(branches: Branch[]): void {
+    this.branchListSubject.next(branches);
+  }
+  getBranchList(): Observable<Branch[]> {
+    return this.branchListSubject.asObservable();
   }
   setOperationType(operationType: string) {
     this.operationTypeSubject.next(operationType);

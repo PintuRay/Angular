@@ -5,10 +5,11 @@ import { Branch } from 'src/app/api/entity/branch';
 import { PaginationParams } from 'src/app/api/model/paginationParams';
 import { AuthenticationService } from 'src/app/api/service/account/authentication/authentication.service';
 import { BranchService } from 'src/app/api/service/devloper/branch.service';
-
+import { ConfirmationService, MessageService } from 'primeng/api';
 @Component({
   selector: 'app-list-branch',
   templateUrl: './list-branch.component.html',
+  providers: [ConfirmationService, MessageService]
 })
 export class ListBranchComponent {
   //#region Property Declaration
@@ -26,7 +27,9 @@ export class ListBranchComponent {
   constructor(
     private branchSvcs: BranchService,
     private authSvcs: AuthenticationService,
-    private router: Router
+    private router: Router,
+    private confirmationService: ConfirmationService, 
+    private messageService: MessageService
   ) { }
   //#endregion 
 
@@ -36,18 +39,23 @@ export class ListBranchComponent {
     this.canCreate = this.authSvcs.getUserDetails().permissions.create;
     this.canUpdate = this.authSvcs.getUserDetails().permissions.update;
     this.getAllBranch(this.pagination);
-    // this.subscription = this.branchSvcs.getBranch().subscribe((branch) => {
-    //   const index = this.branches.findIndex((u) => u.branchId === branch.branchId);
-    //   if (index !== -1) {
-    //     // this.branches[index] = branch;
-    //     // this.cdr.detectChanges();
-    //   }
-    // });
+    this.subscription = this.branchSvcs.getBranch()
+    .subscribe(updatedBranch => {
+      if (updatedBranch) {
+        const index = this.branches.findIndex(b => b.branchId === updatedBranch.branchId);
+        if (index !== -1) {
+          // Update existing branch
+          this.branches[index] = updatedBranch;
+          this.branches = [...this.branches]; // Trigger change detection
+        } else {
+          // Add new branch
+          this.branches = [...this.branches, updatedBranch];
+        }
+      }
+    });
   }
   ngOnDestroy(): void {
-    if (this.subscription) {
-      this.subscription.unsubscribe();
-    }
+      this.subscription?.unsubscribe();
   }
   //#endregion
 
@@ -73,7 +81,20 @@ export class ListBranchComponent {
   bulkEditBranch() {
 
   }
-  removeBranch(id: string) { }
+  removeBranch(id: string, event: Event ) {
+    this.confirmationService.confirm({
+      key: 'confirm2',
+      target: event.target || new EventTarget,
+      message: 'Are you sure that you want to proceed?',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+          this.messageService.add({ severity: 'info', summary: 'Confirmed', detail: 'You have accepted' });
+      },
+      reject: () => {
+          this.messageService.add({ severity: 'error', summary: 'Rejected', detail: 'You have rejected' });
+      }
+  });
+   }
   bulkRemoveBranch() { }
   recoverBranch() {
     this.router.navigate(['branch/list-recover-branch']);
@@ -87,6 +108,7 @@ export class ListBranchComponent {
         next: (response) => {
           if (response.responseCode == 200) {
             this.branches = response.data.collectionObjData as Branch[];
+            this.branchSvcs.setBranchList(this.branches); 
           }
         },
         error: (response) => {
