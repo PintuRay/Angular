@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { Subject, Subscription } from 'rxjs';
+import {  Subscription } from 'rxjs';
 import { Branch, BranchModel, BranchUpdateModel } from 'src/app/api/entity/branch';
 import { BranchService } from 'src/app/api/service/devloper/branch.service';
 import { LayoutService } from '../../shared/service/app.layout.service';
@@ -20,7 +20,7 @@ export class AddUpdateBranchComponent {
   branch: Branch = new Branch();
   addbranch: BranchModel = new BranchModel();
   updatebranch: BranchUpdateModel = new BranchUpdateModel();
-  branchForm!: FormGroup;
+  branchForm: FormGroup = this.initializeBranchForm();
   isLoading: boolean = false;
   //#endregion
 
@@ -41,28 +41,32 @@ export class AddUpdateBranchComponent {
     );
     this.branchDataSub = this.branchSvcs.getBranch().subscribe((branch) => {
       this.branch = branch;
+      this.updatebranch.branchId = branch.branchId;
+      this.branchForm.patchValue({
+        branchCode: branch.branchCode,
+        branchName: branch.branchName,
+        branchAddress: branch.branchAddress,
+        contactNumber: branch.contactNumber
+      });
     });
     this.operationTypeSub = this.branchSvcs.getOperationType().subscribe((data) => {
       this.operationType = data;
+      if (this.operationType ===  'add') {
+        this.branchForm.valueChanges.subscribe((values) => {
+          this.addbranch = { ...this.addbranch, ...values };
+        });
+      }
+      else {
+        this.branchForm.valueChanges.subscribe((values) => {
+          this.updatebranch = { ...this.updatebranch, ...values };
+        });
+      }
     });
-
-    this.initializeBranchForm(this.branch);
-    if (this.operationType == 'add') {
-      this.branchForm.valueChanges.subscribe((values) => {
-        console.log(values)
-        this.addbranch = { ...this.addbranch, ...values };
-      });
-    }
-    else {
-      this.branchForm.valueChanges.subscribe((values) => {
-        this.updatebranch = { ...this.updatebranch, ...values };
-      });
-    }
   }
   ngOnDestroy() {
-    this.dialogSub.unsubscribe();
-    this.operationTypeSub.unsubscribe();
-    this.branchDataSub.unsubscribe();
+    this.dialogSub?.unsubscribe();
+    this.operationTypeSub?.unsubscribe();
+    this.branchDataSub?.unsubscribe();
   }
   //#endregion
 
@@ -73,12 +77,12 @@ export class AddUpdateBranchComponent {
   //#endregion
 
   //#region Form Initialization
-  private initializeBranchForm(branchData?: Branch): void {
-    this.branchForm = this.fb.group({
-      branchCode: [branchData ? branchData.branchCode : '', [Validators.required]],
-      branchName: [branchData ? branchData.branchName : '', [Validators.required]],
-      branchAddress: [branchData ? branchData.branchAddress : '', [Validators.required]],
-      contactNumber: [branchData ? branchData.contactNumber : '', [Validators.required]],
+  private initializeBranchForm(): FormGroup {
+    return  this.fb.group({
+      branchCode: ['', [Validators.required]],
+      branchName: ['', [Validators.required]],
+      branchAddress: ['', [Validators.required]],
+      contactNumber: ['', [Validators.required]],
     })
   }
   //#endregion
@@ -90,12 +94,26 @@ export class AddUpdateBranchComponent {
   //#region Client Side Operations
   hideDialog() {
     this.branchSvcs.hideAddUpdateBranchDialog();
+    this.resetComponent();
+  }
+  private resetComponent() {
+    this.branchForm.reset();
+    this.branch = new Branch();
+    this.addbranch = new BranchModel();
+    this.updatebranch = new BranchUpdateModel();
   }
   //#endregion
 
   //# Server Side Operation
   submit() {
-
+    if (this.branchForm.valid) {
+      if (this.operationType === 'add') {
+        console.log('Adding branch:', this.addbranch);
+      } else {
+    
+        console.log('Updating branch:', this.updatebranch);
+      }
+    }
   }
   //#endregion
   //#region Test form
