@@ -1,10 +1,10 @@
 export class PaginationParams {
     pageNumber: number;
     pageSize: number;
-    searchTerm: string;
+    searchTerm: string | null;
     constructor() {
         this.pageNumber = 0;
-        this.pageSize = 0;
-        this.searchTerm = ''
+        this.pageSize = 10;
+        this.searchTerm = null;
     }
 }

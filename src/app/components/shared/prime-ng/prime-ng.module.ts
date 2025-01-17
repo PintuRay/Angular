@@ -15,10 +15,10 @@ import { FloatLabelModule } from 'primeng/floatlabel';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputGroupModule } from 'primeng/inputgroup';
 import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
- import { InputMaskModule } from 'primeng/inputmask';
+import { InputMaskModule } from 'primeng/inputmask';
 import { InputSwitchModule } from 'primeng/inputswitch';
-// import { InputTextareaModule } from 'primeng/inputtextarea';
-// import { InputNumberModule } from 'primeng/inputnumber';
+import { InputTextareaModule } from 'primeng/inputtextarea';
+import { InputNumberModule } from 'primeng/inputnumber';
 import { InputOtpModule } from 'primeng/inputotp';
 // import { KnobModule } from 'primeng/knob';
 // import { KeyFilterModule } from 'primeng/keyfilter';
@@ -43,31 +43,31 @@ import { ButtonModule } from 'primeng/button';
 // import { PaginatorModule } from 'primeng/paginator';
 // import { PickListModule } from 'primeng/picklist';
 // import { ScrollerModule } from 'primeng/scroller';
-// import { TableModule } from 'primeng/table';
+import { TableModule } from 'primeng/table';
 // import { TimelineModule } from 'primeng/timeline';
 // import { TreeModule } from 'primeng/tree';
 // import { TreeTableModule } from 'primeng/treetable';
 /*-----------------------------------------------Panel-----------------------------------------------*/
- import { AccordionModule } from 'primeng/accordion'; //Accordion
+import { AccordionModule } from 'primeng/accordion'; //Accordion
 // import { CardModule } from 'primeng/card'; //Card
- import { DividerModule } from 'primeng/divider'; //Divider
+import { DividerModule } from 'primeng/divider'; //Divider
 // import { FieldsetModule } from 'primeng/fieldset'; //Fieldset
- import { PanelModule } from 'primeng/panel'; //Panel
+import { PanelModule } from 'primeng/panel'; //Panel
 // import { SplitterModule } from 'primeng/splitter'; //Splitter
 // import { StepperModule } from 'primeng/stepper'; //Stepper
 // import { ScrollPanelModule } from 'primeng/scrollpanel'; //ScrollPanel
 // import { TabViewModule } from 'primeng/tabview'; //TabView
-// import { ToolbarModule } from 'primeng/toolbar'; //Toolbar  
+import { ToolbarModule } from 'primeng/toolbar'; //Toolbar  
 /*-----------------------------------------------Overlay-----------------------------------------------*/
 // import { ConfirmDialogModule } from 'primeng/confirmdialog'; //ConfirmDialog
 // import { ConfirmPopupModule } from 'primeng/confirmpopup'; //ConfirmPopup
- import { DialogModule } from 'primeng/dialog'; //Dialog
+import { DialogModule } from 'primeng/dialog'; //Dialog
 // import { DynamicDialogModule } from 'primeng/dynamicdialog'; //Dynamic Dialog
 // import { OverlayPanelModule } from 'primeng/overlaypanel'; //OverlayPanel
 import { SidebarModule } from 'primeng/sidebar'; //Sidebar
 import { TooltipModule } from 'primeng/tooltip'; //Tooltip
 /*-----------------------------------------------File-----------------------------------------------*/
- import { FileUploadModule } from 'primeng/fileupload'; //FileUpload
+import { FileUploadModule } from 'primeng/fileupload'; //FileUpload
 /*-----------------------------------------------Menu-----------------------------------------------*/
 // import { BreadcrumbModule } from 'primeng/breadcrumb'; //Breadcrumb
 // import { ContextMenuModule } from 'primeng/contextmenu'; //ContextMenu
@@ -117,7 +117,7 @@ import { MessageService } from 'primeng/api';
   declarations: [],
   imports: [
     CommonModule,
-     AutoCompleteModule,
+    AutoCompleteModule,
     CalendarModule,
     // CascadeSelectModule,
     CheckboxModule,
@@ -131,10 +131,10 @@ import { MessageService } from 'primeng/api';
     InputTextModule,
     InputGroupModule,
     InputGroupAddonModule,
-     InputMaskModule,
+    InputMaskModule,
     InputSwitchModule,
-    // InputTextareaModule,
-    // InputNumberModule,
+    InputTextareaModule,
+    InputNumberModule,
     InputOtpModule,
     // KnobModule,
     // KeyFilterModule,
@@ -157,28 +157,28 @@ import { MessageService } from 'primeng/api';
     // PaginatorModule,
     // PickListModule,
     // ScrollerModule,
-    // TableModule,
+    TableModule,
     // TimelineModule,
     // TreeModule,
     // TreeTableModule,
-     AccordionModule,
+    AccordionModule,
     // CardModule,
-     DividerModule,
+    DividerModule,
     // FieldsetModule,
-     PanelModule,
+    PanelModule,
     // SplitterModule,
     // StepperModule,
     // ScrollPanelModule,
     // TabViewModule,
-    // ToolbarModule,
+    ToolbarModule,
     // ConfirmDialogModule,
     // ConfirmPopupModule,
-     DialogModule,
+    DialogModule,
     // DynamicDialogModule,
     // OverlayPanelModule,
     SidebarModule,
     TooltipModule,
-     FileUploadModule,
+    FileUploadModule,
     // BreadcrumbModule,
     // ContextMenuModule,
     // DockModule,
@@ -217,7 +217,7 @@ import { MessageService } from 'primeng/api';
     // AnimateOnScrollModule,
   ],
   exports: [
-   AutoCompleteModule,
+    AutoCompleteModule,
     CalendarModule,
     // CascadeSelectModule,
     CheckboxModule,
@@ -231,10 +231,10 @@ import { MessageService } from 'primeng/api';
     InputTextModule,
     InputGroupModule,
     InputGroupAddonModule,
-     InputMaskModule,
-  InputSwitchModule,
-    // InputTextareaModule,
-    // InputNumberModule,
+    InputMaskModule,
+    InputSwitchModule,
+    InputTextareaModule,
+    InputNumberModule,
     InputOtpModule,
     // KnobModule,
     // KeyFilterModule,
@@ -257,23 +257,23 @@ import { MessageService } from 'primeng/api';
     // PaginatorModule,
     // PickListModule,
     // ScrollerModule,
-    // TableModule,
+    TableModule,
     // TimelineModule,
     // TreeModule,
     // TreeTableModule,
-     AccordionModule,
+    AccordionModule,
     // CardModule,
-     DividerModule,
+    DividerModule,
     // FieldsetModule,
-     PanelModule,
+    PanelModule,
     // SplitterModule,
     // StepperModule,
     // ScrollPanelModule,
     // TabViewModule,
-    // ToolbarModule,
+    ToolbarModule,
     // ConfirmDialogModule,
     // ConfirmPopupModule,
-     DialogModule,
+    DialogModule,
     // DynamicDialogModule,
     // OverlayPanelModule,
     SidebarModule,
@@ -290,7 +290,7 @@ import { MessageService } from 'primeng/api';
     // TabMenuModule,
     // TieredMenuModule,
     // ChartModule,
-     MessagesModule,
+    MessagesModule,
     ToastModule,
     // CarouselModule,
     // GalleriaModule,

@@ -28,7 +28,8 @@ export class AppMenuComponent implements OnInit {
                 items: [
                     {
                         label: 'Devloper',
-                        icon: 'pi pi-fw pi-comment',
+                        
+                        icon: 'fa-brands fa-connectdevelop',
                         items: [
                             {
                                 label: 'Branch',

@@ -1,1 +1,24 @@
-<p>list-recover-branch works!</p>
+<div class="grid">
+    <div class="col-12">
+        <div class="card px-6 py-6">
+            
+                <button pButton pRipple label="Back To List" icon="fa-solid fa-circle-left" class="p-button-outlined p-button-info mb-4" (click)="BackToList()"></button>
+            
+                <p-table #dt [value]="branches" [columns]="cols" responsiveLayout="scroll" [rows]="10" [globalFilterFields]="['name','country.name','representative.name','status']" [rows]="10" [paginator]="true" [rowsPerPageOptions]="[10,20,30]" [showCurrentPageReport]="true" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [(selection)]="selectedBranches" selectionMode="multiple" [rowHover]="true" dataKey="id">
+                    <ng-template pTemplate="caption">
+                        <p-toolbar styleClass="mb-4 ">
+                            <ng-template pTemplate="left">
+                                <input pInputText type="text" (input)="onGlobalFilter()" placeholder="Search..."  class="w-full sm:w-auto"/>
+                            </ng-template>
+                            <ng-template pTemplate="right">
+                                <div class="my-2">
+                                    <button pButton pRipple label="Bulk Recover" icon="fa-solid fa-pen-to-square" class="p-button-outlined p-button-info mr-2" (click)="bulkRecoverBranch()" [disabled]="!selectedBranches || !selectedBranches.length"></button>
+                                    <button pButton pRipple label="Bulk Delete" icon="fa-solid fa-trash" class="p-button-outlined p-button-danger" (click)="bulkDeleteBranch()" [disabled]="!selectedBranches || !selectedBranches.length"></button>
+                                </div>
+                            </ng-template>
+                        </p-toolbar>
+                    </ng-template>
+                </p-table>
+        </div>
+    </div>
+</div>

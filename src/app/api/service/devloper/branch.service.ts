@@ -2,18 +2,22 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { ConfigService } from '../config.Service';
 import { Router } from '@angular/router';
-import { Observable, switchMap } from 'rxjs';
+import { BehaviorSubject, Observable, Subject, switchMap } from 'rxjs';
 import { Base } from '../../base';
 import { PaginationParams } from '../../model/paginationParams';
-import { BranchModel, BranchUpdateModel } from '../../entity/branch';
+import { Branch, BranchModel, BranchUpdateModel } from '../../entity/branch';
 
 @Injectable({
   providedIn: 'root',
 })
 export class BranchService {
   //#region Property Declaration
+  private addUpdateBranchVisibilitySubject = new BehaviorSubject<boolean>(false);
+  changeAddUpdateBranchDialogVisibility$ = this.addUpdateBranchVisibilitySubject.asObservable();
+  private branchSubject = new Subject<Branch>();
+  operationTypeSubject = new Subject<string>();
+
   //#endregion
- 
   //#region Constructor
   constructor(
     private http: HttpClient,
@@ -21,13 +25,17 @@ export class BranchService {
     private router: Router
   ) { }
   //#endregion
-  
+
   //#region Api
   getAllBranch(data: PaginationParams): Observable<Base> {
-    const params = new HttpParams()
+    let params = new HttpParams()
       .set('pageNumber', data.pageNumber.toString())
       .set('pageSize', data.pageSize.toString())
-      .set('searchTerm', data.searchTerm);
+     
+      if (data.searchTerm !== null) { 
+        params = params.set('searchTerm', data.searchTerm); 
+      }
+
     return this.configService
       .getEndpoint('devloper', 'getAllBranch')
       .pipe(
@@ -79,10 +87,13 @@ export class BranchService {
       );
   }
   getRemovedBranches(data: PaginationParams): Observable<Base> {
-    const params = new HttpParams()
+    let params = new HttpParams()
       .set('pageNumber', data.pageNumber.toString())
       .set('pageSize', data.pageSize.toString())
-      .set('searchTerm', data.searchTerm);
+      if (data.searchTerm !== null) { 
+        params = params.set('searchTerm', data.searchTerm); 
+      }
+
     return this.configService
       .getEndpoint('devloper', 'getRemovedBranches')
       .pipe(
@@ -127,6 +138,23 @@ export class BranchService {
   //#endregion
 
   //#region component service
-
- //#endregion
+  showAddUpdateBranchdDialog() {
+    this.addUpdateBranchVisibilitySubject.next(true);
+  }
+  hideAddUpdateBranchDialog() {
+    this.addUpdateBranchVisibilitySubject.next(false);
+  }
+  setBranch(user: Branch): void {
+    this.branchSubject.next(user);
+  }
+  getBranch(): Observable<Branch> {
+    return this.branchSubject.asObservable();
+  }
+  setOperationType(operationType: string) {
+    this.operationTypeSubject.next(operationType);
+  }
+  getOperationType(): Observable<string>{
+    return this.operationTypeSubject.asObservable();
+  }
+  //#endregion
 }

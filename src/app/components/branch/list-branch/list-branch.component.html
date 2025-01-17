@@ -1,1 +1,82 @@
-<p>list-branch works!</p>
+<p-toast></p-toast>
+<!---------------------------------------------Modal------------------------------------------------->
+<app-add-update-branch></app-add-update-branch>
+<!--------------------------------------------------------------------------------------------------->
+<div class="grid">
+    <div class="col-12">
+        <div class="card px-6 py-6">
+            <p-toolbar styleClass="mb-4">
+                <ng-template pTemplate="left">
+                    <button pButton pRipple label="Recover Branch" icon="fa-solid fa-rotate" class="p-button-outlined p-button-info" (click)="recoverBranch()"></button>
+                </ng-template>
+                <ng-template pTemplate="right">
+                    <div class="my-2">
+                        <button pButton pRipple label="Add" icon="fa-solid fa-circle-plus" class="p-button-outlined p-button-success mr-2" (click)="addBranch()"></button>
+                        <button pButton pRipple label="Bulk Add" icon="fa-solid fa-notes-medical" class="p-button-outlined p-button-success" (click)="bulkAddBranch()"></button>
+                    </div>
+                </ng-template>
+            </p-toolbar>
+                <p-table #dt [value]="branches" [columns]="cols" responsiveLayout="scroll" [rows]="10" [globalFilterFields]="['branchCode','branchName','branchAddress','contactNumber']" [rows]="10" [paginator]="true" [rowsPerPageOptions]="[10,20,30]" [showCurrentPageReport]="true" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [(selection)]="selectedBranches" selectionMode="multiple" [rowHover]="true" dataKey="id">
+                    <ng-template pTemplate="caption">
+                
+                        <p-toolbar styleClass="mb-4 ">
+                            <ng-template pTemplate="left">
+                                <button pButton pRipple label="Import" icon="fa-solid fa-download" class="p-button-outlined p-button-info mr-2" (click)="dt.exportCSV()"></button>
+                                <button pButton pRipple label="Export" icon="pi pi-upload" class="p-button-outlined p-button-help mr-2" (click)="dt.exportCSV()"></button>
+                                <button pButton pRipple label="Print" icon="fa-solid fa-print" class="p-button-outlined p-button-warning" (click)="dt.exportCSV()"></button>
+                            </ng-template>
+                            <ng-template pTemplate="right">
+                                <div class="my-2">
+                                    <button pButton pRipple label="Bulk Edit" icon="fa-solid fa-pen-to-square" class="p-button-outlined p-button-info mr-2" (click)="bulkEditBranch()" [disabled]="!selectedBranches || !selectedBranches.length"></button>
+                                    <button pButton pRipple label="Bulk Delete" icon="fa-solid fa-trash" class="p-button-outlined p-button-danger" (click)="bulkRemoveBranch()" [disabled]="!selectedBranches || !selectedBranches.length"></button>
+                                </div>
+                            </ng-template>
+                        </p-toolbar>
+                        <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+                            <span class="block mb-2 md:mt-0 p-input-icon-left">
+                                <i class="pi pi-search"></i>
+                                <input pInputText type="text" (input)="onGlobalFilter()" placeholder="Search..."  class="w-full sm:w-auto"/>
+                            </span>
+                        </div>
+                    </ng-template>
+                    <ng-template pTemplate="header">
+                        <tr>
+                            <th style="width: 3rem">
+                                <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                            </th>
+                            <th pSortableColumn="branchCode"> Branch Code <p-sortIcon field="branchCode"></p-sortIcon></th>
+                            <th pSortableColumn="branchName"> Branch Name <p-sortIcon field="branchName"></p-sortIcon></th>
+                            <th pSortableColumn="contactNumber">Contact Number <p-sortIcon field="contactNumber"></p-sortIcon></th>
+                            <th pSortableColumn="branchAddress"> Address <p-sortIcon field="branchAddress"></p-sortIcon></th>
+                            <th>Action</th>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-branch>
+                        <tr>
+                            <td>
+                                <p-tableCheckbox [value]="branch"></p-tableCheckbox>
+                            </td>
+                            <td style="width:20%; min-width:12rem;">
+                                {{branch.branchCode}}
+                            </td>
+                            <td style="width:20%; min-width:12rem;">
+                                {{branch.branchName}}
+                            </td>
+                            <td style="width:20%; min-width:12rem;">
+                                {{branch.contactNumber}}
+                            </td>
+                            <td style="width:20%; min-width:15rem;">
+                                {{branch.branchAddress}}
+                            </td>
+                            <td>
+                                <div class="flex">
+                                    <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2" (click)="editBranch(branch)"></button>
+                                    <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-warning" (click)="removeBranch(branch.branchId)"></button>
+                                </div>
+                            </td>
+                        </tr>
+                    </ng-template>
+                </p-table>
+        </div>
+    </div>
+</div>

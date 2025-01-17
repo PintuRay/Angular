@@ -20,9 +20,11 @@ export class AppTopbarComponent implements OnInit {
         private authSvcs: AuthenticationService,
         private router: Router,
         public el: ElementRef) { }
+
     ngOnInit() {
         this.valSwitch = this.authSvcs.isTwoFactorEnabled();
     }
+
     async onToggle2FA() {
         try {
             const uid = this.authSvcs.getUserDetails().id;
@@ -51,9 +53,9 @@ export class AppTopbarComponent implements OnInit {
             // Add your error handling here
         }
     }
-     logout() {
-       this.authSvcs.clearLocalStorage();
-       this.router.navigate(['auth/login']);
+    logout() {
+        this.authSvcs.clearLocalStorage();
+        this.router.navigate(['auth/login']);
     }
     openChangePassword() {
         this.topBarService.showChangePasswordDialog();
