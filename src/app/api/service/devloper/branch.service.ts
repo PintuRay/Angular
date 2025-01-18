@@ -16,6 +16,7 @@ export class BranchService {
   changeAddUpdateBranchDialogVisibility$ = this.addUpdateBranchVisibilitySubject.asObservable();
   private branchSubject = new BehaviorSubject<Branch | null>(null);
   private branchListSubject = new BehaviorSubject<Branch[]>([]);
+  private deleteBranchSubject = new BehaviorSubject<string>('');
   operationTypeSubject = new Subject<string>();
 
   //#endregion
@@ -156,6 +157,12 @@ export class BranchService {
   }
   getBranchList(): Observable<Branch[]> {
     return this.branchListSubject.asObservable();
+  }
+  setDeletedBranch(branchId: string): void {
+    this.deleteBranchSubject.next(branchId);
+  }
+  getDeletedBranch(): Observable<string> {
+    return this.deleteBranchSubject.asObservable();
   }
   setOperationType(operationType: string) {
     this.operationTypeSubject.next(operationType);
