@@ -16,8 +16,10 @@ export class ListBranchComponent {
   canDelete: boolean = false;
   canCreate: boolean = false;
   canUpdate: boolean = false;
-  subscription!: Subscription;
+  branchsubscription!: Subscription;
+  bulkBranchsubscription!:Subscription
   deleteSubscription!: Subscription;
+  bulkDeleteSubscription!: Subscription;
   branches: Branch[] = [];
   selectedBranches: Branch[] = [];
   cols: any[] = [];
@@ -39,8 +41,10 @@ export class ListBranchComponent {
     this.canDelete = this.authSvcs.getUserDetails().permissions.delete;
     this.canCreate = this.authSvcs.getUserDetails().permissions.create;
     this.canUpdate = this.authSvcs.getUserDetails().permissions.update;
+    
     this.getAllBranch(this.pagination);
-    this.subscription = this.branchSvcs.getBranch()
+    
+    this.branchsubscription = this.branchSvcs.getBranch()
       .subscribe(updatedBranch => {
         if (updatedBranch) {
           const index = this.branches.findIndex(b => b.branchId === updatedBranch.branchId);
@@ -52,16 +56,36 @@ export class ListBranchComponent {
           }
         }
       });
+
+      this.bulkBranchsubscription = this.branchSvcs.getBulkBranch()
+      .subscribe(bulkBranches => {
+        if (bulkBranches && bulkBranches.length > 0) {
+          const updatedBranches = [...this.branches];
+          bulkBranches.forEach(newBranch => {
+            const existingIndex = updatedBranches.findIndex(b => b.branchId === newBranch.branchId);
+            if (existingIndex !== -1) {
+              updatedBranches[existingIndex] = newBranch;
+            } else {
+              updatedBranches.push(newBranch);
+            }
+          });
+          this.branches = [...updatedBranches];
+        }
+      });
+
       this.deleteSubscription = this.branchSvcs.getDeletedBranch()
       .subscribe(deletedBranchId => {
         if (deletedBranchId) {
           this.branches = this.branches.filter(branch => branch.branchId !== deletedBranchId);
         }
       });
+      
   }
   ngOnDestroy(): void {
-    this.subscription?.unsubscribe();
+    this.branchsubscription?.unsubscribe();
+    this.bulkBranchsubscription?.unsubscribe();
     this.deleteSubscription?.unsubscribe();
+    this.bulkDeleteSubscription?.unsubscribe();
   }
   //#endregion
 
@@ -80,12 +104,13 @@ export class ListBranchComponent {
     this.branchSvcs.showAddUpdateBranchdDialog();
   }
   bulkAddBranch() {
-    this.branchSvcs.setOperationType("add");
+    this.branchSvcs.setBulkOperationType("add");
     this.router.navigate(['branch/bulk-add-update']);
   }
-
   bulkEditBranch() {
-
+    this.branchSvcs.setBulkOperationType("edit"); 
+    this.branchSvcs.setBulkBranch(this.selectedBranches);
+    this.router.navigate(['branch/bulk-add-update']);
   }
   removeBranch(id: string, event: Event) {
     this.confirmationService.confirm({
@@ -115,7 +140,9 @@ export class ListBranchComponent {
       }
     });
   }
-  bulkRemoveBranch() { }
+  bulkRemoveBranch() { 
+    
+  }
   recoverBranch() {
     this.router.navigate(['branch/list-recover-branch']);
   }

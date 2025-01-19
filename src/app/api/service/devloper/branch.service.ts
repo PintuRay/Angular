@@ -14,12 +14,15 @@ export class BranchService {
   //#region Property Declaration
   private addUpdateBranchVisibilitySubject = new BehaviorSubject<boolean>(false);
   changeAddUpdateBranchDialogVisibility$ = this.addUpdateBranchVisibilitySubject.asObservable();
+  private branchListSubject = new BehaviorSubject<Branch[]| null>([]);
   private branchSubject = new BehaviorSubject<Branch | null>(null);
-  private branchListSubject = new BehaviorSubject<Branch[]>([]);
-  private deleteBranchSubject = new BehaviorSubject<string>('');
-  operationTypeSubject = new Subject<string>();
-
+  private bulkBranchSubject = new BehaviorSubject<Branch[] | null>(null);
+  private deleteBranchSubject = new BehaviorSubject<string| null>('');
+  private bulkDeleteBranchSubject = new BehaviorSubject<string[]| null>([]);
+  private operationTypeSubject = new BehaviorSubject<string>('');
+  private bulkOperationTypeSubject = new BehaviorSubject<string>('');
   //#endregion
+
   //#region Constructor
   constructor(
     private http: HttpClient,
@@ -33,10 +36,10 @@ export class BranchService {
     let params = new HttpParams()
       .set('pageNumber', data.pageNumber.toString())
       .set('pageSize', data.pageSize.toString())
-     
-      if (data.searchTerm !== null) { 
-        params = params.set('searchTerm', data.searchTerm); 
-      }
+
+    if (data.searchTerm !== null) {
+      params = params.set('searchTerm', data.searchTerm);
+    }
 
     return this.configService
       .getEndpoint('devloper', 'getAllBranch')
@@ -92,9 +95,9 @@ export class BranchService {
     let params = new HttpParams()
       .set('pageNumber', data.pageNumber.toString())
       .set('pageSize', data.pageSize.toString())
-      if (data.searchTerm !== null) { 
-        params = params.set('searchTerm', data.searchTerm); 
-      }
+    if (data.searchTerm !== null) {
+      params = params.set('searchTerm', data.searchTerm);
+    }
 
     return this.configService
       .getEndpoint('devloper', 'getRemovedBranches')
@@ -139,36 +142,60 @@ export class BranchService {
 
   //#endregion
 
-  //#region component service
+  //#region component modal service
   showAddUpdateBranchdDialog() {
     this.addUpdateBranchVisibilitySubject.next(true);
   }
   hideAddUpdateBranchDialog() {
     this.addUpdateBranchVisibilitySubject.next(false);
   }
-  setBranch(user: Branch): void {
-    this.branchSubject.next(user);
+  //#endregion
+ 
+  //#region component Set service
+  setOperationType(operationType: string) {
+    this.operationTypeSubject.next(operationType);
   }
-  getBranch(): Observable<Branch | null> {
-    return this.branchSubject.asObservable();
+  setBulkOperationType(operationType: string) {
+    this.bulkOperationTypeSubject.next(operationType);
   }
   setBranchList(branches: Branch[]): void {
     this.branchListSubject.next(branches);
   }
-  getBranchList(): Observable<Branch[]> {
-    return this.branchListSubject.asObservable();
+  setBranch(branch: Branch): void {
+    this.branchSubject.next(branch);
+  }
+  setBulkBranch(branch: Branch[]): void {
+    this.bulkBranchSubject.next(branch);
   }
   setDeletedBranch(branchId: string): void {
     this.deleteBranchSubject.next(branchId);
   }
-  getDeletedBranch(): Observable<string> {
+  setBulkDeletedBranch(branchIds: string[]): void {
+    this.bulkDeleteBranchSubject.next(branchIds);
+  }
+  //#endregion
+
+  //#region component Get service
+  getOperationType(): Observable<string> {
+    return this.operationTypeSubject.asObservable();
+  }
+  getBulkOperationType(): Observable<string> {
+    return this.bulkOperationTypeSubject.asObservable();
+  }
+  getBranchList(): Observable<Branch[] | null> {
+    return this.branchListSubject.asObservable();
+  }
+  getBranch(): Observable<Branch | null> {
+    return this.branchSubject.asObservable();
+  }
+  getBulkBranch(): Observable<Branch[]| null> {
+    return this.bulkBranchSubject.asObservable();
+  }
+  getDeletedBranch(): Observable<string| null> {
     return this.deleteBranchSubject.asObservable();
   }
-  setOperationType(operationType: string) {
-    this.operationTypeSubject.next(operationType);
-  }
-  getOperationType(): Observable<string>{
-    return this.operationTypeSubject.asObservable();
+  getBulkDeletedBranch(): Observable<string[]| null> {
+    return this.bulkDeleteBranchSubject.asObservable();
   }
   //#endregion
 }

@@ -13,23 +13,24 @@ export class AddUpdateBranchComponent {
   //#region Property Declaration
   display: boolean = false;
   visible: boolean = false;
+  operationType: string = '';
   private dialogSub!: Subscription;
   private branchDataSub!: Subscription;
   private operationTypeSub!: Subscription;
-  operationType: string = '';
-  branch: Branch = new Branch();
-  addbranch: BranchModel = new BranchModel();
-  updatebranch: BranchUpdateModel = new BranchUpdateModel();
-  branchForm: FormGroup = this.initializeBranchForm();
+  branch: Branch;
+  addbranch: BranchModel;
+  updatebranch: BranchUpdateModel;
+  branchForm: FormGroup;
   isLoading: boolean = false;
   //#endregion
 
   //#region constructor
-  constructor(
-    private fb: FormBuilder,
-    private branchSvcs: BranchService,
-    public layoutSvcs: LayoutService,
-  ) { }
+  constructor(private fb: FormBuilder, private branchSvcs: BranchService, public layoutSvcs: LayoutService) {
+    this.branchForm = this.initializeBranchForm();
+    this.branch = new Branch();
+    this.addbranch = new BranchModel();
+    this.updatebranch = new BranchUpdateModel()
+  }
   //#endregion
 
   //#region Lifecycle Hooks
@@ -106,14 +107,14 @@ export class AddUpdateBranchComponent {
   }
   //#endregion
 
-  //# Server Side Operation
+  //#region Server Side Operation
   async submit(): Promise<void> {
     try {
       if (this.branchForm.valid) {
         if (this.operationType === 'add') {
           this.branchSvcs.createBranch(this.addbranch).subscribe({
             next: (response) => {
-              if (response.responseCode == 201) {
+              if (response.responseCode === 201) {
                 this.branch = {
                   ...this.addbranch,
                   branchId: response.data.id
