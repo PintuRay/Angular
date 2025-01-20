@@ -53,7 +53,6 @@ export class BranchModel {
     }
   }
   export class Branch extends BranchUpdateModel {
-   
     isActive?: boolean;
     createdDate?: Date;
     modifyDate?: Date;
@@ -94,7 +93,6 @@ export class BranchModel {
     labourRates?: LabourRate[];
     constructor() {
       super();
-      this.branchId = '';
       this.isActive = false;
       this.createdDate = new Date();
       this.modifyDate = new Date();

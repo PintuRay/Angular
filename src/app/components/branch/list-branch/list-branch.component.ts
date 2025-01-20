@@ -6,6 +6,7 @@ import { PaginationParams } from 'src/app/api/model/paginationParams';
 import { AuthenticationService } from 'src/app/api/service/account/authentication/authentication.service';
 import { BranchService } from 'src/app/api/service/devloper/branch.service';
 import { ConfirmationService, MessageService } from 'primeng/api';
+import * as XLSX from 'xlsx';
 @Component({
   selector: 'app-list-branch',
   templateUrl: './list-branch.component.html',
@@ -17,13 +18,13 @@ export class ListBranchComponent {
   canCreate: boolean = false;
   canUpdate: boolean = false;
   branchsubscription!: Subscription;
-  bulkBranchsubscription!:Subscription
+  bulkBranchsubscription!: Subscription
   deleteSubscription!: Subscription;
   bulkDeleteSubscription!: Subscription;
-  branches: Branch[] = [];
-  selectedBranches: Branch[] = [];
-  cols: any[] = [];
-  pagination = new PaginationParams();
+  branches: Branch[];
+  selectedBranches: Branch[];
+  cols: any[];
+  pagination: PaginationParams;
   //#endregion 
 
   //#region constructor
@@ -33,7 +34,12 @@ export class ListBranchComponent {
     private router: Router,
     private confirmationService: ConfirmationService,
     private messageService: MessageService
-  ) { }
+  ) {
+    this.branches = [];
+    this.selectedBranches = [];
+    this.cols = [];
+    this.pagination = new PaginationParams();
+  }
   //#endregion 
 
   //#region Lifecycle Hooks
@@ -41,9 +47,9 @@ export class ListBranchComponent {
     this.canDelete = this.authSvcs.getUserDetails().permissions.delete;
     this.canCreate = this.authSvcs.getUserDetails().permissions.create;
     this.canUpdate = this.authSvcs.getUserDetails().permissions.update;
-    
+
     this.getAllBranch(this.pagination);
-    
+
     this.branchsubscription = this.branchSvcs.getBranch()
       .subscribe(updatedBranch => {
         if (updatedBranch) {
@@ -57,7 +63,7 @@ export class ListBranchComponent {
         }
       });
 
-      this.bulkBranchsubscription = this.branchSvcs.getBulkBranch()
+    this.bulkBranchsubscription = this.branchSvcs.getBulkBranch()
       .subscribe(bulkBranches => {
         if (bulkBranches && bulkBranches.length > 0) {
           const updatedBranches = [...this.branches];
@@ -73,13 +79,8 @@ export class ListBranchComponent {
         }
       });
 
-      this.deleteSubscription = this.branchSvcs.getDeletedBranch()
-      .subscribe(deletedBranchId => {
-        if (deletedBranchId) {
-          this.branches = this.branches.filter(branch => branch.branchId !== deletedBranchId);
-        }
-      });
-      
+
+
   }
   ngOnDestroy(): void {
     this.branchsubscription?.unsubscribe();
@@ -94,6 +95,7 @@ export class ListBranchComponent {
   //#endregion
 
   //#region Client Side Operations
+  onGlobalFilter() { }
   addBranch() {
     this.branchSvcs.setOperationType("add");
     this.branchSvcs.showAddUpdateBranchdDialog();
@@ -108,9 +110,31 @@ export class ListBranchComponent {
     this.router.navigate(['branch/bulk-add-update']);
   }
   bulkEditBranch() {
-    this.branchSvcs.setBulkOperationType("edit"); 
+    this.branchSvcs.setBulkOperationType("edit");
     this.branchSvcs.setBulkBranch(this.selectedBranches);
     this.router.navigate(['branch/bulk-add-update']);
+  }
+  recoverBranch() {
+    this.router.navigate(['branch/list-recover-branch']);
+  }
+  //#endregion
+
+  //#region Server Side Operation
+  async getAllBranch(pagination: PaginationParams): Promise<void> {
+    try {
+      this.branchSvcs.getAllBranch(pagination).subscribe({
+        next: (response) => {
+          if (response.responseCode == 200) {
+            this.branches = response.data.collectionObjData as Branch[];
+          }
+        },
+        error: (response) => {},
+        complete: () => { }
+      })
+    }
+    catch (error) {
+
+    }
   }
   removeBranch(id: string, event: Event) {
     this.confirmationService.confirm({
@@ -122,7 +146,8 @@ export class ListBranchComponent {
         this.branchSvcs.removeBranch(id).subscribe({
           next: (response) => {
             if (response.responseCode == 200) {
-              this.branchSvcs.setDeletedBranch(response.data.id);
+              this.branches = this.branches.filter(branch => branch.branchId !== id);
+              //this.branchSvcs.setDeletedBranch(response.data.id);
               this.messageService.add({ severity: 'info', summary: 'Confirmed', detail: response.message });
             }
           },
@@ -133,42 +158,29 @@ export class ListBranchComponent {
 
           }
         })
-
       },
       reject: () => {
         this.messageService.add({ severity: 'error', summary: 'Rejected', detail: 'You have rejected' });
       }
     });
   }
-  bulkRemoveBranch() { 
-    
-  }
-  recoverBranch() {
-    this.router.navigate(['branch/list-recover-branch']);
-  }
-  onGlobalFilter() { }
-  //#endregion
-  //#region Server Side Operation
-  async getAllBranch(pagination: PaginationParams): Promise<void> {
-    try {
-      this.branchSvcs.getAllBranch(pagination).subscribe({
-        next: (response) => {
-          if (response.responseCode == 200) {
-            this.branches = response.data.collectionObjData as Branch[];
-            this.branchSvcs.setBranchList(this.branches);
-          }
-        },
-        error: (response) => {
-
-        },
-        complete: () => {
-
+  bulkRemoveBranch() {
+    const branchIds = this.selectedBranches.map(branch => branch.branchId);
+    this.branchSvcs.bulkRemoveBranch(branchIds).subscribe({
+      next: (response) => {
+        if (response.responseCode == 200) {
+          this.branches = this.branches.filter(branch => !branchIds.includes(branch.branchId));
+          this.selectedBranches = [];
+          this.messageService.add({ severity: 'info', summary: 'Confirmed', detail: response.message });
         }
-      })
-    }
-    catch (error) {
+      },
+      error: (response) => {
 
-    }
+      },
+      complete: () => {
+
+      }
+    })
   }
   //#endregion
 }

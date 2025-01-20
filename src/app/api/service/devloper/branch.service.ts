@@ -14,11 +14,10 @@ export class BranchService {
   //#region Property Declaration
   private addUpdateBranchVisibilitySubject = new BehaviorSubject<boolean>(false);
   changeAddUpdateBranchDialogVisibility$ = this.addUpdateBranchVisibilitySubject.asObservable();
-  private branchListSubject = new BehaviorSubject<Branch[]| null>([]);
+  //private branchListSubject = new BehaviorSubject<Branch[]| null>([]);
+  private recoverBranchListSubject = new BehaviorSubject<Branch[]| null>([]);
   private branchSubject = new BehaviorSubject<Branch | null>(null);
   private bulkBranchSubject = new BehaviorSubject<Branch[] | null>(null);
-  private deleteBranchSubject = new BehaviorSubject<string| null>('');
-  private bulkDeleteBranchSubject = new BehaviorSubject<string[]| null>([]);
   private operationTypeSubject = new BehaviorSubject<string>('');
   private bulkOperationTypeSubject = new BehaviorSubject<string>('');
   //#endregion
@@ -158,21 +157,16 @@ export class BranchService {
   setBulkOperationType(operationType: string) {
     this.bulkOperationTypeSubject.next(operationType);
   }
-  setBranchList(branches: Branch[]): void {
-    this.branchListSubject.next(branches);
-  }
+  // setBranchList(branches: Branch[]): void {
+  //   this.branchListSubject.next(branches);
+  // }
   setBranch(branch: Branch): void {
     this.branchSubject.next(branch);
   }
   setBulkBranch(branch: Branch[]): void {
     this.bulkBranchSubject.next(branch);
   }
-  setDeletedBranch(branchId: string): void {
-    this.deleteBranchSubject.next(branchId);
-  }
-  setBulkDeletedBranch(branchIds: string[]): void {
-    this.bulkDeleteBranchSubject.next(branchIds);
-  }
+
   //#endregion
 
   //#region component Get service
@@ -182,20 +176,14 @@ export class BranchService {
   getBulkOperationType(): Observable<string> {
     return this.bulkOperationTypeSubject.asObservable();
   }
-  getBranchList(): Observable<Branch[] | null> {
-    return this.branchListSubject.asObservable();
-  }
+  // getBranchList(): Observable<Branch[] | null> {
+  //   return this.branchListSubject.asObservable();
+  // }
   getBranch(): Observable<Branch | null> {
     return this.branchSubject.asObservable();
   }
   getBulkBranch(): Observable<Branch[]| null> {
     return this.bulkBranchSubject.asObservable();
-  }
-  getDeletedBranch(): Observable<string| null> {
-    return this.deleteBranchSubject.asObservable();
-  }
-  getBulkDeletedBranch(): Observable<string[]| null> {
-    return this.bulkDeleteBranchSubject.asObservable();
   }
   //#endregion
 }
