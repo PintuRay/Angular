@@ -38,7 +38,7 @@ export class BranchService {
   //#region Api
   getAllBranch(): Observable<Base> {
     return this.configService
-      .getEndpoint('devloper', 'getAllBranch')
+      .getEndpoint('devloper', 'getAllBranches')
       .pipe(
         switchMap((endpoint) =>
           this.http.get<Base>(endpoint)

@@ -5,8 +5,10 @@ import { Branch, BranchModel } from 'src/app/api/entity/branch';
 import { PaginationParams } from 'src/app/api/model/paginationParams';
 import { AuthenticationService } from 'src/app/api/service/account/authentication/authentication.service';
 import { BranchService } from 'src/app/api/service/devloper/branch.service';
-import { ConfirmationService, MessageService } from 'primeng/api';
+import { ConfirmationService, MessageService, MenuItem } from 'primeng/api';
 import * as XLSX from 'xlsx';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import { FileUpload } from 'primeng/fileupload';
 @Component({
   selector: 'app-list-branch',
@@ -57,8 +59,9 @@ export class ListBranchComponent {
   pagination: PaginationParams;
   @ViewChild('fileUpload') fileUpload!: FileUpload;
   importOptionsVisible: boolean = false;
+  exportOptionsVisible: boolean = false;
   totalRecords: number = 0;
- 
+
   //#endregion 
 
   //#region constructor
@@ -201,6 +204,92 @@ export class ListBranchComponent {
       });
     };
     reader.readAsArrayBuffer(file);
+  }
+  onExportClick() {
+    this.exportOptionsVisible = true;
+  }
+  private prepareData(data: Branch[]) {
+    return data.map(branch => ({
+      'Branch Code': branch.branchCode,
+      'Branch Name': branch.branchName,
+      'Contact Number': branch.contactNumber,
+      'Address': branch.branchAddress
+    }));
+  }
+  exportExcel(data: Branch[], fileName: string = 'branches') {
+    const preparedData = this.prepareData(data);
+    const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(preparedData);
+    const columnWidths = [
+      { wch: 15 }, // Branch Code
+      { wch: 25 }, // Branch Name
+      { wch: 15 }, // Contact Number
+      { wch: 30 }, // Address
+    ];
+    worksheet['!cols'] = columnWidths;
+    // Create workbook and add worksheet
+    const workbook: XLSX.WorkBook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Branches');
+    // Save file
+    XLSX.writeFile(workbook, `${fileName}.xlsx`);
+  }
+  exportAsExcel() {
+    this.branchSvcs.getAllBranch().subscribe({
+      next: (response) => {
+        if (response.responseCode === 200) {
+          const data = response.data.collectionObjData as Branch[];
+          this.exportExcel(data, 'branch-list');
+        }
+      },
+      error: (response) => {
+        this.messageService.add({ severity: 'error', summary: 'error', detail: 'Internal Server Error' });
+      },
+    })
+  }
+  exportPdf(data: Branch[], fileName: string = 'branches') {
+    const preparedData = this.prepareData(data); 
+    // Initialize PDF document
+    const doc = new jsPDF();
+    // Define table headers
+    const headers = [['Branch Code', 'Branch Name', 'Contact Number', 'Address']];
+    // Prepare table data
+    const tableData = preparedData.map(item => [
+      item['Branch Code'],
+      item['Branch Name'],
+      item['Contact Number'],
+      item['Address']
+    ]);
+    // Add table to PDF
+    autoTable(doc, {
+      head: headers,
+      body: tableData,
+      styles: { fontSize: 8 },
+      headStyles: { fillColor: [71, 71, 71] },
+      columnStyles: {
+        0: { cellWidth: 30 },
+        1: { cellWidth: 50 },
+        2: { cellWidth: 30 },
+        3: { cellWidth: 80 }
+      },
+      margin: { top: 20 }
+    });
+    // Save PDF
+    doc.save(`${fileName}.pdf`);
+  }
+  exportAsPdf() {
+    this.branchSvcs.getAllBranch().subscribe({
+      next: (response) => {
+        if (response.responseCode === 200) {
+          const data = response.data.collectionObjData as Branch[];
+          this.exportPdf(data, 'branch-list');
+        }
+      },
+      error: (response) => {
+        this.messageService.add({ severity: 'error', summary: 'error', detail: 'Internal Server Error' });
+      },
+    })
+  }
+  print(){
+    
   }
   //#endregion
 

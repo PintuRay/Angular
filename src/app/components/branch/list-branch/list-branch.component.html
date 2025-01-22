@@ -5,12 +5,24 @@
     <div class="flex flex-column gap-4 p-3">
         <!-- Sample File Download -->
         <div class="flex justify-content-between align-items-center">
-            <button pButton icon="pi pi-download" label="Download Sample File" class="p-button-outlined"
-                (click)="downloadSampleFile()">
-            </button>
-            <p-fileUpload #fileUpload mode="basic" chooseLabel="Upload Excel File" [auto]="true" accept=".xls,.xlsx"
-                (uploadHandler)="importExcelFile($event)" [customUpload]="true">
-            </p-fileUpload>
+                <button pButton icon="pi pi-download" label="Download Sample File" class="p-button-outlined"
+                    (click)="downloadSampleFile()">
+                </button>
+                <p-fileUpload #fileUpload mode="basic" chooseLabel="Upload Excel File" [auto]="true" accept=".xls,.xlsx"
+                    (uploadHandler)="importExcelFile($event)" [customUpload]="true"> 
+                </p-fileUpload>
+        </div>
+    </div>
+</p-dialog>
+<p-dialog [(visible)]="exportOptionsVisible" [style]="{width: '30rem'}" [modal]="true" header="Export Branches">
+    <div class="flex flex-column gap-4 p-3">
+        <div class="flex justify-content-between align-items-center">
+                <button pButton icon="fa-solid fa-file-excel" label="Export as Excel" class="p-button-outlined"
+                    (click)="exportAsExcel()">
+                </button>
+                <button pButton icon="fa-solid fa-file-pdf" label="Export as Pdf" class="p-button-outlined"
+                    (click)="exportAsPdf()">
+                </button>
         </div>
     </div>
 </p-dialog>
@@ -48,11 +60,10 @@
                             <button pButton pRipple label="Import" icon="fa-solid fa-download"
                                 class="p-button-outlined p-button-info mr-2" [disabled]="!canCreate"
                                 (click)="onImportClick()"></button>
-                                <!-- <p-splitButton label="Options" icon="pi pi-check" [model]="items"></p-splitButton> -->
                             <button pButton pRipple label="Export" icon="pi pi-upload"
-                                class="p-button-outlined p-button-help mr-2" (click)="dt.exportCSV()"></button>
+                                class="p-button-outlined p-button-help mr-2" (click)="onExportClick()"></button>
                             <button pButton pRipple label="Print" icon="fa-solid fa-print"
-                                class="p-button-outlined p-button-warning" (click)="dt.exportCSV()"></button>
+                                class="p-button-outlined p-button-warning" (click)="print()"></button>
                         </ng-template>
                         <ng-template pTemplate="right">
                             <div class="my-2">
