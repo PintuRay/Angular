@@ -6,7 +6,14 @@ import { BehaviorSubject, Observable, Subject, switchMap } from 'rxjs';
 import { Base } from '../../base';
 import { PaginationParams } from '../../model/paginationParams';
 import { Branch, BranchModel, BranchUpdateModel } from '../../entity/branch';
-
+export interface BranchOperation {
+  branch: Branch;
+  isSuccess?: boolean; 
+}
+export interface bulkBranchOperation {
+  branches: Branch[];
+  isSuccess?: boolean; 
+}
 @Injectable({
   providedIn: 'root',
 })
@@ -14,10 +21,8 @@ export class BranchService {
   //#region Property Declaration
   private addUpdateBranchVisibilitySubject = new BehaviorSubject<boolean>(false);
   changeAddUpdateBranchDialogVisibility$ = this.addUpdateBranchVisibilitySubject.asObservable();
-  //private branchListSubject = new BehaviorSubject<Branch[]| null>([]);
-  private recoverBranchListSubject = new BehaviorSubject<Branch[]| null>([]);
-  private branchSubject = new BehaviorSubject<Branch | null>(null);
-  private bulkBranchSubject = new BehaviorSubject<Branch[] | null>(null);
+  private branchSubject = new BehaviorSubject<BranchOperation | null>(null);
+  private bulkBranchSubject = new BehaviorSubject<bulkBranchOperation | null>(null);
   private operationTypeSubject = new BehaviorSubject<string>('');
   private bulkOperationTypeSubject = new BehaviorSubject<string>('');
   //#endregion
@@ -31,7 +36,16 @@ export class BranchService {
   //#endregion
 
   //#region Api
-  getAllBranch(data: PaginationParams): Observable<Base> {
+  getAllBranch(): Observable<Base> {
+    return this.configService
+      .getEndpoint('devloper', 'getAllBranch')
+      .pipe(
+        switchMap((endpoint) =>
+          this.http.get<Base>(endpoint)
+        )
+      );
+  }
+  getBranches(data: PaginationParams): Observable<Base> {
     let params = new HttpParams()
       .set('pageNumber', data.pageNumber.toString())
       .set('pageSize', data.pageSize.toString())
@@ -41,7 +55,7 @@ export class BranchService {
     }
 
     return this.configService
-      .getEndpoint('devloper', 'getAllBranch')
+      .getEndpoint('devloper', 'getBranches')
       .pipe(
         switchMap((endpoint) =>
           this.http.get<Base>(endpoint, { params })
@@ -141,6 +155,7 @@ export class BranchService {
 
   //#endregion
 
+//#endregion
   //#region component modal service
   showAddUpdateBranchdDialog() {
     this.addUpdateBranchVisibilitySubject.next(true);
@@ -157,14 +172,11 @@ export class BranchService {
   setBulkOperationType(operationType: string) {
     this.bulkOperationTypeSubject.next(operationType);
   }
-  // setBranchList(branches: Branch[]): void {
-  //   this.branchListSubject.next(branches);
-  // }
-  setBranch(branch: Branch): void {
-    this.branchSubject.next(branch);
+  setBranch(branch: Branch, isSuccess: boolean = false): void {
+    this.branchSubject.next({ branch, isSuccess });
   }
-  setBulkBranch(branch: Branch[]): void {
-    this.bulkBranchSubject.next(branch);
+  setBulkBranch(branches: Branch[], isSuccess: boolean = false): void {
+    this.bulkBranchSubject.next({ branches, isSuccess });
   }
 
   //#endregion
@@ -176,13 +188,10 @@ export class BranchService {
   getBulkOperationType(): Observable<string> {
     return this.bulkOperationTypeSubject.asObservable();
   }
-  // getBranchList(): Observable<Branch[] | null> {
-  //   return this.branchListSubject.asObservable();
-  // }
-  getBranch(): Observable<Branch | null> {
+  getBranch(): Observable<BranchOperation | null> {
     return this.branchSubject.asObservable();
   }
-  getBulkBranch(): Observable<Branch[]| null> {
+  getBulkBranch(): Observable<bulkBranchOperation| null> {
     return this.bulkBranchSubject.asObservable();
   }
   //#endregion

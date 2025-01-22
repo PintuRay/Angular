@@ -7,10 +7,10 @@
             </div>
             <div class="col-12">
                 <div class="p-fluid">
-                    <div class="field mb-6">
+                    <div class="field mb-5">
                         <p-inputGroup>
                             <p-inputGroupAddon>
-                                <i class="pi pi-user"></i>
+                                <i class="fa-solid fa-city"></i>
                             </p-inputGroupAddon>
                             <span class="p-float-label">
                                 <input type="text" pInputText transformToUppercase id="branchName"
@@ -18,11 +18,12 @@
                                 <label for="name">Branch Name</label>
                             </span>
                         </p-inputGroup>
+                        <small class="p-error block" *ngIf="branchNameControl?.invalid && (branchNameControl?.dirty || branchNameControl?.touched)"> {{ getBranchNameErrorMessage() }}</small>
                     </div>
-                    <div class="field mb-6">
+                    <div class="field mb-5">
                         <p-inputGroup>
                             <p-inputGroupAddon>
-                                <i class="pi pi-user"></i>
+                                <i class="fa-solid fa-barcode"></i>
                             </p-inputGroupAddon>
                             <span class="p-float-label">
                                 <input type="text" pInputText id="branchCode" formControlName="branchCode"
@@ -30,23 +31,25 @@
                                 <label for="name">Code</label>
                             </span>
                         </p-inputGroup>
+                        <small class="p-error block" *ngIf="branchCodeControl?.invalid && (branchCodeControl?.dirty || branchCodeControl?.touched)"> {{ getBranchCodeErrorMessage() }}</small>
                     </div>
-                    <div class="field mb-6">
+                    <div class="field mb-5">
                         <p-inputGroup>
                             <p-inputGroupAddon>
-                                <i class="pi pi-user"></i>
+                                <i class="fa-solid fa-phone"></i>
                             </p-inputGroupAddon>
                             <span class="p-float-label">
-                                <input type="text" pInputText id="contactNumber" formControlName="contactNumber"
+                                <input type="text" pInputText onlyNumbers [maxLength]="10" id="contactNumber" formControlName="contactNumber"
                                     autocomplete="off">
                                 <label for="name">Phone Number</label>
                             </span>
                         </p-inputGroup>
+                        <small class="p-error block" *ngIf="phoneControl?.invalid && (phoneControl?.dirty || phoneControl?.touched)"> {{ getPhoneErrorMessage() }}</small>
                     </div>
-                    <div class="field mb-6">
+                    <div class="field mb-5">
                         <p-inputGroup>
                             <p-inputGroupAddon>
-                                <i class="pi pi-user"></i>
+                                <i class="fa-solid fa-location-dot"></i>
                             </p-inputGroupAddon>
                             <span class="p-float-label">
                                 <input type="text" pInputText id="branchAddress" formControlName="branchAddress"
@@ -54,6 +57,7 @@
                                 <label for="name">Address</label>
                             </span>
                         </p-inputGroup>
+                        <small class="p-error block" *ngIf="addressControl?.invalid && (addressControl?.dirty || addressControl?.touched)"> {{ getAddressErrorMessage() }}</small>
                     </div>
                 </div>
             </div>
@@ -65,9 +69,9 @@
             <div class="col-6 flex justify-content-end">
                 <button pButton type="button" [disabled]="!branchForm.valid" (click)="submit()">
                     <ng-container *ngIf="isLoading; else branchLabel">
-                        <i class="pi pi-spin pi-spinner"></i> Loading...
+                        <i class="pi pi-spin pi-spinner mr-2"></i> Loading...
                     </ng-container>
-                    <ng-template #branchLabel>Save</ng-template>
+                    <ng-template #branchLabel><i class="pi pi-save mr-2"></i>Save</ng-template>
                 </button>
             </div>
         </div>

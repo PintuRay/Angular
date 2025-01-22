@@ -1,22 +1,23 @@
+<p-toast></p-toast>
 <form [formGroup]="branchForm">
     <form [formGroup]="branchForm" class="pt-4">
         <div class="grid">
             <div class="col-12">
-                    <p-toolbar styleClass="mb-1">
-                        <ng-template pTemplate="left">
-                            <button pButton pRipple label="Back To List" icon="fa-solid fa-circle-left" class="p-button-outlined p-button-info" (click)="BackToList()"></button>
-                        </ng-template>
-                        <ng-template pTemplate="right">
-                            <button (click)="display=true" pButton icon="pi pi-external-link" label="Show"></button>
-                        </ng-template>
-                    </p-toolbar>
+                <p-toolbar styleClass="mb-1">
+                    <ng-template pTemplate="left">
+                        <button pButton pRipple label="Back To List" icon="fa-solid fa-circle-left"
+                            class="p-button-outlined p-button-info" (click)="BackToList()"></button>
+                    </ng-template>
+                    <ng-template pTemplate="right">
+                        <button (click)="display=true" pButton icon="pi pi-external-link" label="Show"></button>
+                    </ng-template>
+                </p-toolbar>
             </div>
             <div class="col-12">
                 <div formArrayName="branches">
                     <div *ngFor="let branch of branches.controls; let i=index" [formGroupName]="i" class="mb-1">
-                       
                         <div class="card">
-                            <input type="hidden"  formControlName="branchId">
+                            <input type="hidden" formControlName="branchId">
                             <div class="p-fluid p-formgrid grid">
                                 <div class="field col-12">
                                     <h3>#{{i + 1}}
@@ -24,53 +25,78 @@
                                             class="p-button-danger p-button-text"></button>
                                     </h3>
                                 </div>
+
+                                <!-- Branch Name -->
                                 <div class="field col-12 md:col-6">
                                     <p-inputGroup>
                                         <p-inputGroupAddon>
                                             <i class="fa-solid fa-city"></i>
                                         </p-inputGroupAddon>
                                         <span class="p-float-label">
-                                            <input type="text" pInputText transformToUppercase id="branchName_{{i}}"
-                                                formControlName="branchName" autocomplete="off">
+                                            <input type="text" pInputText transformToUppercase [id]="'branchName_' + i"
+                                                formControlName="branchName" autocomplete="off"
+                                                [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid(i, 'branchName')}">
                                             <label [for]="'branchName_' + i">Branch Name</label>
                                         </span>
                                     </p-inputGroup>
+                                    <small class="p-error block" *ngIf="isFieldInvalid(i, 'branchName')">
+                                        {{ getErrorMessage(i, 'branchName') }}
+                                    </small>
                                 </div>
+
+                                <!-- Branch Code -->
                                 <div class="field col-12 md:col-6">
                                     <p-inputGroup>
                                         <p-inputGroupAddon>
                                             <i class="fa-solid fa-barcode"></i>
                                         </p-inputGroupAddon>
                                         <span class="p-float-label">
-                                            <input type="text" pInputText id="branchCode_{{i}}"
-                                                formControlName="branchCode" autocomplete="off">
+                                            <input type="text" pInputText [id]="'branchCode_' + i"
+                                                formControlName="branchCode" autocomplete="off"
+                                                [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid(i, 'branchCode')}">
                                             <label [for]="'branchCode_' + i">Code</label>
                                         </span>
                                     </p-inputGroup>
+                                    <small class="p-error block" *ngIf="isFieldInvalid(i, 'branchCode')">
+                                        {{ getErrorMessage(i, 'branchCode') }}
+                                    </small>
                                 </div>
+
+                                <!-- Contact Number -->
                                 <div class="field col-12 md:col-6">
                                     <p-inputGroup>
                                         <p-inputGroupAddon>
                                             <i class="fa-solid fa-phone"></i>
                                         </p-inputGroupAddon>
                                         <span class="p-float-label">
-                                            <input type="text" pInputText id="contactNumber_{{i}}"
-                                                formControlName="contactNumber" autocomplete="off">
+                                            <input type="text" pInputText onlyNumbers [maxLength]="10"
+                                                [id]="'contactNumber_' + i" formControlName="contactNumber"
+                                                autocomplete="off"
+                                                [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid(i, 'contactNumber')}">
                                             <label [for]="'contactNumber_' + i">Phone Number</label>
                                         </span>
                                     </p-inputGroup>
+                                    <small class="p-error block" *ngIf="isFieldInvalid(i, 'contactNumber')">
+                                        {{ getErrorMessage(i, 'contactNumber') }}
+                                    </small>
                                 </div>
+
+                                <!-- Branch Address -->
                                 <div class="field col-12 md:col-6">
                                     <p-inputGroup>
                                         <p-inputGroupAddon>
                                             <i class="fa-solid fa-location-dot"></i>
                                         </p-inputGroupAddon>
                                         <span class="p-float-label">
-                                            <input type="text" pInputText id="branchAddress_{{i}}"
-                                                formControlName="branchAddress" autocomplete="off">
+                                            <input type="text" pInputText [id]="'branchAddress_' + i"
+                                                formControlName="branchAddress" autocomplete="off"
+                                                [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid(i, 'branchAddress')}">
                                             <label [for]="'branchAddress_' + i">Address</label>
                                         </span>
                                     </p-inputGroup>
+                                    <small class="p-error block" *ngIf="isFieldInvalid(i, 'branchAddress')">
+                                        {{ getErrorMessage(i, 'branchAddress') }}
+                                    </small>
                                 </div>
                             </div>
                         </div>
@@ -78,9 +104,13 @@
                 </div>
                 <div class="flex justify-content-end mb-3">
                     <button pButton type="button" label="Add" icon="fa-solid fa-circle-plus" (click)="addBranch()"
-                        class="p-button-success "></button>
-                    <button pButton type="submit" label="Save" icon="pi pi-save" [disabled]="!branchForm.valid" (click)="submit()"
-                        class="p-button-primary ml-2"></button>
+                        class="p-button-success mr-2 "></button>
+                    <button pButton type="submit" [disabled]="!branchForm.valid" (click)="submit()">
+                        <ng-container *ngIf="isLoading; else branchLabel">
+                            <i class="pi pi-spin pi-spinner mr-2"></i> Loading...
+                        </ng-container>
+                        <ng-template #branchLabel><i class="pi pi-save mr-2"></i>Save</ng-template>
+                    </button>
                 </div>
             </div>
         </div>
@@ -100,7 +130,8 @@
                 <pre class="p-2 border rounded bg-gray-100" style="white-space: pre-wrap;">{{ branchModelJson }}</pre>
             </p-accordionTab>
             <p-accordionTab header=" Update Model" class="line-height-3 m-0">
-                <pre class="p-2 border rounded bg-gray-100" style="white-space: pre-wrap;">{{BranchUpdatemodelJson}}</pre>
+                <pre class="p-2 border rounded bg-gray-100"
+                    style="white-space: pre-wrap;">{{BranchUpdatemodelJson}}</pre>
             </p-accordionTab>
             <p-accordionTab header="Form Status" class="line-height-3 m-0">
                 <p><strong>Valid:</strong> {{ branchForm.valid }}</p>

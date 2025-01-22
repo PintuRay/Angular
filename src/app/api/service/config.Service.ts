@@ -39,7 +39,8 @@ export class ConfigService {
                 updateUserRoleAndClaims: '{apiUrl}User/UpdateUserRoleAndClaims',
             },
             devloper: {
-                getAllBranch:'{apiUrl}Branch/Get',
+                getAllBranches:'{apiUrl}Branch/GetAll',
+                getBranches:'{apiUrl}Branch/Get',
                 createBranch:'{apiUrl}Branch/Create',
                 bulkCreateBranch:'{apiUrl}Branch/BulkCreate',
                 updateBranch:'{apiUrl}Branch/Update',

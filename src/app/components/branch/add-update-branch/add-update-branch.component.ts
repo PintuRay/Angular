@@ -40,15 +40,15 @@ export class AddUpdateBranchComponent {
         this.visible = isVisible;
       }
     );
-    this.branchDataSub = this.branchSvcs.getBranch().subscribe((branch) => {
-      if (branch != null) {
-        this.branch = branch;
-        this.updatebranch.branchId = branch.branchId;
+    this.branchDataSub = this.branchSvcs.getBranch().subscribe((operation) => {
+      if (operation?.branch != null) {
+        this.branch = operation.branch;
+        this.updatebranch.branchId = operation.branch.branchId;
         this.branchForm.patchValue({
-          branchCode: branch.branchCode,
-          branchName: branch.branchName,
-          branchAddress: branch.branchAddress,
-          contactNumber: branch.contactNumber
+          branchCode: operation.branch.branchCode,
+          branchName: operation.branch.branchName,
+          branchAddress: operation.branch.branchAddress,
+          contactNumber: operation.branch.contactNumber
         });
       }
     });
@@ -85,13 +85,57 @@ export class AddUpdateBranchComponent {
       branchCode: ['', [Validators.required]],
       branchName: ['', [Validators.required]],
       branchAddress: ['', [Validators.required]],
-      contactNumber: ['', [Validators.required]],
+      contactNumber: ['', [Validators.required, Validators.pattern(/^\d{10}$/)]],
     })
   }
   //#endregion
 
   //#region Client Side Vaildation
-
+  get branchCodeControl() {
+    return this.branchForm.get('branchCode');
+  }
+  getBranchCodeErrorMessage() {
+    if (this.branchCodeControl?.hasError('required')) {
+      return 'Branch Code is required.';
+    }
+    else {
+      return '';
+    }
+  }
+  get branchNameControl() {
+    return this.branchForm.get('branchName');
+  }
+  getBranchNameErrorMessage() {
+    if (this.branchNameControl?.hasError('required')) {
+      return 'Branch Name is required.';
+    }
+    else {
+      return '';
+    }
+  }
+  get phoneControl() {
+    return this.branchForm.get('contactNumber');
+  }
+  getPhoneErrorMessage() {
+    if (this.phoneControl?.hasError('required')) {
+      return 'Phone Number is required.';
+    } else if (this.phoneControl?.hasError('pattern')) {
+      return 'Phone Number Must Be 10  digit.';
+    } else {
+      return '';
+    }
+  }
+  get addressControl() {
+    return this.branchForm.get('branchAddress');
+  }
+  getAddressErrorMessage() {
+    if (this.addressControl?.hasError('required')) {
+      return 'Address is required.';
+    }
+    else {
+      return '';
+    }
+  }
   //#endregion
 
   //#region Client Side Operations
@@ -111,6 +155,7 @@ export class AddUpdateBranchComponent {
   async submit(): Promise<void> {
     try {
       if (this.branchForm.valid) {
+        this.isLoading = true;
         if (this.operationType === 'add') {
           this.branchSvcs.createBranch(this.addbranch).subscribe({
             next: (response) => {
@@ -119,15 +164,14 @@ export class AddUpdateBranchComponent {
                   ...this.addbranch,
                   branchId: response.data.id
                 };
-                this.branchSvcs.setBranch(this.branch);
+                this.branchSvcs.setBranch(this.branch, true);
                 this.hideDialog();
               }
+              this.isLoading = false;
             },
             error: (response) => {
-
-            },
-            complete: () => {
-
+              this.isLoading = false;
+            
             }
           })
         } else {
@@ -138,21 +182,20 @@ export class AddUpdateBranchComponent {
                   ...this.updatebranch,
                   branchId: response.data.id
                 };
-                this.branchSvcs.setBranch(this.branch);
+                this.branchSvcs.setBranch(this.branch, true);
                 this.hideDialog();
               }
+              this.isLoading = false;
             },
             error: (response) => {
-
-            },
-            complete: () => {
-
+              this.isLoading = false;
             }
           })
         }
       }
     }
     catch (error) {
+
     }
   }
   //#endregion

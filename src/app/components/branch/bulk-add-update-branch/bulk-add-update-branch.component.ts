@@ -56,14 +56,14 @@ export class BulkAddUpdateBranchComponent {
           });
         }
       });
-    this.branchDataSub = this.branchSvcs.getBulkBranch().subscribe((branches) => {
-      if (branches != null && branches.length > 0) {
-        this.branch = branches;
+    this.branchDataSub = this.branchSvcs.getBulkBranch().subscribe((operation) => {
+      if (operation?.branches != null && operation?.branches.length > 0) {
+        this.branch = operation?.branches;
         while (this.branches.length) {
           this.branches.removeAt(0);
         }
         if (this.operationType === 'edit') {
-          branches.forEach(branch => {
+          operation?.branches.forEach(branch => {
             const branchGroup = this.createBranchFormGroup();
             branchGroup.patchValue({
               branchId: branch.branchId,
@@ -91,7 +91,39 @@ export class BulkAddUpdateBranchComponent {
     });
   }
   //#endregion
+  //#region Client Side Validation
+  getBranchControl(index: number, controlName: string) {
+    return this.branches.at(index).get(controlName);
+  }
+  getErrorMessage(index: number, controlName: string): string {
+    const control = this.getBranchControl(index, controlName);
+    
+    if (!control) return '';
 
+    if (control.hasError('required')) {
+      return `${this.getFieldLabel(controlName)} is required.`;
+    }
+    
+    if (controlName === 'contactNumber' && control.hasError('pattern')) {
+      return 'Please enter a valid 10-digit phone number.';
+    }
+
+    return '';
+  }
+  private getFieldLabel(controlName: string): string {
+    const labels: { [key: string]: string } = {
+      branchName: 'Branch Name',
+      branchCode: 'Branch Code',
+      branchAddress: 'Branch Address',
+      contactNumber: 'Contact Number'
+    };
+    return labels[controlName] || controlName;
+  }
+  isFieldInvalid(index: number, controlName: string): boolean {
+    const control = this.getBranchControl(index, controlName);
+    return !!control && control.invalid && (control.dirty || control.touched);
+  }
+  //#endregion
   //#region Client Side Operations
   get branches() {
     return this.branchForm.get('branches') as FormArray;
@@ -107,9 +139,9 @@ export class BulkAddUpdateBranchComponent {
   }
   addBranch() {
     this.branches.push(this.createBranchFormGroup());
-    if (this.operationType === 'add') {
-      this.addbranch.push(new BranchModel());
-    }
+    // if (this.operationType === 'add') {
+    //   this.addbranch.push(new BranchModel());
+    // }
   }
   removeBranch(index: number) {
     this.branches.removeAt(index);
@@ -120,48 +152,63 @@ export class BulkAddUpdateBranchComponent {
     }
   }
   BackToList() {
+    this.resetComponent();
     this.router.navigate(['branch/list-branch']);
+  }
+  private resetComponent() {
+    this.branchForm.reset();
+    this.branch =[];
+    this.addbranch = [];
+    this.updatebranch = [];
   }
   //#endregion
 
   //#region Server Side Operation
   async submit(): Promise<void> {
-    try{
+    try {
       if (this.branchForm.valid) {
+        this.isLoading = true;
         if (this.operationType === 'add') {
           this.branchSvcs.bulkCreateBranch(this.addbranch).subscribe({
             next: (response) => {
-              if(response.responseCode === 201){
-                this.branchSvcs.setBulkBranch(response.data.records as Branch[]);
-                this.messageService.add({severity: 'success',  summary: 'Success',detail: response.message});
-                this.branchForm = this.initializeBranchForm();
+              if (response.responseCode === 201) {
+                this.branchSvcs.setBulkBranch(response.data.records as Branch[], true);
+                this.messageService.add({ severity: 'success', summary: 'Success', detail: response.message });
+                //this.branchForm = this.initializeBranchForm();
+                this.resetComponent();
                 this.addBranch();
-              }   
+
+              }
+              this.isLoading = false;
             },
             error: (error) => {
-              this.messageService.add({severity: 'error',summary: 'Error',detail: 'Error adding branches' });
+              this.isLoading = false;
+              this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error adding branches' });
             }
           });
         }
-        else{
+        else {
           this.branchSvcs.bulkUpdateBranch(this.updatebranch).subscribe({
             next: (response) => {
-              if(response.responseCode === 200){
-                this.branchSvcs.setBulkBranch(response.data.records as Branch[]);
-                this.messageService.add({severity: 'success',summary: 'Success',detail: response.message});
+              if (response.responseCode === 200) {
+                this.branchSvcs.setBulkBranch(response.data.records as Branch[], true);
+                this.messageService.add({ severity: 'success', summary: 'Success', detail: response.message });
                 this.branchForm = this.initializeBranchForm();
+                this.resetComponent();
                 this.addBranch();
               }
+              this.isLoading = false;
             },
             error: (error) => {
-              this.messageService.add({severity: 'error',summary: 'Error',detail: 'Error updating branches' });
+              this.isLoading = false;
+              this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error updating branches' });
             }
           });
         }
       }
     }
-    catch(error){
-      this.messageService.add({ severity: 'error',summary: 'Error',detail: 'An unexpected error occurred'});
+    catch (error) {
+      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'An unexpected error occurred' });
       console.error('Unexpected error', error);
     }
   }
