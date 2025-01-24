@@ -1,13 +1,13 @@
 import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common'; 
-import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
 // Import components
 import { AppLayoutComponent } from './app.layout.component';
 import { AppSidebarComponent } from './sidebar/app.sidebar.component';
 import { AppTopbarComponent } from './topbar/app.topbar.component';
-import { AppProfileSidebarComponent } from './profile/app.profilesidebar.component';
+import { UserProfileComponent } from './user-profile/user-profile.component';
 import { AppMenuComponent } from './menu/app.menu.component';
 import { AppMenuitemComponent } from './menuitem/app.menuitem.component';
 import { VerifyTwoFactorTokenComponent } from './topbar/verify-two-factor-token/verify-two-factor-token.component';
@@ -15,14 +15,17 @@ import { ChangePasswordComponent } from './topbar/change-password/change-passwor
 import { AppConfigModule } from './config/app.config.module';
 import { LayoutRoutingModule } from './layout-routing.module';
 //Import  ngPrime Modules
-import {PrimeNgModule } from '../prime-ng/prime-ng.module';
+import { PrimeNgModule } from '../prime-ng/prime-ng.module';
+import { FieldsRestrictionModule } from 'src/app/utility/directives/fields-restriction/fields-restriction.module';
+import { FieldsValidationModule } from 'src/app/utility/directives/fields-validation/fields-validation.module';
+
 
 @NgModule({
     declarations: [
         AppLayoutComponent,
         AppSidebarComponent,
         AppTopbarComponent,
-        AppProfileSidebarComponent,
+        UserProfileComponent,
         AppMenuComponent,
         AppMenuitemComponent,
         ChangePasswordComponent,
@@ -31,11 +34,14 @@ import {PrimeNgModule } from '../prime-ng/prime-ng.module';
     imports: [
         CommonModule,
         FormsModule,
+        ReactiveFormsModule,
         HttpClientModule,
         LayoutRoutingModule,
         RouterModule,
-        AppConfigModule, 
-        PrimeNgModule
+        AppConfigModule,
+        PrimeNgModule,
+        FieldsRestrictionModule,
+        FieldsValidationModule
     ]
 })
 export class AppLayoutModule { }

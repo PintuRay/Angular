@@ -20,6 +20,13 @@
                         "outputPath": "dist/atlantis-ng",
                         "index": "src/index.html",
                         "main": "src/main.ts",
+                        "allowedCommonJsDependencies": [
+                            "canvg",
+                            "rgbcolor",
+                            "raf",
+                            "jspdf-autotable",
+                            "core-js"
+                          ],
                         "polyfills": [
                             "zone.js"
                         ],

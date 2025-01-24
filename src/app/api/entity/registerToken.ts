@@ -1,4 +1,4 @@
-import { RegisterModel } from "../model/account/authentication/register-model";
+import { RegisterModel } from "../model/account/authentication/user-model";
 
 export class RegisterTokenModel {
     tokenValue: string = '';

@@ -43,6 +43,7 @@ export class RegisterComponent implements OnInit {
 	selectedProfilePhoto: File | null = null;
 	display: boolean = false;
 	//#endregion 
+	
 	//#region constructor
 	constructor(
 		private fb: FormBuilder,
@@ -51,11 +52,13 @@ export class RegisterComponent implements OnInit {
 		private commonSvcs: CommonService,
 		private messageService: MessageService) { }
 	//#endregion
+	
 	//#region Themme
 	get dark(): boolean {
 		return this.layoutSvcs.config().colorScheme !== 'light';
 	}
 	//#endregion
+	
 	//#region Lifecycle Hooks
 	ngOnInit(): void {
 		this.initializeRegisterForm();
@@ -63,6 +66,7 @@ export class RegisterComponent implements OnInit {
 		this.registerForm.disable();
 	}
 	//#endregion
+	
 	//#region Form Initialization
 	private initializeRegisterForm(): void {
 		this.registerForm = this.fb.group({
@@ -94,6 +98,7 @@ export class RegisterComponent implements OnInit {
 		});
 	}
 	//#endregion
+	
 	//#region MultiStep Form
 	private initializeSteps() {
 		this.items = [
@@ -142,6 +147,7 @@ export class RegisterComponent implements OnInit {
 		}
 	}
 	//#endregion
+	
 	//#region Client Side Vaildation
 	get emailControl() {
 		return this.registerForm.get('accountInfo.email');
@@ -320,6 +326,7 @@ export class RegisterComponent implements OnInit {
 		}
 	}
 	//#endregion
+	
 	//#region Server Side Vaildation
 	async isEmailInUse(): Promise<void> {
 		const email = this.registerForm.value.accountInfo.email;
@@ -439,6 +446,7 @@ export class RegisterComponent implements OnInit {
 		}
 	}
 	//#endregion      
+	
 	//#region Client Side Operations
 	filterMaritalStatus(event: any) {
 		const query = event.query.toLowerCase();
@@ -565,6 +573,7 @@ export class RegisterComponent implements OnInit {
 		});
 	}
 	//#endregion
+	
 	//#region Server Side Operations
 	async vaildateToken(): Promise<void> {
 		if (this.tokenValue) {
@@ -716,6 +725,7 @@ export class RegisterComponent implements OnInit {
 		}
 	}
 	//#endregion
+	
 	//#region Test form
 	get formJson(): string {
 		return JSON.stringify(this.registerForm.value, null, 2);

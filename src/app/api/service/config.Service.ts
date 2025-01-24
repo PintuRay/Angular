@@ -35,6 +35,12 @@ export class ConfigService {
                 verifyTwoFactorToken: '{apiUrl}Auth/VerifyTwoFactorToken',
                 sendTwoFactorToken: '{apiUrl}Auth/SendTwoFactorToken',
                 reSendTwoFactorToken: '{apiUrl}Auth/ReSendTwoFactorToken',
+            },
+            user: {
+                getUserById:'{apiUrl}User/GetById',
+                getProfileImage:'{apiUrl}User/GetImage',
+            },
+            roleClaim:{
                 getAllUserWithRolesAndClaims: '{apiUrl}User/GetAllUserWithRolesAndClaims',
                 updateUserRoleAndClaims: '{apiUrl}User/UpdateUserRoleAndClaims',
             },

@@ -1,4 +1,4 @@
-import { RegisterModel } from "../model/account/authentication/register-model";
+import { UserModel } from "../model/account/authentication/user-model";
 import { Branch } from "./branch";
 
 export class UserBranchModel {
@@ -17,7 +17,7 @@ export class UserBranchModel {
     modifyDate?: Date;
     createdBy?: string = '';
     modifyBy?: string = '';
-    user: RegisterModel = new RegisterModel();
+    user: UserModel = new UserModel();
     branch: Branch = new Branch();
   
     constructor() {
