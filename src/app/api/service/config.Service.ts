@@ -39,6 +39,7 @@ export class ConfigService {
             user: {
                 getUserById:'{apiUrl}User/GetById',
                 getProfileImage:'{apiUrl}User/GetImage',
+                updateUser:'{apiUrl}User/Update'
             },
             roleClaim:{
                 getAllUserWithRolesAndClaims: '{apiUrl}User/GetAllUserWithRolesAndClaims',

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable, switchMap } from 'rxjs';
+import { map, Observable, switchMap } from 'rxjs';
 import { Base } from '../../../base';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { UserRoleClaimModel } from '../../../model/account/autherization/user-role-claim-model';
@@ -15,18 +15,37 @@ export class AuthorizationService {
   /*----------------------------Other Methods-----------------------------------*/
 
   /*-------------------------------Api Service----------------------------------*/
-  GetUserById(id: string): Observable<Base> {
+  getUserById(id: string): Observable<Base> {
     return this.configService.getEndpoint('user', 'getUserById').pipe(
       switchMap(endpoint =>
         this.http.get<Base>(`${endpoint}/${id}`)
       )
     );
   }
-  GetImage(filename: string): Observable<any> {
+  updateUser(user: any):Observable<Base>{
+    return this.configService
+    .getEndpoint('user', 'updateUser')
+    .pipe(
+        switchMap((endpoint) => this.http.patch<Base>(endpoint, user))
+    );
+  }
+  GetImage(filename: string): Observable<File> {
     const params = new HttpParams().set('filename', filename);
     return this.configService.getEndpoint('user', 'getProfileImage').pipe(
       switchMap(endpoint =>
-        this.http.get<any>(endpoint, { params })
+        this.http.get(endpoint, {
+          params,
+          responseType: 'blob'
+        }).pipe(
+          map(response => {
+            const ext = filename.split('.').pop()?.toLowerCase();
+            const mimeType = ext === 'png' ? 'image/png' :
+              ext === 'jpg' || ext === 'jpeg' ? 'image/jpeg' :
+              ext === 'gif' ? 'image/gif' :
+              'application/octet-stream';
+            return new File([response], 'profile_photo.png', { type: mimeType });
+          })
+        )
       )
     );
   }

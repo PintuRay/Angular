@@ -697,9 +697,9 @@ export class RegisterComponent implements OnInit {
 								detail: 'Registration successful'
 							});
 						}
+						this.isLoading = false;
 					},
 					error: (error) => {
-						console.error('Registration error:', error);
 						this.isLoading = false;
 						this.messageService.add({
 							severity: 'error',
@@ -715,7 +715,6 @@ export class RegisterComponent implements OnInit {
 			}
 		}
 		catch (error) {
-			console.error('Error in signup:', error);
 			this.isLoading = false;
 			this.messageService.add({
 				severity: 'error',

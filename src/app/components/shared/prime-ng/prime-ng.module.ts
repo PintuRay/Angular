@@ -87,7 +87,7 @@ import { ToastModule } from 'primeng/toast'; //Toast
 /*-----------------------------------------------Media-----------------------------------------------*/
 // import { CarouselModule } from 'primeng/carousel'; //Carousel
 // import { GalleriaModule } from 'primeng/galleria'; //Galleria
-// import { ImageModule } from 'primeng/image';  //Image
+ import { ImageModule } from 'primeng/image';  //Image
 /*-----------------------------------------------Drag Drop-----------------------------------------------*/
 // import { DragDropModule } from 'primeng/dragdrop'; //Drag and Drop
 /*-----------------------------------------------Misc-----------------------------------------------*/
@@ -194,7 +194,7 @@ import { MessageService } from 'primeng/api';
     ToastModule,
     // CarouselModule,
     // GalleriaModule,
-    // ImageModule,
+     ImageModule,
     // DragDropModule,
     // AvatarModule,
     // AvatarGroupModule,
@@ -294,7 +294,7 @@ import { MessageService } from 'primeng/api';
     ToastModule,
     // CarouselModule,
     // GalleriaModule,
-    // ImageModule,
+     ImageModule,
     // DragDropModule,
     // AvatarModule,
     // AvatarGroupModule,

@@ -8,7 +8,7 @@ export class UserModel {
     gender:string ;
     email: string;
     phoneNumber: string;
-    profilePhoto: File;
+    profilePhoto: File | null;
     photoPath:string;
     address: AddressModel;
     constructor() {

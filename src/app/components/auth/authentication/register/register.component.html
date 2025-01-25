@@ -3,13 +3,14 @@
   style="background:var(--surface-ground)">
   <div class="surface-card p-4 shadow-2 border-round w-full lg:w-6">
     <div class="text-center mb-5">
-      <img [src]="'assets/layout/images/logo-'+ (layoutSvcs.config().colorScheme === 'light' ? 'dark' : 'light') + '.png'"
-          class="login-logo  mb-4" style=" width: 45px;" />
+      <img
+        [src]="'assets/layout/images/logo-'+ (layoutSvcs.config().colorScheme === 'light' ? 'dark' : 'light') + '.png'"
+        class="login-logo  mb-4" style=" width: 45px;" />
       <!-- <img [src]="'assets/layout/images/appname-'+ (layoutSvcs.config().colorScheme === 'light' ? 'dark' : 'light') + '.png'"
           class="login-appname ml-3 mb-4" style="width: 100px;" /> -->
       <div class="text-900 text-3xl font-medium mb-3">New Account</div>
       <span class="text-600 font-medium">(Register a new membership)</span>
-  </div>
+    </div>
     <!--Form Test-->
     <div class="grid">
       <div class="col-12">
@@ -51,7 +52,8 @@
       <div class="col-12">
         <div class="field grid">
           <div class="col-8 flex flex-wrap gap-2">
-            <p-inputMask mask="999-999-9999" placeholder="xxx-xxx-xxxx" [slotChar]="'_'" [(ngModel)]="tokenValue" autocomplete="off">
+            <p-inputMask mask="999-999-9999" placeholder="xxx-xxx-xxxx" [slotChar]="'_'" [(ngModel)]="tokenValue"
+              autocomplete="off">
             </p-inputMask>
             <button pButton pRipple label="Validate" (click)="vaildateToken()"></button>
           </div>
@@ -68,7 +70,8 @@
                     <i class="pi pi-envelope"></i>
                   </p-inputGroupAddon>
                   <span class="p-float-label">
-                    <input type="email" pInputText id="email" formControlName="email" (input)="isEmailInUse()" autocomplete="off"/>
+                    <input type="email" pInputText id="email" formControlName="email" (input)="isEmailInUse()"
+                      autocomplete="off" />
                     <label for="email">Email</label>
                   </span>
                   <p-inputGroupAddon>
@@ -76,7 +79,9 @@
                     <i *ngIf="!emailLoading && isvalidMail" class="pi pi-verified"></i>
                     <i *ngIf="!emailLoading && !isvalidMail" class="pi pi-times-circle"></i> </p-inputGroupAddon>
                 </p-inputGroup>
-                <small class="p-error block" *ngIf="emailControl?.invalid && (emailControl?.dirty || emailControl?.touched)"> {{ getEmailErrorMessage() }}</small>
+                <small class="p-error block"
+                  *ngIf="emailControl?.invalid && (emailControl?.dirty || emailControl?.touched)"> {{
+                  getEmailErrorMessage() }}</small>
               </div>
               <div class="field col-12 md:col-6">
                 <p-inputGroup>
@@ -85,7 +90,7 @@
                   </p-inputGroupAddon>
                   <span class="p-float-label">
                     <input type="tel" pInputText id="phoneNumber" formControlName="phoneNumber"
-                      (input)="isPhoneNumberInUse()" onlyNumbers [maxLength]="10" autocomplete="off"/>
+                      (input)="isPhoneNumberInUse()" onlyNumbers [maxLength]="10" autocomplete="off" />
                     <label for="phoneNumber">Phone Number</label>
                   </span>
                   <p-inputGroupAddon>
@@ -94,22 +99,29 @@
                     <i *ngIf="!phoneNoLoading && !isPhoneNumberValid" class="pi pi-times-circle"></i>
                   </p-inputGroupAddon>
                 </p-inputGroup>
-                <small class="p-error block" *ngIf="phoneControl?.invalid && (phoneControl?.dirty || phoneControl?.touched)"> {{ getPhoneErrorMessage() }}</small>
+                <small class="p-error block"
+                  *ngIf="phoneControl?.invalid && (phoneControl?.dirty || phoneControl?.touched)"> {{
+                  getPhoneErrorMessage() }}</small>
               </div>
               <div class="field col-12 md:col-6">
                 <span class="p-float-label">
-                  <p-password id="password" formControlName="password" [toggleMask]="true" [feedback]="false"  autocomplete="off"></p-password>
+                  <p-password id="password" formControlName="password" [toggleMask]="true" [feedback]="false"
+                    autocomplete="off"></p-password>
                   <label htmlFor="password">Password</label>
                 </span>
-                <small class="p-error block" *ngIf="passwordControl?.invalid && (passwordControl?.dirty || passwordControl?.touched)">{{ getPasswordErrorMessage() }}</small>
+                <small class="p-error block"
+                  *ngIf="passwordControl?.invalid && (passwordControl?.dirty || passwordControl?.touched)">{{
+                  getPasswordErrorMessage() }}</small>
               </div>
               <div class="field col-12 md:col-6">
                 <span class="p-float-label">
-                  <p-password id="confirmPassword" formControlName="confirmPassword" [toggleMask]="true" [feedback]="false"
-                  autocomplete="off"></p-password>
+                  <p-password id="confirmPassword" formControlName="confirmPassword" [toggleMask]="true"
+                    [feedback]="false" autocomplete="off"></p-password>
                   <label htmlFor="confirmPassword">Confirm Password</label>
                 </span>
-                <small class="p-error block" *ngIf="conformPasswordControl?.invalid && (conformPasswordControl?.dirty || conformPasswordControl?.touched)">{{ getConformPasswordErrorMessage() }}</small>
+                <small class="p-error block"
+                  *ngIf="conformPasswordControl?.invalid && (conformPasswordControl?.dirty || conformPasswordControl?.touched)">{{
+                  getConformPasswordErrorMessage() }}</small>
               </div>
             </div>
           </div>
@@ -121,7 +133,8 @@
                     <i class="pi pi-user"></i>
                   </p-inputGroupAddon>
                   <span class="p-float-label">
-                    <input type="text" pInputText transformToUppercase id="name" formControlName="name" (input)="isUserExist()"  autocomplete="off">
+                    <input type="text" pInputText transformToUppercase id="name" formControlName="name"
+                      (input)="isUserExist()" autocomplete="off">
                     <label for="name">User Name</label>
                   </span>
                   <p-inputGroupAddon>
@@ -130,7 +143,9 @@
                     <i *ngIf="!userNameLoading && !isUserValid" class="pi pi-times-circle"></i>
                   </p-inputGroupAddon>
                 </p-inputGroup>
-                <small class="p-error block" *ngIf="nameControl?.invalid && (nameControl?.dirty || nameControl?.touched)">{{ getNameErrorMessage() }}</small>
+                <small class="p-error block"
+                  *ngIf="nameControl?.invalid && (nameControl?.dirty || nameControl?.touched)">{{ getNameErrorMessage()
+                  }}</small>
               </div>
               <div class="field col-12 md:col-6">
                 <span class="p-float-label">
@@ -138,25 +153,31 @@
                     name="birthDate" [minYear]="1800" autocomplete="off">></p-calendar>
                   <label for="birthDate">Birth Date</label>
                 </span>
-                <small class="p-error block" *ngIf="birthDateControl?.invalid && (birthDateControl?.dirty || birthDateControl?.touched)">{{ getBirthDateErrorMessage() }}</small>
+                <small class="p-error block"
+                  *ngIf="birthDateControl?.invalid && (birthDateControl?.dirty || birthDateControl?.touched)">{{
+                  getBirthDateErrorMessage() }}</small>
               </div>
               <div class="col-12 md:col-6">
                 <span class="p-float-label">
                   <p-autoComplete formControlName="maritalStatus" [suggestions]="filteredMaritalStatus"
-                    (completeMethod)="filterMaritalStatus($event)" field="value" [dropdown]="true"
+                    (completeMethod)="filterMaritalStatus($event)" dataKey='key' field="value" [dropdown]="true"
                     name="maritalStatus"></p-autoComplete>
                   <label for="maritalStatus">Marital Status</label>
                 </span>
-                <small class="p-error block" *ngIf="maritalStatusControl?.invalid && (maritalStatusControl?.dirty || maritalStatusControl?.touched)">{{ getMaritalStatusErrorMessage() }}</small>
+                <small class="p-error block"
+                  *ngIf="maritalStatusControl?.invalid && (maritalStatusControl?.dirty || maritalStatusControl?.touched)">{{
+                  getMaritalStatusErrorMessage() }}</small>
               </div>
               <div class="col-12 md:col-6">
                 <span class="p-float-label">
                   <p-autoComplete formControlName="gender" [suggestions]="filteredGender"
-                    (completeMethod)="filterGender($event)" field="value" [dropdown]="true" name="gender">
+                    (completeMethod)="filterGender($event)" dataKey='key' field="value" [dropdown]="true" name="gender">
                   </p-autoComplete>
                   <label for="gender">Gender</label>
                 </span>
-                <small class="p-error block" *ngIf="genderControl?.invalid && (genderControl?.dirty || genderControl?.touched)">{{ getGenderErrorMessage() }}</small>
+                <small class="p-error block"
+                  *ngIf="genderControl?.invalid && (genderControl?.dirty || genderControl?.touched)">{{
+                  getGenderErrorMessage() }}</small>
               </div>
               <div class="field col-12">
                 <p-fileUpload [maxFileSize]="5 * 1024 * 1024" [multiple]="false"
@@ -179,7 +200,9 @@
                   </p-autoComplete>
                   <label for="country">Country</label>
                 </span>
-                <small class="p-error block" *ngIf="countryControl?.invalid && (countryControl?.dirty || countryControl?.touched)">{{ getCountryErrorMessage() }}</small>
+                <small class="p-error block"
+                  *ngIf="countryControl?.invalid && (countryControl?.dirty || countryControl?.touched)">{{
+                  getCountryErrorMessage() }}</small>
               </div>
               <div class="field col-12 md:col-6">
                 <span class="p-float-label">
@@ -189,7 +212,9 @@
                   </p-autoComplete>
                   <label for="state">State</label>
                 </span>
-                <small class="p-error block" *ngIf="stateControl?.invalid && (stateControl?.dirty || stateControl?.touched)">{{ getStateErrorMessage() }}</small>
+                <small class="p-error block"
+                  *ngIf="stateControl?.invalid && (stateControl?.dirty || stateControl?.touched)">{{
+                  getStateErrorMessage() }}</small>
               </div>
               <div class="field col-12 md:col-6">
                 <span class="p-float-label">
@@ -199,35 +224,47 @@
                   </p-autoComplete>
                   <label for="dist">Dist</label>
                 </span>
-                <small class="p-error block" *ngIf="distControl?.invalid && (distControl?.dirty || distControl?.touched)">{{ getDistErrorMessage() }}</small>
+                <small class="p-error block"
+                  *ngIf="distControl?.invalid && (distControl?.dirty || distControl?.touched)">{{ getDistErrorMessage()
+                  }}</small>
               </div>
               <div class="field col-12 md:col-6">
                 <span class="p-float-label">
                   <input type="text" pInputText id="at" formControlName="at" transformToUppercase autocomplete="off">
                   <label htmlFor="at">At</label>
                 </span>
-                <small class="p-error block" *ngIf="atControl?.invalid && (atControl?.dirty || atControl?.touched)">{{ getAtErrorMessage() }}</small>
+                <small class="p-error block" *ngIf="atControl?.invalid && (atControl?.dirty || atControl?.touched)">{{
+                  getAtErrorMessage() }}</small>
               </div>
               <div class="field col-12 md:col-6">
                 <span class="p-float-label">
-                  <input type="text" pInputText id="post" formControlName="post" class="w-full" transformToUppercase autocomplete="off">
+                  <input type="text" pInputText id="post" formControlName="post" class="w-full" transformToUppercase
+                    autocomplete="off">
                   <label htmlFor="post">Post</label>
                 </span>
-                <small class="p-error block" *ngIf="postControl?.invalid && (postControl?.dirty || postControl?.touched)">{{ getPostErrorMessage() }}</small>
+                <small class="p-error block"
+                  *ngIf="postControl?.invalid && (postControl?.dirty || postControl?.touched)">{{ getPostErrorMessage()
+                  }}</small>
               </div>
               <div class="field col-12 md:col-6">
                 <span class="p-float-label">
-                  <input type="text" pInputText id="city" formControlName="city" class="w-full" transformToUppercase autocomplete="off">
+                  <input type="text" pInputText id="city" formControlName="city" class="w-full" transformToUppercase
+                    autocomplete="off">
                   <label htmlFor="city">City</label>
                 </span>
-                <small class="p-error block" *ngIf="cityControl?.invalid && (cityControl?.dirty || cityControl?.touched)">{{ getCityErrorMessage() }}</small>
+                <small class="p-error block"
+                  *ngIf="cityControl?.invalid && (cityControl?.dirty || cityControl?.touched)">{{ getCityErrorMessage()
+                  }}</small>
               </div>
               <div class="field col-12 md:col-6">
                 <span class="p-float-label">
-                  <input type="text" pInputText id="pinCode" formControlName="pinCode" class="w-full" onlyNumbers [maxLength]="6" autocomplete="off">
+                  <input type="text" pInputText id="pinCode" formControlName="pinCode" class="w-full" onlyNumbers
+                    [maxLength]="6" autocomplete="off">
                   <label htmlFor="pinCode">Pin Code</label>
                 </span>
-                <small class="p-error block" *ngIf="pinCodeControl?.invalid && (pinCodeControl?.dirty || pinCodeControl?.touched)">{{ getPinCodeErrorMessage() }}</small>
+                <small class="p-error block"
+                  *ngIf="pinCodeControl?.invalid && (pinCodeControl?.dirty || pinCodeControl?.touched)">{{
+                  getPinCodeErrorMessage() }}</small>
               </div>
             </div>
           </div>
@@ -236,11 +273,12 @@
             <p-button label="Previous" (onClick)="prevStep()" [disabled]="activeIndex === 0"></p-button>
             <p-button *ngIf="activeIndex < 2" label="Next" (onClick)="nextStep()"
               [disabled]="!isStepValid(activeIndex)"></p-button>
-            <button pButton *ngIf="activeIndex === 2" (click)="signUp()" [disabled]="!registerForm.valid" style="display: flex; align-items: center; justify-content: center;">
+            <button pButton *ngIf="activeIndex === 2" (click)="signUp()" [disabled]="!registerForm.valid"
+              style="display: flex; align-items: center; justify-content: center;">
               <ng-container *ngIf="isLoading; else registerLabel">
                 <i class="pi pi-spin pi-spinner"></i> Loading...
-            </ng-container>
-            <ng-template #registerLabel>Register</ng-template>
+              </ng-container>
+              <ng-template #registerLabel>Register</ng-template>
             </button>
           </div>
         </form>

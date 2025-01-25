@@ -11,9 +11,21 @@
                 </p-toolbar>
             </div>
             <div class="col-12">
-                <form  [formGroup]="userForm" (ngSubmit)="onSubmit()" class="pt-4"> 
+                <form [formGroup]="userForm" (ngSubmit)="onSubmit()" class="pt-4">
                     <input type="hidden" id="id" formControlName="id">
                     <div class="p-fluid p-formgrid grid">
+                        <div class="field col-12">
+                            <div class="d-flex justify-content-center">
+                                <p-fileUpload name="profilePhoto" accept="image/*" maxFileSize="1000000"
+                                    [customUpload]="true" [showUploadButton]="false" [showCancelButton]="false"
+                                    (onSelect)="onProfilePhotoSelect($event)" (onRemove)="onProfilePhotoRemove()">
+                                    <ng-template pTemplate="content">
+                                        <p-image [src]="profileUrl" alt="Image" width="250" [preview]="true"
+                                            [style.border-radius]="'50%'" class="text-center mb-5"></p-image>
+                                    </ng-template>
+                                </p-fileUpload>
+                            </div>
+                        </div>
                         <div class="field col-12 md:col-6">
                             <span class="p-float-label">
                                 <input type="text" pInputText transformToUppercase id="name" formControlName="name"
@@ -30,27 +42,19 @@
                         </div>
                         <div class="field col-12 md:col-6">
                             <span class="p-float-label">
-                                <p-autoComplete 
-                                formControlName="maratialStatus" 
-                                [suggestions]="filteredMaritalStatus"
-                                (completeMethod)="filterMaritalStatus($event)" 
-                                field="value" 
-                                [dropdown]="true" 
-                                name="maritalStatus">
-                              </p-autoComplete>
+                                <p-autoComplete formControlName="maratialStatus" [suggestions]="filteredMaritalStatus"
+                                    (completeMethod)="filterMaritalStatus($event)" dataKey="key" field="value" [dropdown]="true"
+                                    name="maritalStatus">
+                                </p-autoComplete>
                                 <label for="maritalStatus">Marital Status</label>
                             </span>
                         </div>
                         <div class="field col-12 md:col-6">
                             <span class="p-float-label">
-                                <p-autoComplete 
-                                formControlName="gender" 
-                                [suggestions]="filteredGender"
-                                (completeMethod)="filterGender($event)" 
-                                field="value" 
-                                [dropdown]="true" 
-                                name="gender">
-                              </p-autoComplete>
+                                <p-autoComplete formControlName="gender" [suggestions]="filteredGender"
+                                    (completeMethod)="filterGender($event)" dataKey="key" field="value" [dropdown]="true"
+                                    name="gender">
+                                </p-autoComplete>
                                 <label for="gender">Gender</label>
                             </span>
                         </div>
@@ -67,20 +71,15 @@
                                 <label for="phoneNumber">Phone Number</label>
                             </span>
                         </div>
-                       
+
                         <ng-container formGroupName="address">
                             <div class="field col-12 md:col-6">
                                 <span class="p-float-label">
-                                    <p-autoComplete 
-                                    formControlName="country" 
-                                    [suggestions]="filteredCountries"
-                                    (completeMethod)="filterCountries($event)" 
-                                    dataKey="countryId"
-                                    field="countryName" 
-                                    [dropdown]="true" 
-                                    (onSelect)="onCountrySelect($event)" 
-                                    name="country">
-                                  </p-autoComplete>
+                                    <p-autoComplete formControlName="country" [suggestions]="filteredCountries"
+                                        (completeMethod)="filterCountries($event)" dataKey="countryId"
+                                        field="countryName" [dropdown]="true" (onSelect)="onCountrySelect($event)"
+                                        name="country">
+                                    </p-autoComplete>
                                     <label for="country">Country</label>
                                 </span>
                             </div>
@@ -132,6 +131,14 @@
                             </div>
                         </ng-container>
                     </div>
+                    <div class="flex justify-content-end mb-3">
+                        <button pButton type="submit" [disabled]="!userForm.valid">
+                            <ng-container *ngIf="isLoading; else branchLabel">
+                                <i class="pi pi-spin pi-spinner mr-2"></i> Loading...
+                            </ng-container>
+                            <ng-template #branchLabel><i class="pi pi-save mr-2"></i>Save</ng-template>
+                        </button>
+                    </div>
                 </form>
             </div>
         </div>
@@ -142,7 +149,7 @@
 <p-dialog header="Dialog" [(visible)]="display" [modal]="true" showEffect="fade" [style]="{width: '60vw'}"
     [breakpoints]="{'960px': '75vw'}">
     <p-accordion>
-        <p-accordionTab header="Form Values" [selected]="true" class="line-height-3 m-0">
+        <p-accordionTab header="Form Values" class="line-height-3 m-0">
             <pre class="p-2 border rounded bg-gray-100" style="white-space: pre-wrap;">{{ formJson }}</pre>
         </p-accordionTab>
         <p-accordionTab header="User Model" class="line-height-3 m-0">
