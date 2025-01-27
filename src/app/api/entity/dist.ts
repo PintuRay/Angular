@@ -1,8 +1,19 @@
-import { Address } from './address';
-import { Country } from './country';
-import { Party } from './Party';
-import { State } from './state';
-
+export class DistDto{
+    distId: string;
+    fk_CountryId: string;
+    countryName: string;
+    fk_StateId: string;
+    stateName: string;
+    distName: string;
+    constructor() {
+        this.distId = '';
+        this.fk_CountryId = '';
+        this.countryName ='';
+        this.fk_StateId = '';
+        this.stateName='';
+        this.distName = '';
+    }
+}
 export class DistModel {
     fk_CountryId: string;
     fk_StateId: string;
@@ -20,26 +31,4 @@ export class DistUpdateModel extends DistModel{
         this.distId = '';
     }
 }
-export class Dist extends DistUpdateModel {
-    isActive?: boolean;
-    createdDate?: Date;
-    modifyDate?: Date;
-    createdBy?: string;
-    modifyBy?: string;
-    country?: Country;
-    state?: State;
-    addresses?: Address[];
-    parties?: Party[];
-    constructor() {
-        super();
-        this.distId = '';
-        this.isActive = false;
-        this.createdDate = new Date();
-        this.modifyDate = new Date();
-        this.createdBy = '';
-        this.modifyBy = '';
-        this.state = new State();
-        this.addresses = [];
-        this.parties= [];
-    }
-}
+

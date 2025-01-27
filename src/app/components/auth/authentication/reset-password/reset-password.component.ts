@@ -26,11 +26,7 @@ export class ResetPasswordComponent implements OnInit {
     private messageService: MessageService
   ) { }
   //#endregion
-  //#region Themme
-  get dark(): boolean {
-    return this.layoutSvcs.config().colorScheme !== 'light';
-  }
-  //#endregion
+
   //#region Lifecycle Hooks
   ngOnInit(): void {
     this.resetPass.uid = this.route.snapshot.paramMap.get('uid') ?? '';

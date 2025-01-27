@@ -5,18 +5,16 @@ import { Router } from '@angular/router';
 import { BehaviorSubject, Observable, Subject, switchMap } from 'rxjs';
 import { Base } from '../../base';
 import { PaginationParams } from '../../model/paginationParams';
-import { Branch, BranchModel, BranchUpdateModel } from '../../entity/branch';
+import { BranchDto, BranchModel, BranchUpdateModel } from '../../entity/branch';
 export interface BranchOperation {
-  branch: Branch;
+  branch: BranchDto;
   isSuccess?: boolean; 
 }
 export interface bulkBranchOperation {
-  branches: Branch[];
+  branches: BranchDto[];
   isSuccess?: boolean; 
 }
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable()
 export class BranchService {
   //#region Property Declaration
   private addUpdateBranchVisibilitySubject = new BehaviorSubject<boolean>(false);
@@ -172,10 +170,10 @@ export class BranchService {
   setBulkOperationType(operationType: string) {
     this.bulkOperationTypeSubject.next(operationType);
   }
-  setBranch(branch: Branch, isSuccess: boolean = false): void {
+  setBranch(branch: BranchDto, isSuccess: boolean = false): void {
     this.branchSubject.next({ branch, isSuccess });
   }
-  setBulkBranch(branches: Branch[], isSuccess: boolean = false): void {
+  setBulkBranch(branches: BranchDto[], isSuccess: boolean = false): void {
     this.bulkBranchSubject.next({ branches, isSuccess });
   }
 

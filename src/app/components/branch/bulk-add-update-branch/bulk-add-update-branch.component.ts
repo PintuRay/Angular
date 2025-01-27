@@ -3,7 +3,7 @@ import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { filter, Subscription } from 'rxjs';
 import { BranchService } from 'src/app/api/service/devloper/branch.service';
 import { LayoutService } from '../../shared/service/app.layout.service';
-import { Branch, BranchModel, BranchUpdateModel } from 'src/app/api/entity/branch';
+import { BranchDto, BranchModel, BranchUpdateModel } from 'src/app/api/entity/branch';
 import { Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
 
@@ -17,7 +17,7 @@ export class BulkAddUpdateBranchComponent {
   operationType: string = '';
   private operationTypeSub!: Subscription;
   private branchDataSub!: Subscription;
-  branch: Branch[];
+  branch: BranchDto[];
   addbranch: BranchModel[];
   updatebranch: BranchUpdateModel[];
   branchForm: FormGroup;
@@ -172,7 +172,7 @@ export class BulkAddUpdateBranchComponent {
           this.branchSvcs.bulkCreateBranch(this.addbranch).subscribe({
             next: (response) => {
               if (response.responseCode === 201) {
-                this.branchSvcs.setBulkBranch(response.data.records as Branch[], true);
+                this.branchSvcs.setBulkBranch(response.data.records as BranchDto[], true);
                 this.messageService.add({ severity: 'success', summary: 'Success', detail: response.message });
                 //this.branchForm = this.initializeBranchForm();
                 this.resetComponent();
@@ -191,7 +191,7 @@ export class BulkAddUpdateBranchComponent {
           this.branchSvcs.bulkUpdateBranch(this.updatebranch).subscribe({
             next: (response) => {
               if (response.responseCode === 200) {
-                this.branchSvcs.setBulkBranch(response.data.records as Branch[], true);
+                this.branchSvcs.setBulkBranch(response.data.records as BranchDto[], true);
                 this.messageService.add({ severity: 'success', summary: 'Success', detail: response.message });
                 this.branchForm = this.initializeBranchForm();
                 this.resetComponent();

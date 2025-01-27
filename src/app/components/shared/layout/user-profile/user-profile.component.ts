@@ -1,14 +1,15 @@
 import { Component } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { LayoutService } from '../../service/app.layout.service';
 import { CommonService } from 'src/app/api/service/common/common.services';
 import { MessageService } from 'primeng/api';
 import { AuthorizationService } from 'src/app/api/service/account/authorization/authorization.service';
-import { Country } from 'src/app/api/entity/country';
-import { State } from 'src/app/api/entity/state';
-import { Dist } from 'src/app/api/entity/dist';
+import { CountryDto } from 'src/app/api/entity/country';
+import { StateDto } from 'src/app/api/entity/state';
+import { DistDto } from 'src/app/api/entity/dist';
 import { AuthenticationService } from 'src/app/api/service/account/authentication/authentication.service';
-import { UserModel } from 'src/app/api/model/account/authentication/user-model';
+import { UserDto, UserUpdateModel } from 'src/app/api/entity/user-model';
+import { AddressUpdateModel } from 'src/app/api/entity/address';
 @Component({
   selector: 'user-profile',
   templateUrl: './user-profile.component.html',
@@ -19,19 +20,20 @@ export class UserProfileComponent {
   userForm!: FormGroup;
   formData: FormData = new FormData();
   isLoading = false;
-  user: UserModel = new UserModel();
-  countries: Country[] = [];
-  filteredCountries: Country[] = [];
-  states: State[] = [];
-  filteredStates: State[] = [];
-  dists: Dist[] = [];
-  filteredDists: Dist[] = [];
-  marriedStatus = [
+  private user: UserDto = new UserDto();
+  private updateUser: UserUpdateModel = new UserUpdateModel();
+  private countries: CountryDto[] = [];
+  private states: StateDto[] = [];
+  private dists: DistDto[] = [];
+  filteredCountries: CountryDto[] = [];
+  filteredStates: StateDto[] = [];
+  filteredDists: DistDto[] = [];
+  readonly marriedStatus = [
     { key: 'married', value: 'Married' },
     { key: 'unmarred', value: 'UnMarried' },
   ];
   filteredMaritalStatus: any[] = [];
-  gender = [
+  readonly gender = [
     { key: 'male', value: 'Male' },
     { key: 'female', value: 'Female' },
     { key: 'other', value: 'other' },
@@ -72,7 +74,7 @@ export class UserProfileComponent {
   //#endregion
 
   //#region Form Initialization
-  private initializeUserForm(user?: UserModel): void {
+  private initializeUserForm(user?: UserUpdateModel): void {
     this.userForm = this.fb.group({
       id: [user?.id || ''],
       name: [user?.name || '', [Validators.required, Validators.minLength(2)]],
@@ -98,15 +100,25 @@ export class UserProfileComponent {
       const file = event.files[0];
       this.profileUrl = URL.createObjectURL(file);
       this.selectedProfilePhoto = file;
-      this.userForm.get('profilePhoto')?.setValue(file);
+      const profilePhotoControl = this.userForm.get('profilePhoto') as FormControl;
+      if (profilePhotoControl) {
+        profilePhotoControl.setValue(file);
+        profilePhotoControl.markAsDirty();
+        profilePhotoControl.markAsTouched();
+      }
     }
   }
   onProfilePhotoRemove() {
-    if (this.user.profilePhoto) {
-      this.profileUrl = URL.createObjectURL(this.user.profilePhoto);
+    if (this.updateUser.profilePhoto) {
+      this.profileUrl = URL.createObjectURL(this.updateUser.profilePhoto);
     }
     this.selectedProfilePhoto = null;
-    this.userForm.get('profilePhoto')?.setValue(null);
+    const profilePhotoControl = this.userForm.get('profilePhoto') as FormControl;
+    if (profilePhotoControl) {
+      profilePhotoControl.setValue(null);
+      profilePhotoControl.markAsDirty();
+      profilePhotoControl.markAsTouched();
+    }
   }
   public filterMaritalStatus(event: any) {
     const query = event.query.toLowerCase();
@@ -159,16 +171,17 @@ export class UserProfileComponent {
     this.formData.append('Id', formValue.id);
     this.formData.append('Name', formValue.name);
     this.formData.append('BirthDate', new Date(formValue.birthDate).toISOString());
-    this.formData.append('MaratialStatus', formValue.maratialStatus.key );
+    this.formData.append('MaratialStatus', formValue.maratialStatus.key);
     this.formData.append('Gender', formValue.gender.key);
     this.formData.append('Email', formValue.email);
     this.formData.append('PhoneNumber', formValue.phoneNumber);
-    this.formData.append('PhotoPath', this.user.photoPath);
+    this.formData.append('PhotoPath', this.updateUser.photoPath);
     if (this.selectedProfilePhoto instanceof File) {
       this.formData.append('ProfilePhoto', this.selectedProfilePhoto, this.selectedProfilePhoto.name);
     } else {
       this.formData.append('ProfilePhoto', '');
     }
+    this.formData.append('Address.AddressId', this.updateUser.address.addressId);
     this.formData.append('Address.Fk_CountryId', formValue.address.country?.countryId);
     this.formData.append('Address.Fk_StateId', formValue.address.state?.stateId);
     this.formData.append('Address.Fk_DistId', formValue.address.dist?.distId);
@@ -185,15 +198,36 @@ export class UserProfileComponent {
     this.authorizeSvcs.getUserById(Id).subscribe({
       next: async (response) => {
         if (response.responseCode === 200) {
-          this.user = response.data.singleObjData as UserModel;
-          this.authorizeSvcs.GetImage(this.user.photoPath).subscribe(profilePhoto => {
-            this.profileUrl = URL.createObjectURL(profilePhoto),
-              this.user.profilePhoto = profilePhoto;
-          });
+          this.user = response.data.singleObjData as UserDto;
           await this.getCountries();
           await this.getStates(this.user.address?.fk_CountryId);
           await this.getDists(this.user.address?.fk_StateId);
-          this.initializeUserForm(this.user);
+          this.updateUser = {
+            id: this.user.id,
+            name: this.user.name,
+            birthDate: this.user.birthDate,
+            maratialStatus: this.user.maratialStatus,
+            gender: this.user.gender,
+            email: this.user.email,
+            phoneNumber: this.user.phoneNumber,
+            photoPath: this.user.photoPath,
+            profilePhoto: null,
+            address: {
+              addressId: this.user.address.addressId,
+              at: this.user.address.at,
+              post: this.user.address.post,
+              city: this.user.address.city,
+              pinCode: this.user.address.pinCode,
+              fk_CountryId: this.user.address.fk_CountryId,
+              fk_StateId: this.user.address.fk_StateId,
+              fk_DistId: this.user.address.fk_DistId
+            }
+          };
+          this.authorizeSvcs.GetImage(this.user.photoPath).subscribe(profilePhoto => {
+            this.profileUrl = URL.createObjectURL(profilePhoto),
+              this.updateUser.profilePhoto = profilePhoto;
+          });
+          this.initializeUserForm(this.updateUser);
           this.filteredMaritalStatus = this.marriedStatus.filter(status => status.key === this.user.maratialStatus);
           this.filteredGender = this.gender.filter(gender => gender.key === this.user.gender);
           this.filteredCountries = this.countries.filter(country => country.countryId === this.user.address?.fk_CountryId);
@@ -206,12 +240,13 @@ export class UserProfileComponent {
       }
     });
   }
+
   private getCountries(): Promise<void> {
     return new Promise((resolve) => {
       this.commonSvcs.getCountries().subscribe({
         next: (response) => {
           if (response.responseCode === 200) {
-            this.countries = response.data.collectionObjData as Country[];
+            this.countries = response.data.collectionObjData as CountryDto[];
           }
           resolve();
         },
@@ -224,7 +259,7 @@ export class UserProfileComponent {
       this.commonSvcs.getStates(countryId).subscribe({
         next: (response) => {
           if (response.responseCode === 200) {
-            this.states = response.data.collectionObjData as State[];
+            this.states = response.data.collectionObjData as StateDto[];
           }
           resolve();
         },
@@ -237,7 +272,7 @@ export class UserProfileComponent {
       this.commonSvcs.getDists(stateId).subscribe({
         next: (response) => {
           if (response.responseCode === 200) {
-            this.dists = response.data.collectionObjData as Dist[];
+            this.dists = response.data.collectionObjData as DistDto[];
           }
           resolve();
         },
@@ -247,37 +282,45 @@ export class UserProfileComponent {
   }
   public onSubmit(): void {
     try {
-      if (this.userForm.valid) {
-        this.isLoading = true;
-				const formData = this.convertFormToFormData(this.userForm.value);
-        this.authorizeSvcs.updateUser(formData).subscribe({
-					next: (response) => {
-						if (response.responseCode === 200) {
-							this.messageService.add({
-								severity: 'success',
-								summary: 'Success',
-								detail: 'Record Updatated successful'
-							});
-						}
-					},
-					error: (error) => {
-						this.isLoading = false;
-						this.messageService.add({
-							severity: 'error',
-							summary: 'Error',
-							detail: error.error?.message || 'Some Error Occoured'
-						});
-					},
-				});
+      if (this.userForm.dirty && this.userForm.touched) {
+        if (this.userForm.valid) {
+          this.isLoading = true;
+          const formData = this.convertFormToFormData(this.userForm.value);
+          this.authorizeSvcs.updateUser(formData).subscribe({
+            next: (response) => {
+              if (response.responseCode === 200) {
+                this.messageService.add({
+                  severity: 'success',
+                  summary: 'Success',
+                  detail: 'Record Updatated successful'
+                });
+              }
+            },
+            error: (error) => {
+              this.isLoading = false;
+              this.messageService.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: error.error?.message || 'Some Error Occoured'
+              });
+            },
+          });
+        }
+      } else {
+        this.messageService.add({
+          severity: 'warn',
+          summary: 'warn',
+          detail: 'No Change Detected'
+        });
       }
     }
     catch (error) {
-			this.isLoading = false;
-			this.messageService.add({
-				severity: 'error',
-				summary: 'Error',
-				detail: 'Some Error Occoured'
-			});
+      this.isLoading = false;
+      this.messageService.add({
+        severity: 'warning',
+        summary: 'warning',
+        detail: 'Some Error Occoured'
+      });
     }
   }
   //#endregion
@@ -286,8 +329,11 @@ export class UserProfileComponent {
   get formJson(): string {
     return JSON.stringify(this.userForm.value, null, 2);
   }
-  get userModelJson(): string {
+  get userDtoJson(): string {
     return JSON.stringify(this.user, null, 2);
+  }
+  get userUpdateModelJson(): string {
+    return JSON.stringify(this.updateUser, null, 2);
   }
   get countryModelJson(): string {
     return JSON.stringify(this.countries, null, 2);

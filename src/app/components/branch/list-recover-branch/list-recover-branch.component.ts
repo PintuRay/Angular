@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import { ConfirmationService, MessageService } from 'primeng/api';
+import { MessageService } from 'primeng/api';
 import { Subscription } from 'rxjs';
-import { Branch } from 'src/app/api/entity/branch';
+import { BranchDto } from 'src/app/api/entity/branch';
 import { PaginationParams } from 'src/app/api/model/paginationParams';
 import { AuthenticationService } from 'src/app/api/service/account/authentication/authentication.service';
 import { BranchService } from 'src/app/api/service/devloper/branch.service';
@@ -10,7 +10,6 @@ import { BranchService } from 'src/app/api/service/devloper/branch.service';
 @Component({
   selector: 'app-list-recover-branch',
   templateUrl: './list-recover-branch.component.html',
-    providers: [ConfirmationService, MessageService]
 })
 export class ListRecoverBranchComponent {
   //#region Property Declaration
@@ -18,8 +17,8 @@ export class ListRecoverBranchComponent {
   canCreate: boolean = false;
   canUpdate: boolean = false;
   subscription!: Subscription;
-  branches: Branch[];
-  selectedBranches: Branch[];
+  branches: BranchDto[];
+  selectedBranches: BranchDto[];
   pagination: PaginationParams;
   cols: any[];
   //#endregion 
@@ -65,11 +64,10 @@ export class ListRecoverBranchComponent {
         next: (response) => {
           console.log(response);
           if (response.responseCode === 200) {
-            this.branches = response.data.collectionObjData as Branch[];
+            this.branches = response.data.collectionObjData as BranchDto[];
           }
         },
         error: (response) => {},
-        complete: () => {}
       })
     }
     catch (error) {

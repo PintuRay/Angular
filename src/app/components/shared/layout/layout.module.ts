@@ -18,6 +18,9 @@ import { LayoutRoutingModule } from './layout-routing.module';
 import { PrimeNgModule } from '../prime-ng/prime-ng.module';
 import { FieldsRestrictionModule } from 'src/app/utility/directives/fields-restriction/fields-restriction.module';
 import { FieldsValidationModule } from 'src/app/utility/directives/fields-validation/fields-validation.module';
+import { LayoutService } from '../service/app.layout.service';
+import { MenuService } from '../service/app.menu.service';
+import { TopBarService } from '../service/topbar.service';
 
 
 @NgModule({
@@ -42,6 +45,7 @@ import { FieldsValidationModule } from 'src/app/utility/directives/fields-valida
         PrimeNgModule,
         FieldsRestrictionModule,
         FieldsValidationModule
-    ]
+    ],
+    providers:[LayoutService, MenuService, TopBarService]
 })
 export class AppLayoutModule { }

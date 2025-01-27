@@ -42,9 +42,6 @@ import { AuthenticationService } from '../../api/service/account/authentication/
     FieldsRestrictionModule,
     FieldsValidationModule
   ],
-  providers: [
-    LayoutService,
-    AuthenticationService, 
-]
+  providers: [AuthenticationService]
 })
 export class AuthModule { }

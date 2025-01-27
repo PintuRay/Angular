@@ -29,11 +29,6 @@ export class LoginComponent implements OnInit {
         private messageService: MessageService
     ) {}
     //#endregion
-    //#region Themme
-    get dark(): boolean {
-        return this.layoutSvcs.config().colorScheme !== 'light';
-    }
-    //#endregion
     //#region Lifecycle Hooks
     ngOnInit(): void {
         this.msg = this.route.snapshot.paramMap.get('message') ?? '';

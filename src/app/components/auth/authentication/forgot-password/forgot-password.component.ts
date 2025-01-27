@@ -21,11 +21,6 @@ export class ForgotPasswordComponent {
 		private messageService: MessageService
 	) { }
 	//#endregion
-	//#region Themme
-	get dark(): boolean {
-		return this.layoutSvcs.config().colorScheme !== 'light';
-	}
-	//#endregion
 	//#region Server Side Operations
 	async submit(emailInput: HTMLInputElement): Promise<void> {
 		const email = emailInput.value;

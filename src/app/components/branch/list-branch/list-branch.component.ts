@@ -1,7 +1,7 @@
 import { Component, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { Branch, BranchModel } from 'src/app/api/entity/branch';
+import { BranchDto, BranchModel } from 'src/app/api/entity/branch';
 import { PaginationParams } from 'src/app/api/model/paginationParams';
 import { AuthenticationService } from 'src/app/api/service/account/authentication/authentication.service';
 import { BranchService } from 'src/app/api/service/devloper/branch.service';
@@ -53,8 +53,8 @@ export class ListBranchComponent {
   bulkBranchsubscription!: Subscription
   deleteSubscription!: Subscription;
   bulkDeleteSubscription!: Subscription;
-  branches: Branch[];
-  selectedBranches: Branch[];
+  branches: BranchDto[];
+  selectedBranches: BranchDto[];
   cols: any[];
   pagination: PaginationParams;
   @ViewChild('fileUpload') fileUpload!: FileUpload;
@@ -189,7 +189,7 @@ export class ListBranchComponent {
       this.branchSvcs.bulkCreateBranch(branches).subscribe({
         next: (response) => {
           if (response.responseCode === 201) {
-            const newBranches = response.data.records as Branch[];
+            const newBranches = response.data.records as BranchDto[];
             this.branches = [...this.branches, ...newBranches];
             this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Branches imported successfully' });
             this.importOptionsVisible = false;
@@ -208,7 +208,7 @@ export class ListBranchComponent {
   onExportClick() {
     this.exportOptionsVisible = true;
   }
-  private prepareData(data: Branch[]) {
+  private prepareData(data: BranchDto[]) {
     return data.map(branch => ({
       'Branch Code': branch.branchCode,
       'Branch Name': branch.branchName,
@@ -216,7 +216,7 @@ export class ListBranchComponent {
       'Address': branch.branchAddress
     }));
   }
-  exportExcel(data: Branch[], fileName: string = 'branches') {
+  exportExcel(data: BranchDto[], fileName: string = 'branches') {
     const preparedData = this.prepareData(data);
     const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(preparedData);
     const columnWidths = [
@@ -236,7 +236,7 @@ export class ListBranchComponent {
     this.branchSvcs.getAllBranch().subscribe({
       next: (response) => {
         if (response.responseCode === 200) {
-          const data = response.data.collectionObjData as Branch[];
+          const data = response.data.collectionObjData as BranchDto[];
           this.exportExcel(data, 'branch-list');
         }
       },
@@ -245,7 +245,7 @@ export class ListBranchComponent {
       },
     })
   }
-  exportPdf(data: Branch[], fileName: string = 'branches') {
+  exportPdf(data: BranchDto[], fileName: string = 'branches') {
     const preparedData = this.prepareData(data); 
     // Initialize PDF document
     const doc = new jsPDF();
@@ -279,7 +279,7 @@ export class ListBranchComponent {
     this.branchSvcs.getAllBranch().subscribe({
       next: (response) => {
         if (response.responseCode === 200) {
-          const data = response.data.collectionObjData as Branch[];
+          const data = response.data.collectionObjData as BranchDto[];
           this.exportPdf(data, 'branch-list');
         }
       },
@@ -298,7 +298,7 @@ export class ListBranchComponent {
     this.branchSvcs.setOperationType("add");
     this.branchSvcs.showAddUpdateBranchdDialog();
   }
-  editBranch(branch: Branch) {
+  editBranch(branch: BranchDto) {
     this.branchSvcs.setOperationType("edit");
     this.branchSvcs.setBranch(branch);
     this.branchSvcs.showAddUpdateBranchdDialog();
@@ -324,7 +324,7 @@ export class ListBranchComponent {
       this.branchSvcs.getBranches(pagination).subscribe({
         next: (response) => {
           if (response.responseCode === 200) {
-            this.branches = response.data.collectionObjData as Branch[];
+            this.branches = response.data.collectionObjData as BranchDto[];
             this.totalRecords = response.data.count;
           }
         },

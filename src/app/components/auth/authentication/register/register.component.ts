@@ -6,9 +6,9 @@ import { CommonService } from 'src/app/api/service/common/common.services';
 import { LayoutService } from '../../../shared/service/app.layout.service';
 import { environment } from 'src/app/utility/environment/environment';
 import { MenuItem } from 'primeng/api';
-import { Country } from 'src/app/api/entity/country';
-import { State } from 'src/app/api/entity/state';
-import { Dist } from 'src/app/api/entity/dist';
+import { CountryDto } from 'src/app/api/entity/country';
+import { StateDto } from 'src/app/api/entity/state';
+import { DistDto } from 'src/app/api/entity/dist';
 
 @Component({
 	selector: 'app-register',
@@ -18,7 +18,24 @@ export class RegisterComponent implements OnInit {
 	//#region Property Declaration
 	registerForm!: FormGroup;
 	formData: FormData = new FormData();
-	returnUrl: string = environment.EmailConfirmation;
+	readonly returnUrl: string = environment.EmailConfirmation;
+	private countries: CountryDto[] = [];
+	private states: StateDto[] = [];
+	private dists: DistDto[] = [];
+	readonly marriedStatus = [
+		{ key: 'married', value: 'Married' },
+		{ key: 'unmarred', value: 'UnMarried' },
+	];
+	readonly gender = [
+		{ key: 'male', value: 'Male' },
+		{ key: 'female', value: 'Female' },
+		{ key: 'other', value: 'other' },
+	];
+	filteredCountries: CountryDto[] = [];
+	filteredStates: StateDto[] = [];
+	filteredDists: DistDto[] = [];
+	filteredMaritalStatus: any[] = [];
+	filteredGender: any[] = [];
 	tokenValue: string = '';
 	tokenId: string = '';
 	isLoading = false;
@@ -27,23 +44,13 @@ export class RegisterComponent implements OnInit {
 	userNameLoading = false;
 	items: MenuItem[] = [];
 	activeIndex: number = 0;
-	countries: Country[] = [];
-	filteredCountries: Country[] = [];
-	states: State[] = [];
-	filteredStates: State[] = [];
-	dists: Dist[] = [];
-	filteredDists: Dist[] = [];
-	marriedStatus: any[] = [];
-	filteredMaritalStatus: any[] = [];
-	gender: any[] = [];
-	filteredGender: any[] = [];
 	isvalidMail = false;
 	isPhoneNumberValid = false;
 	isUserValid = false;
 	selectedProfilePhoto: File | null = null;
 	display: boolean = false;
 	//#endregion 
-	
+
 	//#region constructor
 	constructor(
 		private fb: FormBuilder,
@@ -52,13 +59,7 @@ export class RegisterComponent implements OnInit {
 		private commonSvcs: CommonService,
 		private messageService: MessageService) { }
 	//#endregion
-	
-	//#region Themme
-	get dark(): boolean {
-		return this.layoutSvcs.config().colorScheme !== 'light';
-	}
-	//#endregion
-	
+
 	//#region Lifecycle Hooks
 	ngOnInit(): void {
 		this.initializeRegisterForm();
@@ -66,14 +67,14 @@ export class RegisterComponent implements OnInit {
 		this.registerForm.disable();
 	}
 	//#endregion
-	
+
 	//#region Form Initialization
 	private initializeRegisterForm(): void {
 		this.registerForm = this.fb.group({
 			// Account Information
 			accountInfo: this.fb.group({
 				email: ['', [Validators.required, Validators.pattern(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)]],
-				phoneNumber: ['', [Validators.required, Validators.maxLength(10),Validators.pattern(/^\d{10}$/)]],
+				phoneNumber: ['', [Validators.required, Validators.maxLength(10), Validators.pattern(/^\d{10}$/)]],
 				password: ['', [Validators.required, Validators.minLength(8), Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@#$%^&*!])[A-Za-z\d@#$%^&*!]{8,}$/)]],
 				confirmPassword: ['', [Validators.required]]
 			}),
@@ -98,7 +99,7 @@ export class RegisterComponent implements OnInit {
 		});
 	}
 	//#endregion
-	
+
 	//#region MultiStep Form
 	private initializeSteps() {
 		this.items = [
@@ -147,7 +148,7 @@ export class RegisterComponent implements OnInit {
 		}
 	}
 	//#endregion
-	
+
 	//#region Client Side Vaildation
 	get emailControl() {
 		return this.registerForm.get('accountInfo.email');
@@ -326,7 +327,7 @@ export class RegisterComponent implements OnInit {
 		}
 	}
 	//#endregion
-	
+
 	//#region Server Side Vaildation
 	async isEmailInUse(): Promise<void> {
 		const email = this.registerForm.value.accountInfo.email;
@@ -346,11 +347,7 @@ export class RegisterComponent implements OnInit {
 					error: (response) => {
 						this.emailLoading = false;
 						this.messageService.add({ severity: 'error', summary: 'error', detail: response.error.message });
-					},
-					complete: () => {
-						this.emailLoading = false;
-						console.log('isEmailInUse Request completed');
-					},
+					}
 				});
 			}
 			else {
@@ -385,11 +382,7 @@ export class RegisterComponent implements OnInit {
 					error: (response) => {
 						this.phoneNoLoading = false;
 						this.messageService.add({ severity: 'error', summary: 'error', detail: response.error.message });
-					},
-					complete: () => {
-						this.phoneNoLoading = false;
-						console.log('isPhoneNumberInUse Request completed');
-					},
+					}
 				});
 			}
 			else {
@@ -424,11 +417,7 @@ export class RegisterComponent implements OnInit {
 					error: (response) => {
 						this.userNameLoading = false;
 						this.messageService.add({ severity: 'error', summary: 'error', detail: response.error.message });
-					},
-					complete: () => {
-						this.userNameLoading = false;
-						console.log('isPhoneNumberInUse Request completed');
-					},
+					}
 				});
 			}
 			else {
@@ -446,7 +435,7 @@ export class RegisterComponent implements OnInit {
 		}
 	}
 	//#endregion      
-	
+
 	//#region Client Side Operations
 	filterMaritalStatus(event: any) {
 		const query = event.query.toLowerCase();
@@ -573,7 +562,7 @@ export class RegisterComponent implements OnInit {
 		});
 	}
 	//#endregion
-	
+
 	//#region Server Side Operations
 	async vaildateToken(): Promise<void> {
 		if (this.tokenValue) {
@@ -585,15 +574,6 @@ export class RegisterComponent implements OnInit {
 						if (this.registerForm.disabled) {
 							this.registerForm.enable();
 							await this.getCountries();
-							this.marriedStatus = [
-								{ key: 'married', value: 'Married' },
-								{ key: 'unmarred', value: 'UnMarried' },
-							];
-							this.gender = [
-								{ key: 'male', value: 'Male' },
-								{ key: 'female', value: 'Female' },
-								{ key: 'other', value: 'other' },
-							];
 						}
 					}
 				},
@@ -603,10 +583,7 @@ export class RegisterComponent implements OnInit {
 						summary: 'error',
 						detail: response.error.message,
 					});
-				},
-				complete: () => {
-					// console.log('Validation Request completed');
-				},
+				}
 			});
 		} else {
 			this.messageService.add({
@@ -620,55 +597,30 @@ export class RegisterComponent implements OnInit {
 		this.commonSvcs.getCountries().subscribe({
 			next: (response) => {
 				if (response.responseCode == 200) {
-					this.countries = response.data.collectionObjData as Country[]
+					this.countries = response.data.collectionObjData as CountryDto[]
 				}
 			},
-			error: (response) => {
-				this.messageService.add({
-					severity: 'error',
-					summary: 'error',
-					detail: response.error.message,
-				});
-			},
-			complete: () => {},
+			error: (err) => { }
 		});
 	}
 	async getStates(counryId: any): Promise<void> {
 		this.commonSvcs.getStates(counryId).subscribe({
 			next: (response) => {
 				if (response.responseCode == 200) {
-					this.states = response.data.collectionObjData as State[]
+					this.states = response.data.collectionObjData as StateDto[]
 				}
 			},
-			error: (response) => {
-				this.messageService.add({
-					severity: 'error',
-					summary: 'error',
-					detail: response.error.message,
-				});
-			},
-			complete: () => {
-				// console.log('states Request completed');
-			},
+			error: (err) => { }
 		});
 	}
 	async getDists(stateId: any): Promise<void> {
 		this.commonSvcs.getDists(stateId).subscribe({
 			next: (response) => {
 				if (response.responseCode == 200) {
-					this.dists = response.data.collectionObjData as Dist[]
+					this.dists = response.data.collectionObjData as DistDto[]
 				}
 			},
-			error: (response) => {
-				this.messageService.add({
-					severity: 'error',
-					summary: 'error',
-					detail: response.error.message,
-				});
-			},
-			complete: () => {
-				// console.log('dists Request completed');
-			},
+			error: (err) => { }
 		});
 	}
 	async signUp(): Promise<void> {
@@ -724,7 +676,7 @@ export class RegisterComponent implements OnInit {
 		}
 	}
 	//#endregion
-	
+
 	//#region Test form
 	get formJson(): string {
 		return JSON.stringify(this.registerForm.value, null, 2);

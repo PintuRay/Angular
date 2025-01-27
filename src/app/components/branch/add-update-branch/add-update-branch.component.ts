@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { Subscription } from 'rxjs';
-import { Branch, BranchModel, BranchUpdateModel } from 'src/app/api/entity/branch';
+import { BranchDto, BranchModel, BranchUpdateModel } from 'src/app/api/entity/branch';
 import { BranchService } from 'src/app/api/service/devloper/branch.service';
 import { LayoutService } from '../../shared/service/app.layout.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -17,7 +17,7 @@ export class AddUpdateBranchComponent {
   private dialogSub!: Subscription;
   private branchDataSub!: Subscription;
   private operationTypeSub!: Subscription;
-  branch: Branch;
+  branch: BranchDto;
   addbranch: BranchModel;
   updatebranch: BranchUpdateModel;
   branchForm: FormGroup;
@@ -27,7 +27,7 @@ export class AddUpdateBranchComponent {
   //#region constructor
   constructor(private fb: FormBuilder, private branchSvcs: BranchService, public layoutSvcs: LayoutService) {
     this.branchForm = this.initializeBranchForm();
-    this.branch = new Branch();
+    this.branch = new BranchDto();
     this.addbranch = new BranchModel();
     this.updatebranch = new BranchUpdateModel()
   }
@@ -145,7 +145,7 @@ export class AddUpdateBranchComponent {
   }
   private resetComponent() {
     this.branchForm.reset();
-    this.branch = new Branch();
+    this.branch = new BranchDto();
     this.addbranch = new BranchModel();
     this.updatebranch = new BranchUpdateModel();
   }

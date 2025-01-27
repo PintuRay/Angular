@@ -16,7 +16,7 @@
                     <div class="p-fluid p-formgrid grid">
                         <div class="field col-12">
                             <div class="d-flex justify-content-center">
-                                <p-fileUpload name="profilePhoto" accept="image/*" maxFileSize="1000000"
+                                <p-fileUpload name="profilePhoto" accept="image/*" maxFileSize="1000000" formControlName="profilePhoto"
                                     [customUpload]="true" [showUploadButton]="false" [showCancelButton]="false"
                                     (onSelect)="onProfilePhotoSelect($event)" (onRemove)="onProfilePhotoRemove()">
                                     <ng-template pTemplate="content">
@@ -152,8 +152,11 @@
         <p-accordionTab header="Form Values" class="line-height-3 m-0">
             <pre class="p-2 border rounded bg-gray-100" style="white-space: pre-wrap;">{{ formJson }}</pre>
         </p-accordionTab>
-        <p-accordionTab header="User Model" class="line-height-3 m-0">
-            <pre class="p-2 border rounded bg-gray-100" style="white-space: pre-wrap;">{{ userModelJson }}</pre>
+        <p-accordionTab header="User Dto" class="line-height-3 m-0">
+            <pre class="p-2 border rounded bg-gray-100" style="white-space: pre-wrap;">{{ userDtoJson }}</pre>
+        </p-accordionTab>
+        <p-accordionTab header="User Update Model" class="line-height-3 m-0">
+            <pre class="p-2 border rounded bg-gray-100" style="white-space: pre-wrap;">{{ userUpdateModelJson }}</pre>
         </p-accordionTab>
         <p-accordionTab header="Country Model" class="line-height-3 m-0">
             <pre class="p-2 border rounded bg-gray-100" style="white-space: pre-wrap;">{{ countryModelJson }}</pre>

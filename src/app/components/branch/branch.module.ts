@@ -30,9 +30,6 @@ import { BranchService } from 'src/app/api/service/devloper/branch.service';
     FieldsRestrictionModule,
     FieldsValidationModule
   ],
-    providers: [
-      LayoutService,
-      BranchService, 
-  ]
+    providers: [BranchService]
 })
 export class BranchModule { }
