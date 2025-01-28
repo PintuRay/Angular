@@ -16,39 +16,39 @@ import { DistDto } from 'src/app/api/entity/dist';
 })
 export class RegisterComponent implements OnInit {
 	//#region Property Declaration
-	registerForm!: FormGroup;
-	formData: FormData = new FormData();
+	public registerForm!: FormGroup;
+	private formData: FormData = new FormData();
 	readonly returnUrl: string = environment.EmailConfirmation;
 	private countries: CountryDto[] = [];
 	private states: StateDto[] = [];
 	private dists: DistDto[] = [];
-	readonly marriedStatus = [
+	private readonly marriedStatus = [
 		{ key: 'married', value: 'Married' },
 		{ key: 'unmarred', value: 'UnMarried' },
 	];
-	readonly gender = [
+	private readonly gender = [
 		{ key: 'male', value: 'Male' },
 		{ key: 'female', value: 'Female' },
 		{ key: 'other', value: 'other' },
 	];
-	filteredCountries: CountryDto[] = [];
-	filteredStates: StateDto[] = [];
-	filteredDists: DistDto[] = [];
-	filteredMaritalStatus: any[] = [];
-	filteredGender: any[] = [];
-	tokenValue: string = '';
-	tokenId: string = '';
-	isLoading = false;
-	emailLoading = false;
-	phoneNoLoading = false;
-	userNameLoading = false;
-	items: MenuItem[] = [];
-	activeIndex: number = 0;
-	isvalidMail = false;
-	isPhoneNumberValid = false;
-	isUserValid = false;
-	selectedProfilePhoto: File | null = null;
-	display: boolean = false;
+	public filteredCountries: CountryDto[] = [];
+	public filteredStates: StateDto[] = [];
+	public filteredDists: DistDto[] = [];
+	public filteredMaritalStatus: any[] = [];
+	public filteredGender: any[] = [];
+	public tokenValue: string = '';
+	private tokenId: string = '';
+	public isLoading = false;
+	public emailLoading = false;
+	public phoneNoLoading = false;
+	public userNameLoading = false;
+	public items: MenuItem[] = [];
+	public activeIndex: number = 0;
+	public isvalidMail = false;
+	public isPhoneNumberValid = false;
+	public isUserValid = false;
+	private selectedProfilePhoto: File | null = null;
+	public display: boolean = false;
 	//#endregion 
 
 	//#region constructor
@@ -329,7 +329,7 @@ export class RegisterComponent implements OnInit {
 	//#endregion
 
 	//#region Server Side Vaildation
-	async isEmailInUse(): Promise<void> {
+	public async isEmailInUse(): Promise<void> {
 		const email = this.registerForm.value.accountInfo.email;
 		const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 		try {
@@ -337,15 +337,17 @@ export class RegisterComponent implements OnInit {
 				this.emailLoading = true;
 				this.authSvcs.isEmailInUse(email).subscribe({
 					next: (response) => {
-						if (response.responseCode == 200) {
+						if (response.responseCode === 200) {
 							this.isvalidMail = true;
 						}
 						else {
 							this.isvalidMail = false;
 						}
+						this.emailLoading = false;
 					},
 					error: (response) => {
 						this.emailLoading = false;
+						this.isvalidMail = false;
 						this.messageService.add({ severity: 'error', summary: 'error', detail: response.error.message });
 					}
 				});
@@ -355,7 +357,6 @@ export class RegisterComponent implements OnInit {
 			}
 		}
 		catch (error) {
-			console.error('Error in signup:', error);
 			this.emailLoading = false;
 			this.messageService.add({
 				severity: 'error',
@@ -364,7 +365,7 @@ export class RegisterComponent implements OnInit {
 			});
 		}
 	}
-	async isPhoneNumberInUse(): Promise<void> {
+	public async isPhoneNumberInUse(): Promise<void> {
 		const phoneNumber = this.registerForm.value.accountInfo.phoneNumber;
 		const phNoRegex = /^\d{10}$/;
 		try {
@@ -372,15 +373,17 @@ export class RegisterComponent implements OnInit {
 				this.phoneNoLoading = true;
 				this.authSvcs.isPhoneNumberInUse(phoneNumber).subscribe({
 					next: (response) => {
-						if (response.responseCode == 200) {
+						if (response.responseCode === 200) {
 							this.isPhoneNumberValid = true;
 						}
 						else {
 							this.isPhoneNumberValid = false;
 						}
+						this.phoneNoLoading = false;
 					},
 					error: (response) => {
 						this.phoneNoLoading = false;
+						this.isPhoneNumberValid = false;
 						this.messageService.add({ severity: 'error', summary: 'error', detail: response.error.message });
 					}
 				});
@@ -399,7 +402,7 @@ export class RegisterComponent implements OnInit {
 			});
 		}
 	}
-	async isUserExist(): Promise<void> {
+	public async isUserExist(): Promise<void> {
 		try {
 			const userName = this.registerForm.value.personalInfo.name;
 			const userNameRegex = /^[A-Za-z\s]+$/;
@@ -407,14 +410,16 @@ export class RegisterComponent implements OnInit {
 				this.userNameLoading = true;
 				this.authSvcs.isUserNameExist(userName).subscribe({
 					next: (response) => {
-						if (response.responseCode == 200) {
+						if (response.responseCode === 200) {
 							this.isUserValid = true;
 						}
 						else {
 							this.isUserValid = false;
 						}
+						this.userNameLoading = false;
 					},
 					error: (response) => {
+						this.userNameLoading = false;
 						this.userNameLoading = false;
 						this.messageService.add({ severity: 'error', summary: 'error', detail: response.error.message });
 					}
@@ -425,7 +430,6 @@ export class RegisterComponent implements OnInit {
 			}
 
 		} catch (error) {
-			console.error('Error in signup:', error);
 			this.userNameLoading = false;
 			this.messageService.add({
 				severity: 'error',
@@ -564,7 +568,7 @@ export class RegisterComponent implements OnInit {
 	//#endregion
 
 	//#region Server Side Operations
-	async vaildateToken(): Promise<void> {
+	public async vaildateToken(): Promise<void> {
 		if (this.tokenValue) {
 			this.authSvcs.validateToken(this.tokenValue).subscribe({
 				next: async (response) => {
@@ -593,7 +597,7 @@ export class RegisterComponent implements OnInit {
 			});
 		}
 	}
-	async getCountries(): Promise<void> {
+	private async getCountries(): Promise<void> {
 		this.commonSvcs.getCountries().subscribe({
 			next: (response) => {
 				if (response.responseCode == 200) {
@@ -603,7 +607,7 @@ export class RegisterComponent implements OnInit {
 			error: (err) => { }
 		});
 	}
-	async getStates(counryId: any): Promise<void> {
+	private async getStates(counryId: any): Promise<void> {
 		this.commonSvcs.getStates(counryId).subscribe({
 			next: (response) => {
 				if (response.responseCode == 200) {
@@ -613,7 +617,7 @@ export class RegisterComponent implements OnInit {
 			error: (err) => { }
 		});
 	}
-	async getDists(stateId: any): Promise<void> {
+	private async getDists(stateId: any): Promise<void> {
 		this.commonSvcs.getDists(stateId).subscribe({
 			next: (response) => {
 				if (response.responseCode == 200) {
@@ -623,7 +627,7 @@ export class RegisterComponent implements OnInit {
 			error: (err) => { }
 		});
 	}
-	async signUp(): Promise<void> {
+	public async signUp(): Promise<void> {
 		try {
 			if (this.registerForm.invalid) {
 				Object.keys(this.registerForm.controls).forEach(key => {

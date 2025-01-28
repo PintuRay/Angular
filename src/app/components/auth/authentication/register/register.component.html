@@ -70,7 +70,7 @@
                     <i class="pi pi-envelope"></i>
                   </p-inputGroupAddon>
                   <span class="p-float-label">
-                    <input type="email" pInputText id="email" formControlName="email" (input)="isEmailInUse()"
+                    <input type="email" pInputText id="email" formControlName="email" (blur)="isEmailInUse()"
                       autocomplete="off" />
                     <label for="email">Email</label>
                   </span>
@@ -90,7 +90,7 @@
                   </p-inputGroupAddon>
                   <span class="p-float-label">
                     <input type="tel" pInputText id="phoneNumber" formControlName="phoneNumber"
-                      (input)="isPhoneNumberInUse()" onlyNumbers [maxLength]="10" autocomplete="off" />
+                    (blur)="isPhoneNumberInUse()" onlyNumbers [maxLength]="10" autocomplete="off" />
                     <label for="phoneNumber">Phone Number</label>
                   </span>
                   <p-inputGroupAddon>

@@ -1,13 +1,3 @@
-export class CountryDto{
-    countryId: string;
-    countryCode: string;
-    countryName: string;
-    constructor() {
-        this.countryId = '';
-        this.countryCode = '';
-        this.countryName = '';
-    }
-}
 export class CountryModel {
     countryCode: string;
     countryName: string;
@@ -21,6 +11,11 @@ export class CountryUpdateModel extends CountryModel{
     constructor() {
         super();
         this.countryId = '';
+    }
+}
+export class CountryDto extends CountryUpdateModel{
+    constructor() {
+        super();
     }
 }
 
