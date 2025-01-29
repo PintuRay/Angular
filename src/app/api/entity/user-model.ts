@@ -1,7 +1,5 @@
 import { AddressDto, AddressModel, AddressUpdateModel } from "src/app/api/entity/address";
-
-export class UserDto {
-  id: string;
+export class UserBase{
   name: string;
   birthDate: Date;
   maratialStatus: string;
@@ -9,10 +7,7 @@ export class UserDto {
   email: string;
   phoneNumber: string;
   photoPath: string;
-  fk_AddressId: string;
-  address: AddressDto;
   constructor() {
-    this.id = '';
     this.name = '';
     this.birthDate = new Date();
     this.maratialStatus = '';
@@ -20,35 +15,19 @@ export class UserDto {
     this.email = '';
     this.phoneNumber = '';
     this.photoPath = '';
-    this.fk_AddressId = '';
-    this.address = new AddressDto();
   }
 }
-
-export class UserModel {
+export class UserModel extends UserBase{
   fk_TokenId: string;
-  name: string;
-  birthDate: Date;
-  maratialStatus: string;
-  gender: string;
-  email: string;
-  phoneNumber: string;
-  photoPath: string;
-  profilePhoto: File | null;
   password: string;
   confirmPassword: string;
   routeUls: string;
+  profilePhoto: File | null;
   fk_AddressId: string;
   address: AddressModel;
   constructor() {
+    super();
     this.fk_TokenId = '';
-    this.name = '';
-    this.birthDate = new Date();
-    this.maratialStatus = '';
-    this.gender = ''
-    this.email = '';
-    this.phoneNumber = '';
-    this.photoPath = '';
     this.profilePhoto = new File([], '');
     this.password = '';
     this.confirmPassword = '';
@@ -57,27 +36,26 @@ export class UserModel {
     this.address = new AddressModel();
   }
 }
-export class UserUpdateModel {
+
+export class UserUpdateModel extends UserBase {
   id: string;
-  name: string;
-  birthDate: Date;
-  maratialStatus: string;
-  gender: string;
-  email: string;
-  phoneNumber: string;
-  photoPath: string;
   profilePhoto: File | null;
+  fk_AddressId: string;
   address: AddressUpdateModel;
   constructor() {
+    super();
     this.id = '';
-    this.name = '';
-    this.birthDate = new Date();
-    this.maratialStatus = '';
-    this.gender = ''
-    this.email = '';
-    this.phoneNumber = '';
-    this.photoPath = '';
     this.profilePhoto = new File([], '');
+    this.fk_AddressId = '';
     this.address = new AddressUpdateModel();
+  }
+}
+export class UserDto extends UserBase {
+  id: string;
+ address: AddressDto;
+  constructor() {
+    super();
+    this.id = '';
+    this.address = new AddressDto();
   }
 }

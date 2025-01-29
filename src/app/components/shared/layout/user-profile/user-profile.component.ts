@@ -212,6 +212,7 @@ export class UserProfileComponent {
             phoneNumber: this.user.phoneNumber,
             photoPath: this.user.photoPath,
             profilePhoto: null,
+            fk_AddressId : this.user.address.addressId,
             address: {
               addressId: this.user.address.addressId,
               at: this.user.address.at,
