@@ -23,7 +23,6 @@ export class UserModel extends UserBase{
   confirmPassword: string;
   routeUls: string;
   profilePhoto: File | null;
-  fk_AddressId: string;
   address: AddressModel;
   constructor() {
     super();
@@ -32,21 +31,19 @@ export class UserModel extends UserBase{
     this.password = '';
     this.confirmPassword = '';
     this.routeUls = '';
-    this.fk_AddressId = '';
     this.address = new AddressModel();
   }
+
 }
 
 export class UserUpdateModel extends UserBase {
   id: string;
   profilePhoto: File | null;
-  fk_AddressId: string;
   address: AddressUpdateModel;
   constructor() {
     super();
     this.id = '';
     this.profilePhoto = new File([], '');
-    this.fk_AddressId = '';
     this.address = new AddressUpdateModel();
   }
 }
@@ -57,5 +54,26 @@ export class UserDto extends UserBase {
     super();
     this.id = '';
     this.address = new AddressDto();
+  }
+}
+/*===========================================Auto Mapping======================================================*/
+export class UserMapper {
+  static dtoToUpdateModel(dto: UserDto): UserUpdateModel {
+    const updateModel = new UserUpdateModel();
+    Object.assign(updateModel, {
+      id: dto.id,
+      name: dto.name,
+      birthDate: dto.birthDate,
+      maratialStatus: dto.maratialStatus,
+      gender: dto.gender,
+      email: dto.email,
+      phoneNumber: dto.phoneNumber,
+      photoPath: dto.photoPath,
+      profilePhoto: null
+    });
+    if (dto.address) {
+      Object.assign(updateModel.address, dto.address);
+    }
+    return updateModel;
   }
 }

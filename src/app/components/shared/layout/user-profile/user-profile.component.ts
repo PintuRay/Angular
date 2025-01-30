@@ -8,7 +8,7 @@ import { CountryDto } from 'src/app/api/entity/country';
 import { StateDto } from 'src/app/api/entity/state';
 import { DistDto } from 'src/app/api/entity/dist';
 import { AuthenticationService } from 'src/app/api/service/account/authentication/authentication.service';
-import { UserDto, UserUpdateModel } from 'src/app/api/entity/user-model';
+import { UserDto, UserMapper, UserUpdateModel } from 'src/app/api/entity/user-model';
 import { AddressUpdateModel } from 'src/app/api/entity/address';
 @Component({
   selector: 'user-profile',
@@ -202,28 +202,7 @@ export class UserProfileComponent {
           await this.getCountries();
           await this.getStates(this.user.address?.fk_CountryId);
           await this.getDists(this.user.address?.fk_StateId);
-          this.updateUser = {
-            id: this.user.id,
-            name: this.user.name,
-            birthDate: this.user.birthDate,
-            maratialStatus: this.user.maratialStatus,
-            gender: this.user.gender,
-            email: this.user.email,
-            phoneNumber: this.user.phoneNumber,
-            photoPath: this.user.photoPath,
-            profilePhoto: null,
-            fk_AddressId : this.user.address.addressId,
-            address: {
-              addressId: this.user.address.addressId,
-              at: this.user.address.at,
-              post: this.user.address.post,
-              city: this.user.address.city,
-              pinCode: this.user.address.pinCode,
-              fk_CountryId: this.user.address.fk_CountryId,
-              fk_StateId: this.user.address.fk_StateId,
-              fk_DistId: this.user.address.fk_DistId
-            }
-          };
+          this.updateUser = UserMapper.dtoToUpdateModel(this.user);
           this.authorizeSvcs.GetImage(this.user.photoPath).subscribe(profilePhoto => {
             this.profileUrl = URL.createObjectURL(profilePhoto),
               this.updateUser.profilePhoto = profilePhoto;
@@ -241,7 +220,6 @@ export class UserProfileComponent {
       }
     });
   }
-
   private getCountries(): Promise<void> {
     return new Promise((resolve) => {
       this.commonSvcs.getCountries().subscribe({
@@ -330,20 +308,32 @@ export class UserProfileComponent {
   get formJson(): string {
     return JSON.stringify(this.userForm.value, null, 2);
   }
+  get formDataJson(): string {
+		const formDataObj: { [key: string]: any } = {};
+		try {
+			this.formData?.forEach((value, key) => {
+				// Handle File objects specially
+				if (value instanceof File) {
+					formDataObj[key] = {
+						fileName: value.name,
+						type: value.type,
+						size: `${(value.size / 1024).toFixed(2)} KB`
+					};
+				} else {
+					formDataObj[key] = value;
+				}
+			});
+
+			return JSON.stringify(formDataObj, null, 2);
+		} catch (error) {
+			return 'No form data available';
+		}
+	}
   get userDtoJson(): string {
     return JSON.stringify(this.user, null, 2);
   }
   get userUpdateModelJson(): string {
     return JSON.stringify(this.updateUser, null, 2);
-  }
-  get countryModelJson(): string {
-    return JSON.stringify(this.countries, null, 2);
-  }
-  get stateModelJson(): string {
-    return JSON.stringify(this.states, null, 2);
-  }
-  get DistModelJson(): string {
-    return JSON.stringify(this.dists, null, 2);
   }
   //#endregion
 }

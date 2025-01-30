@@ -3,6 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { AuthenticationService } from 'src/app/api/service/account/authentication/authentication.service';
 import { environment } from 'src/app/utility/environment/environment';
+import { LayoutService } from '../../../shared/service/app.layout.service';
 @Component({
   selector: 'app-resend-confirm-mail',
   templateUrl: './resend-confirm-mail.component.html',
@@ -14,7 +15,8 @@ export class ResendConfirmMailComponent {
   mail: string = '';
   constructor(
     private authSvcs: AuthenticationService,
-    private messageService: MessageService
+    private messageService: MessageService,
+    public layoutSvcs: LayoutService,
   ) { }
   submit() {
     this.isLoading = true;

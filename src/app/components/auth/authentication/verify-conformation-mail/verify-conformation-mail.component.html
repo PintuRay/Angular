@@ -1,11 +1,16 @@
 <div class="surface-ground flex align-items-center justify-content-center min-h-screen"
     style="background:var(--surface-ground)">
     <div class="surface-card p-2 shadow-2 border-round w-full lg:w-4">
+        <div class="text-center mb-3">
+            <img [src]="'assets/layout/images/logo-'+ (layoutSvcs.config().colorScheme === 'light' ? 'dark' : 'light') + '.png'"
+                class="login-logo  mb-4" style=" width: 45px;" />
+            <div class="text-900 text-3xl font-medium mb-3"> {{message}}</div>
+        </div>
         <div class="grid">
             <div class="col-12">
-               {{message}}
+              
                <div class="flex justify-content-end">
-                <a routerLink="/auth/login" class="font-medium no-underline text-blue-500">
+                <a routerLink="/auth/login" icon="pi pi-arrow-circle-left" class="font-medium no-underline text-blue-500">
                    Back To Login
                 </a>
                </div>
