@@ -40,4 +40,13 @@ export class CommonService {
                 )
             );
     }
+    getBranchFinancialYears(branchId: string) {
+        return this.configService
+            .getEndpoint('common', 'getBranchFinancialYears')
+            .pipe(
+                switchMap((endpoint) =>
+                    this.http.get<Base>(`${endpoint}/${branchId}`)
+                )
+            );
+    }
 }

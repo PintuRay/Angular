@@ -46,6 +46,7 @@ export class ConfigService {
                 updateUserRoleAndClaims: '{apiUrl}User/UpdateUserRoleAndClaims',
             },
             devloper: {
+                /*Branch*/
                 getAllBranches:'{apiUrl}Branch/GetAll',
                 getBranches:'{apiUrl}Branch/Get',
                 createBranch:'{apiUrl}Branch/Create',
@@ -59,16 +60,45 @@ export class ConfigService {
                 bulkRecoverBranch:'{apiUrl}Branch/BulkRecover',
                 deleteBranch:'{apiUrl}Branch/Delete',
                 bulkDeleteBranch:'{apiUrl}Branch/BulkDelete',
+                /*FinancialYear*/
+                getAllFinancialYears:'{apiUrl}FinancialYear/GetAll',
+                getFinancialYears:'{apiUrl}FinancialYear/Get',
+                createFinancialYear:'{apiUrl}FinancialYear/Create',
+                bulkCreateFinancialYear:'{apiUrl}FinancialYear/BulkCreate',
+                updateFinancialYear:'{apiUrl}FinancialYear/Update',
+                bulkUpdateFinancialYear:'{apiUrl}FinancialYear/BulkUpdate',
+                removeFinancialYear:'{apiUrl}FinancialYear/Remove',
+                bulkRemoveFinancialYear:'{apiUrl}FinancialYear/BulkRemove',
+                getRemovedFinancialYears:'{apiUrl}FinancialYear/GetRemoved',
+                recoverFinancialYear:'{apiUrl}FinancialYear/Recover',
+                bulkRecoverFinancialYear:'{apiUrl}FinancialYear/BulkRecover',
+                deleteFinancialYear:'{apiUrl}FinancialYear/Delete',
+                bulkDeleteFinancialYear:'{apiUrl}FinancialYear/BulkDelete',
+                /*BranchFinancialYear*/
+                getAllBranchFinancialYears:'{apiUrl}BranchFinancialYear/GetAll',
+                getBranchFinancialYears:'{apiUrl}BranchFinancialYear/Get',
+                createBranchFinancialYear:'{apiUrl}BranchFinancialYear/Create',
+                bulkCreateBranchFinancialYear:'{apiUrl}BranchFinancialYear/BulkCreate',
+                updateBranchFinancialYear:'{apiUrl}BranchFinancialYear/Update',
+                bulkUpdateBranchFinancialYear:'{apiUrl}BranchFinancialYear/BulkUpdate',
+                removeBranchFinancialYear:'{apiUrl}BranchFinancialYear/Remove',
+                bulkRemoveBranchFinancialYear:'{apiUrl}BranchFinancialYear/BulkRemove',
+                getRemovedBranchFinancialYears:'{apiUrl}BranchFinancialYear/GetRemoved',
+                recoverBranchFinancialYear:'{apiUrl}BranchFinancialYear/Recover',
+                bulkRecoverBranchFinancialYear:'{apiUrl}BranchFinancialYear/BulkRecover',
+                deleteBranchFinancialYear:'{apiUrl}BranchFinancialYear/Delete',
+                bulkDeleteBranchFinancialYear:'{apiUrl}BranchFinancialYear/BulkDelete',
             },
             admin: {},
             common :{
                 getCountries: '{apiUrl}Common/Country/Get',
                 getStates:'{apiUrl}Common/State/Get',
-                getDists:'{apiUrl}Common/Dist/Get'
+                getDists:'{apiUrl}Common/Dist/Get',
+                getBranchFinancialYears:'{apiUrl}Common/BranchFinancialYear/Get',
             }
         },
     };
-    constructor(private http: HttpClient) { }
+
     getConfig(): Observable<ApiConfig> {
         return of(this.apiConfig).pipe(
             map((config) => {
