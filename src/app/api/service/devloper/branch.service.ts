@@ -29,7 +29,6 @@ export class BranchService {
   constructor(
     private http: HttpClient,
     private configService: ConfigService,
-    private router: Router
   ) { }
   //#endregion
 

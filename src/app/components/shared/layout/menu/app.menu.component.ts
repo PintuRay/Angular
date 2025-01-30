@@ -28,7 +28,6 @@ export class AppMenuComponent implements OnInit {
                 items: [
                     {
                         label: 'Devloper',
-                        
                         icon: 'fa-brands fa-connectdevelop',
                         items: [
                             {
@@ -40,13 +39,13 @@ export class AppMenuComponent implements OnInit {
                               
                                 label: 'Financial Year',
                                 icon: 'fa-solid fa-calendar',
-                                routerLink: ['/apps/blog/detail']
+                                routerLink: ['/financial-year/list-financial-year']
                             },
                             {
                                
                                 label: 'Branch Financial Year',
                                 icon: 'fa-solid fa-house-laptop',
-                                routerLink: ['/apps/blog/edit']
+                                routerLink: ['/branch-financial-year']
                             }
                         ]
                     },
