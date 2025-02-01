@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { PrimeNgModule } from '../shared/prime-ng/prime-ng.module';
 import { FieldsRestrictionModule } from 'src/app/utility/directives/fields-restriction/fields-restriction.module';
@@ -9,11 +9,13 @@ import { FinancialYearService } from 'src/app/api/service/devloper/financial-yea
 import { FinancialYearComponent } from './financial-year.component';
 import { ListFinancialYearComponent } from './list-financial-year/list-financial-year.component';
 import { AddUpdateFinancialYearComponent } from './add-update-financial-year/add-update-financial-year.component';
+import { ListRecoverFinancialYearComponent } from './list-recover-financial-year/list-recover-financial-year.component';
 @NgModule({
   declarations: [
     FinancialYearComponent,
     ListFinancialYearComponent,
-    AddUpdateFinancialYearComponent
+    AddUpdateFinancialYearComponent,
+    ListRecoverFinancialYearComponent
   ],
   imports: [
     CommonModule,

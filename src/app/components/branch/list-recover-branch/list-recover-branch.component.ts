@@ -10,15 +10,44 @@ import { BranchService } from 'src/app/api/service/devloper/branch.service';
 @Component({
   selector: 'app-list-recover-branch',
   templateUrl: './list-recover-branch.component.html',
+  styles: `
+  :host ::ng-deep {
+      .p-paginator {
+          .p-dropdown {
+              height: 2.5rem;
+              .p-dropdown-label {
+                  padding-right: 0.5rem;
+              }
+          } 
+          .p-dropdown-items-wrapper {
+              max-height: 200px;
+          }
+      } 
+      .p-dropdown-panel {
+          .p-dropdown-items {
+              padding: 0.5rem 0;
+              .p-dropdown-item {
+                  padding: 0.5rem 1rem;
+                  margin: 0;
+                  &:hover {
+                      background: var(--surface-200);
+                  }
+              }
+          }
+      }
+  }
+`
 })
 export class ListRecoverBranchComponent {
   //#region Property Declaration
+  public display: boolean = false;
+  public loading: boolean = false;
   canDelete: boolean = false;
-  canCreate: boolean = false;
   canUpdate: boolean = false;
   subscription!: Subscription;
   branches: BranchDto[];
   selectedBranches: BranchDto[];
+  public totalRecords: number = 0;
   pagination: PaginationParams;
   cols: any[];
   //#endregion 
@@ -40,38 +69,62 @@ export class ListRecoverBranchComponent {
   //#region Lifecycle Hooks
   ngOnInit(): void {
     this.canDelete = this.authSvcs.getUserDetails().permissions.delete;
-    this.canCreate = this.authSvcs.getUserDetails().permissions.create;
     this.canUpdate = this.authSvcs.getUserDetails().permissions.update;
     this.getRemovedBranches(this.pagination);
   }
   //#endregion 
 
-  //#region Client Side Vaildation
- 
-  //#endregion
+  //#region Pagination , Searching , Shorting
+  onGlobalFilter(searchText: HTMLInputElement) { 
+    this.pagination.searchTerm = searchText.value;
+    this.pagination.pageNumber = 0;
+    this.getRemovedBranches(this.pagination);
+  }
+  public onPageChange(event: any) {
+    this.pagination.pageNumber = event.first / event.rows;
+    this.pagination.pageSize = event.rows;
+    this.getRemovedBranches(this.pagination);
+  }
+  public clearSearch() {
+    this.pagination.searchTerm = '';
+    this.getRemovedBranches(this.pagination);
+  }
+    //#endregion
 
   //#region Client Side Operations
-  onGlobalFilter() { }
   BackToList() {
     this.router.navigate(['branch/list-branch']);
   }
   //#endregion
 
   //#region Server Side Operation
-  async getRemovedBranches(pagination: PaginationParams): Promise<void> {
+   getRemovedBranches(pagination: PaginationParams): void {
+    this.loading = true;
     try {
       this.branchSvcs.getRemovedBranches(pagination).subscribe({
-        next: (response) => {
-          console.log(response);
+        next: async(response) => {
+          this.loading = false;
           if (response.responseCode === 200) {
             this.branches = response.data.collectionObjData as BranchDto[];
+            this.totalRecords = response.data.count;
           }
         },
-        error: (response) => {},
+        error: (err) => {
+          this.loading = false;
+          if (err.error.responseCode === 404) {
+            this.messageService.add({ severity: 'info', summary: 'Info', detail: err.error.message });
+          }
+          else if (err.error.responseCode === 400) {
+            this.messageService.add({ severity: 'error', summary: 'error', detail: `Server Side Eroor: ${err.error.message}` });
+          }
+          else {
+            this.messageService.add({ severity: 'error', summary: 'error', detail: 'An unknown error occurred.' });
+          }
+        },
       })
     }
     catch (error) {
-
+      this.loading = false;
     }
   }
   recoverBranch(id: string) { 
@@ -135,4 +188,9 @@ export class ListRecoverBranchComponent {
     })
   }
   //#endregion
+    //#region Test form
+    get branchDtoJson(): string {
+      return JSON.stringify(this.branches, null, 2);
+    }
+    //#endregion
 }

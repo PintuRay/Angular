@@ -10,18 +10,19 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
   templateUrl: './add-update-branch.component.html',
 })
 export class AddUpdateBranchComponent {
+  
   //#region Property Declaration
-  display: boolean = false;
-  visible: boolean = false;
-  operationType: string = '';
+  public display: boolean = false;
+  public visible: boolean = false;
+  public operationType: string = '';
   private dialogSub!: Subscription;
   private branchDataSub!: Subscription;
   private operationTypeSub!: Subscription;
-  branch: BranchDto;
-  addbranch: BranchModel;
-  updatebranch: BranchUpdateModel;
-  branchForm: FormGroup;
-  isLoading: boolean = false;
+  private branch: BranchDto;
+  private addbranch: BranchModel;
+  private updatebranch: BranchUpdateModel;
+  public branchForm: FormGroup;
+  public isLoading: boolean = false;
   //#endregion
 
   //#region constructor
@@ -82,8 +83,8 @@ export class AddUpdateBranchComponent {
   //#region Form Initialization
   private initializeBranchForm(): FormGroup {
     return this.fb.group({
-      branchCode: ['', [Validators.required]],
-      branchName: ['', [Validators.required]],
+      branchCode: ['', [Validators.required, Validators.pattern(/^[A-Z][A-Za-z0-9]*$/)]],
+      branchName: ['', [Validators.required,Validators.pattern(/^[A-Z\s]+$/)]],
       branchAddress: ['', [Validators.required]],
       contactNumber: ['', [Validators.required, Validators.pattern(/^\d{10}$/)]],
     })
@@ -91,55 +92,43 @@ export class AddUpdateBranchComponent {
   //#endregion
 
   //#region Client Side Vaildation
-  get branchCodeControl() {
-    return this.branchForm.get('branchCode');
+  private getFieldLabel(controlName: string): string {
+    const labels: { [key: string]: string } = {
+      branchName: 'Branch Name',
+      branchCode: 'Branch Code',
+      branchAddress: 'Branch Address',
+      contactNumber: 'Contact Number'
+    };
+    return labels[controlName] || controlName;
   }
-  getBranchCodeErrorMessage() {
-    if (this.branchCodeControl?.hasError('required')) {
-      return 'Branch Code is required.';
-    }
-    else {
-      return '';
-    }
+  private getBranchFormControl(controlName: string) {
+    return this.branchForm.get(controlName);
   }
-  get branchNameControl() {
-    return this.branchForm.get('branchName');
+  public isFieldInvalid(controlName: string): boolean {
+    const control = this.getBranchFormControl(controlName);
+    return !!control && control.invalid && (control.dirty || control.touched);
   }
-  getBranchNameErrorMessage() {
-    if (this.branchNameControl?.hasError('required')) {
-      return 'Branch Name is required.';
+  public getErrorMessage(controlName: string): string {
+    const control = this.getBranchFormControl(controlName);
+    if (!control) return '';
+    if (control.hasError('required')) {
+      return `${this.getFieldLabel(controlName)} is required.`;
     }
-    else {
-      return '';
+    if (controlName === 'contactNumber' && control.hasError('pattern')) {
+      return `Please enter a valid 10-digit ${this.getFieldLabel(controlName)}`;
     }
-  }
-  get phoneControl() {
-    return this.branchForm.get('contactNumber');
-  }
-  getPhoneErrorMessage() {
-    if (this.phoneControl?.hasError('required')) {
-      return 'Phone Number is required.';
-    } else if (this.phoneControl?.hasError('pattern')) {
-      return 'Phone Number Must Be 10  digit.';
-    } else {
-      return '';
+    if (controlName === 'branchName' && control.hasError('pattern')) {
+      return `${this.getFieldLabel(controlName)} should be in uppercase `;
     }
-  }
-  get addressControl() {
-    return this.branchForm.get('branchAddress');
-  }
-  getAddressErrorMessage() {
-    if (this.addressControl?.hasError('required')) {
-      return 'Address is required.';
+    if (controlName === 'branchCode' && control.hasError('pattern')) {
+      return  `${this.getFieldLabel(controlName)} should start with a letter and followed by a combination of letters and numbers.`;
     }
-    else {
-      return '';
-    }
+    return '';
   }
   //#endregion
 
   //#region Client Side Operations
-  hideDialog() {
+  public hideDialog() {
     this.branchSvcs.hideAddUpdateBranchDialog();
     this.resetComponent();
   }
@@ -152,43 +141,63 @@ export class AddUpdateBranchComponent {
   //#endregion
 
   //#region Server Side Operation
-  async submit(): Promise<void> {
+  submit(): void {
     try {
       if (this.branchForm.valid) {
         this.isLoading = true;
         if (this.operationType === 'add') {
           this.branchSvcs.createBranch(this.addbranch).subscribe({
-            next: (response) => {
+            next: async (response) => {
               if (response.responseCode === 201) {
                 this.branch = {
                   ...this.addbranch,
                   branchId: response.data.id
                 };
-                this.branchSvcs.setBranch(this.branch, true);
+                this.branchSvcs.setBranch(this.branch, true, response.message);
                 this.hideDialog();
               }
               this.isLoading = false;
             },
-            error: (response) => {
+            error: (err) => {
               this.isLoading = false;
-            
+              if (err.error.responseCode === 400) {
+                this.branchSvcs.setBranch(this.branch, true, err.error.message);
+              }
+              else {
+                this.branchSvcs.setBranch(this.branch, true, 'Some Error Occoured');
+              }
             }
           })
         } else {
           this.branchSvcs.updateBranch(this.updatebranch).subscribe({
-            next: (response) => {
+            next: async (response) => {
               if (response.responseCode == 200) {
                 this.branch = {
                   ...this.updatebranch,
                   branchId: response.data.id
                 };
-                this.branchSvcs.setBranch(this.branch, true);
+                this.branchSvcs.setBranch(this.branch, true, response.message);
                 this.hideDialog();
               }
               this.isLoading = false;
             },
-            error: (response) => {
+            error: (err) => {
               this.isLoading = false;
+              if (err.error.responseCode === 400) {
+                if (err.error?.data) {
+                  const errorMessages = err.error.data.map((error: any) => {
+                    return `${error.formattedMessagePlaceholderValues.PropertyName}: ${error.errorMessage}`;
+                  }).join(', ');
+                  this.branchSvcs.setBranch(null, true, errorMessages); 
+                }
+                else {
+                  this.branchSvcs.setBranch(null, true, err.error.message);
+                }
+              }
+              else {
+                this.branchSvcs.setBranch(null, true, 'Some Error Occoured');
+              }
+              this.hideDialog();
             }
           })
         }

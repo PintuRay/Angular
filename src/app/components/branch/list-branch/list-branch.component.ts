@@ -13,7 +13,6 @@ import { FileUpload } from 'primeng/fileupload';
 @Component({
   selector: 'app-list-branch',
   templateUrl: './list-branch.component.html',
-  providers: [ConfirmationService, MessageService],
   styles: `
     :host ::ng-deep {
         .p-paginator {
@@ -45,23 +44,24 @@ import { FileUpload } from 'primeng/fileupload';
 export class ListBranchComponent {
 
   //#region Property Declaration
-  canDelete: boolean = false;
-  canCreate: boolean = false;
-  canUpdate: boolean = false;
-  isDevloper: boolean = false;
-  branchsubscription!: Subscription;
-  bulkBranchsubscription!: Subscription
-  deleteSubscription!: Subscription;
-  bulkDeleteSubscription!: Subscription;
-  branches: BranchDto[];
-  selectedBranches: BranchDto[];
-  cols: any[];
-  pagination: PaginationParams;
+  public display: boolean = false;
+  public loading: boolean = false;
+  public canDelete: boolean = false;
+  public canCreate: boolean = false;
+  public canUpdate: boolean = false;
+  public isDevloper: boolean = false;
+  private branchsubscription!: Subscription;
+  private bulkBranchsubscription!: Subscription
+  private deleteSubscription!: Subscription;
+  private bulkDeleteSubscription!: Subscription;
+  public branches: BranchDto[];
+  public selectedBranches: BranchDto[];
+  public cols: any[];
+  public pagination: PaginationParams;
   @ViewChild('fileUpload') fileUpload!: FileUpload;
-  importOptionsVisible: boolean = false;
-  exportOptionsVisible: boolean = false;
-  totalRecords: number = 0;
-
+  public importOptionsVisible: boolean = false;
+  public exportOptionsVisible: boolean = false;
+  public totalRecords: number = 0;
   //#endregion 
 
   //#region constructor
@@ -86,23 +86,25 @@ export class ListBranchComponent {
     this.canCreate = this.authSvcs.getUserDetails().permissions.create;
     this.canUpdate = this.authSvcs.getUserDetails().permissions.update;
     this.isDevloper = this.authSvcs.getUserDetails().role.toLowerCase() === "devloper";
-
     //Get branch records
-    this.getAllBranch(this.pagination);
+    this.getBranches(this.pagination);
     //Single Insert or Update Subscription
     this.branchsubscription = this.branchSvcs.getBranch()
       .subscribe(operation => {
-        if (operation?.branch) {
-          const index = this.branches.findIndex(b => b.branchId === operation.branch.branchId);
-          if (operation.isSuccess) {
+        if (operation?.isSuccess) {
+          if (operation.branch) {
+            const index = this.branches.findIndex(b => b.branchId === operation.branch?.branchId);
             if (index !== -1) {
               this.branches[index] = operation.branch;
               this.branches = [...this.branches];
-              this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Branch updated successfully' });
+              this.messageService.add({ severity: 'success', summary: 'Success', detail: operation.message });
             } else {
               this.branches = [...this.branches, operation.branch];
-              this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Branch added successfully' });
+              this.messageService.add({ severity: 'success', summary: 'Success', detail: operation.message });
             }
+          }
+          else{
+            this.messageService.add({ severity: 'error', summary: 'Error', detail: operation.message});
           }
         }
       });
@@ -133,32 +135,28 @@ export class ListBranchComponent {
   }
   //#endregion
 
-  //#region Client Side Vaildation
-
-  //#endregion
-
   //#region Pagination , Searching , Shorting
-  onGlobalFilter(searchText: HTMLInputElement) {
+  public onGlobalFilter(searchText: HTMLInputElement) {
     this.pagination.searchTerm = searchText.value;
     this.pagination.pageNumber = 0;
-    this.getAllBranch(this.pagination);
+    this.getBranches(this.pagination);
   }
-  onPageChange(event: any) {
+  public onPageChange(event: any) {
     this.pagination.pageNumber = event.first / event.rows;
     this.pagination.pageSize = event.rows;
-    this.getAllBranch(this.pagination);
+    this.getBranches(this.pagination);
   }
-  clearSearch() {
+  public clearSearch() {
     this.pagination.searchTerm = '';
-    this.getAllBranch(this.pagination);
+    this.getBranches(this.pagination);
   }
   //#endregion
 
   //#region import, Export, Print
-  onImportClick() {
+  public onImportClick() {
     this.importOptionsVisible = true;
   }
-  downloadSampleFile() {
+  public downloadSampleFile() {
     const sampleData = [{
       'Branch Code': 'BR001',
       'Branch Name': 'Sample Branch',
@@ -170,7 +168,7 @@ export class ListBranchComponent {
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Branches');
     XLSX.writeFile(workbook, 'branch_template.xlsx');
   }
-  importExcelFile(event: any) {
+  public importExcelFile(event: any) {
     const file = event.files[0];
     const reader = new FileReader();
     reader.onload = (e: any) => {
@@ -205,7 +203,7 @@ export class ListBranchComponent {
     };
     reader.readAsArrayBuffer(file);
   }
-  onExportClick() {
+  public onExportClick() {
     this.exportOptionsVisible = true;
   }
   private prepareData(data: BranchDto[]) {
@@ -216,7 +214,7 @@ export class ListBranchComponent {
       'Address': branch.branchAddress
     }));
   }
-  exportExcel(data: BranchDto[], fileName: string = 'branches') {
+  private exportExcel(data: BranchDto[], fileName: string = 'branches') {
     const preparedData = this.prepareData(data);
     const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(preparedData);
     const columnWidths = [
@@ -232,7 +230,7 @@ export class ListBranchComponent {
     // Save file
     XLSX.writeFile(workbook, `${fileName}.xlsx`);
   }
-  exportAsExcel() {
+  public exportAsExcel() {
     this.branchSvcs.getAllBranch().subscribe({
       next: (response) => {
         if (response.responseCode === 200) {
@@ -240,13 +238,13 @@ export class ListBranchComponent {
           this.exportExcel(data, 'branch-list');
         }
       },
-      error: (response) => {
+      error: (err) => {
         this.messageService.add({ severity: 'error', summary: 'error', detail: 'Internal Server Error' });
       },
     })
   }
-  exportPdf(data: BranchDto[], fileName: string = 'branches') {
-    const preparedData = this.prepareData(data); 
+  private exportPdf(data: BranchDto[], fileName: string = 'branches') {
+    const preparedData = this.prepareData(data);
     // Initialize PDF document
     const doc = new jsPDF();
     // Define table headers
@@ -275,7 +273,7 @@ export class ListBranchComponent {
     // Save PDF
     doc.save(`${fileName}.pdf`);
   }
-  exportAsPdf() {
+  public exportAsPdf() {
     this.branchSvcs.getAllBranch().subscribe({
       next: (response) => {
         if (response.responseCode === 200) {
@@ -283,62 +281,72 @@ export class ListBranchComponent {
           this.exportPdf(data, 'branch-list');
         }
       },
-      error: (response) => {
+      error: (err) => {
         this.messageService.add({ severity: 'error', summary: 'error', detail: 'Internal Server Error' });
       },
     })
   }
-  print(){
-    
+  print() {
+
   }
   //#endregion
 
   //#region Client Side Operations
-  addBranch() {
+  public addBranch() {
     this.branchSvcs.setOperationType("add");
     this.branchSvcs.showAddUpdateBranchdDialog();
   }
-  editBranch(branch: BranchDto) {
+  public editBranch(branch: BranchDto) {
     this.branchSvcs.setOperationType("edit");
     this.branchSvcs.setBranch(branch);
     this.branchSvcs.showAddUpdateBranchdDialog();
   }
-  bulkAddBranch() {
+  public bulkAddBranch() {
     this.branchSvcs.setBulkOperationType("add");
     this.router.navigate(['branch/bulk-add-update']);
   }
-  bulkEditBranch() {
+  public bulkEditBranch() {
     this.branchSvcs.setBulkOperationType("edit");
     this.branchSvcs.setBulkBranch(this.selectedBranches);
     this.router.navigate(['branch/bulk-add-update']);
   }
-  recoverBranch() {
+  public recoverBranch() {
     this.router.navigate(['branch/list-recover-branch']);
   }
-
   //#endregion
 
   //#region Server Side Operation
-  async getAllBranch(pagination: PaginationParams): Promise<void> {
+  private getBranches(pagination: PaginationParams): void {
+    this.loading = true;
     try {
       this.branchSvcs.getBranches(pagination).subscribe({
-        next: (response) => {
+        next: async (response) => {
+          this.loading = false;
           if (response.responseCode === 200) {
             this.branches = response.data.collectionObjData as BranchDto[];
             this.totalRecords = response.data.count;
           }
         },
-        error: (response) => {
-          this.messageService.add({ severity: 'error', summary: 'error', detail: 'Internal Server Error' });
+        error: (err) => {
+          this.loading = false;
+          if (err.error.responseCode === 404) {
+            this.messageService.add({ severity: 'info', summary: 'Info', detail: err.error.message });
+          }
+          else if (err.error.responseCode === 400) {
+            this.messageService.add({ severity: 'error', summary: 'error', detail: `Server Side Eroor: ${err.error.message}` });
+          }
+          else {
+            this.messageService.add({ severity: 'error', summary: 'error', detail: 'An unknown error occurred.' });
+          }
         },
-        complete: () => { }
       })
     }
-    catch (error) {
-      this.messageService.add({ severity: 'error', summary: 'error', detail: 'Some Error Occoured' });
+    catch (err) {
+      this.loading = false;
+      this.messageService.add({ severity: 'error', summary: 'error', detail: 'An unknown error occurred.' });
     }
   }
-  removeBranch(id: string, event: Event) {
+  public removeBranch(id: string, event: Event): void {
     this.confirmationService.confirm({
       key: 'removeBranch',
       target: event.target || new EventTarget,
@@ -346,7 +354,7 @@ export class ListBranchComponent {
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
         this.branchSvcs.removeBranch(id).subscribe({
-          next: (response) => {
+          next: async (response) => {
             if (response.responseCode === 200) {
               this.branches = this.branches.filter(branch => branch.branchId !== id);
               this.messageService.add({ severity: 'info', summary: 'Confirmed', detail: response.message });
@@ -354,8 +362,7 @@ export class ListBranchComponent {
           },
           error: (response) => {
             this.messageService.add({ severity: 'error', summary: 'error', detail: 'Some Error Occoured' });
-          },
-          complete: () => { }
+          }
         })
       },
       reject: () => {
@@ -363,13 +370,13 @@ export class ListBranchComponent {
       }
     });
   }
-  bulkRemoveBranch() {
+  public bulkRemoveBranch(): void {
     this.confirmationService.confirm({
       key: 'bulkRemoveBranch',
       accept: () => {
         const branchIds = this.selectedBranches.map(branch => branch.branchId);
         this.branchSvcs.bulkRemoveBranch(branchIds).subscribe({
-          next: (response) => {
+          next: async (response) => {
             if (response.responseCode === 200) {
               this.branches = this.branches.filter(branch => !branchIds.includes(branch.branchId));
               this.selectedBranches = [];
@@ -378,11 +385,16 @@ export class ListBranchComponent {
           },
           error: (response) => {
             this.messageService.add({ severity: 'error', summary: 'error', detail: 'Some Error Occoured' });
-          },
-          complete: () => { }
+          }
         })
       }
     });
+  }
+  //#endregion
+
+  //#region Test form
+  get branchDtoJson(): string {
+    return JSON.stringify(this.branches, null, 2);
   }
   //#endregion
 }

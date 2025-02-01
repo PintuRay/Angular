@@ -1,6 +1,6 @@
 export class FinancialYearModel {
     financial_Year: string;
-    startDate: Date;
+    startDate: Date ;
     endDate: Date;
     constructor() {
         this.financial_Year = '';
@@ -15,7 +15,7 @@ export class FinancialYearUpdateModel extends FinancialYearModel {
         this.financialYearId = '';
     }
 }
-export class FinancialYearDto  extends FinancialYearUpdateModel{
+export class FinancialYearDto extends FinancialYearUpdateModel {
     constructor() {
         super();
     }

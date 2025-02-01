@@ -1,0 +1,71 @@
+
+<p-dialog header="" [modal]="true" [(visible)]="visible"
+    [style]="{ width: '70rem' }" (onHide)="hideDialog()">
+    <p-table #dt [value]="financialYears" [rows]="pagination.pageSize"
+    [first]="pagination.pageNumber * pagination.pageSize" [totalRecords]="totalRecords" [paginator]="true"
+    [rowsPerPageOptions]="[10,20,30]" [showCurrentPageReport]="true" [lazy]="true"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+    (onPage)="onPageChange($event)" [columns]="cols" responsiveLayout="scroll"
+    [globalFilterFields]="['branchCode','branchName','branchAddress','contactNumber']"
+    [(selection)]="selectedfinancialYears" selectionMode="multiple" [rowHover]="true"
+    dataKey="financialYearId">
+    <ng-template pTemplate="caption">
+        <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+            <span class="p-input-icon-right">
+                <input pInputText type="text" #search placeholder="Search..."
+                    [(ngModel)]="pagination.searchTerm" class="w-full sm:w-auto" />
+                <button pButton pRipple icon="fa-solid fa-magnifying-glass" label="Search"
+                    class="p-button-success ml-2" (click)="onGlobalFilter(search)">
+                </button>
+            </span>
+        </div>
+    </ng-template>
+    <ng-template pTemplate="header">
+        <tr>
+            <th style="width: 3rem">
+                <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+            </th>
+            <th pSortableColumn="financial_Year">Financial Year <p-sortIcon
+                    field="financial_Year"></p-sortIcon></th>
+            <th pSortableColumn="startDate"> Start Date<p-sortIcon field="startDate"></p-sortIcon></th>
+            <th pSortableColumn="endDate">End Date <p-sortIcon field="endDate"></p-sortIcon></th>
+            <th>Action</th>
+        </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-financialYear>
+        <tr>
+            <td>
+                <p-tableCheckbox [value]="financialYear"></p-tableCheckbox>
+            </td>
+            <td style="width:25%; min-width:12rem;">
+                {{financialYear.financial_Year}}
+            </td>
+            <td style="width:25%; min-width:12rem;">
+                {{financialYear.startDate}}
+            </td>
+            <td style="width:25%; min-width:12rem;">
+                {{financialYear.endDate}}
+            </td>
+            <td>
+                <div class="flex">
+                    <button pButton pRipple icon="pi pi-pencil"
+                        class="p-button-rounded p-button-success mr-2" [disabled]="!canUpdate"
+                        (click)="recoverFinancialYear(financialYear)"></button>
+                    <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-warning"
+                        [disabled]="!canDelete"
+                        (click)="deleteFinancialYear(financialYear.financialYearId)"></button>
+                    <p-confirmPopup key="removeFinancialYear"></p-confirmPopup>
+                </div>
+            </td>
+        </tr>
+    </ng-template>
+    <ng-template pTemplate="paginatorleft">
+        <p-button type="button" icon="pi pi-refresh" styleClass="p-button-text"
+            (click)="clearSearch()"></p-button>
+    </ng-template>
+    <ng-template pTemplate="paginatorright">
+        <p-button type="button" icon="pi pi-cloud" styleClass="p-button-text"></p-button>
+    </ng-template>
+</p-table>
+</p-dialog>
+

@@ -12,16 +12,17 @@ import { MessageService } from 'primeng/api';
   templateUrl: './bulk-add-update-branch.component.html',
 })
 export class BulkAddUpdateBranchComponent {
+  
   //#region Property Declaration
-  display: boolean = false;
-  operationType: string = '';
+  public display: boolean = false;
+  public operationType: string = '';
   private operationTypeSub!: Subscription;
   private branchDataSub!: Subscription;
-  branch: BranchDto[];
-  addbranch: BranchModel[];
-  updatebranch: BranchUpdateModel[];
-  branchForm: FormGroup;
-  isLoading: boolean = false;
+  public branch: BranchDto[];
+  private addbranch: BranchModel[];
+  private updatebranch: BranchUpdateModel[];
+  public branchForm: FormGroup;
+  public isLoading: boolean = false;
   //#endregion
 
   //#region constructor
@@ -91,23 +92,26 @@ export class BulkAddUpdateBranchComponent {
     });
   }
   //#endregion
+  
   //#region Client Side Validation
-  getBranchControl(index: number, controlName: string) {
+  public getBranchControl(index: number, controlName: string) {
     return this.branches.at(index).get(controlName);
   }
-  getErrorMessage(index: number, controlName: string): string {
+  public getErrorMessage(index: number, controlName: string): string {
     const control = this.getBranchControl(index, controlName);
-    
     if (!control) return '';
-
     if (control.hasError('required')) {
       return `${this.getFieldLabel(controlName)} is required.`;
     }
-    
     if (controlName === 'contactNumber' && control.hasError('pattern')) {
-      return 'Please enter a valid 10-digit phone number.';
+      return `Please enter a valid 10-digit ${this.getFieldLabel(controlName)}`;
     }
-
+    if (controlName === 'branchName' && control.hasError('pattern')) {
+      return `${this.getFieldLabel(controlName)} should be in uppercase `;
+    }
+    if (controlName === 'branchCode' && control.hasError('pattern')) {
+      return  `${this.getFieldLabel(controlName)} should start with a letter and followed by a combination of letters and numbers.`;
+    }
     return '';
   }
   private getFieldLabel(controlName: string): string {
@@ -124,6 +128,7 @@ export class BulkAddUpdateBranchComponent {
     return !!control && control.invalid && (control.dirty || control.touched);
   }
   //#endregion
+  
   //#region Client Side Operations
   get branches() {
     return this.branchForm.get('branches') as FormArray;
@@ -131,10 +136,10 @@ export class BulkAddUpdateBranchComponent {
   createBranchFormGroup(): FormGroup {
     return this.fb.group({
       branchId: [''],
-      branchCode: ['', [Validators.required]],
-      branchName: ['', [Validators.required]],
+      branchCode: ['', [Validators.required, Validators.pattern(/^[A-Z][A-Za-z0-9]*$/)]],
+      branchName: ['', [Validators.required, Validators.pattern(/^[A-Z\s]+$/)]],
       branchAddress: ['', [Validators.required]],
-      contactNumber: ['', [Validators.required]],
+      contactNumber: ['', [Validators.required, Validators.pattern(/^\d{10}$/)]],
     });
   }
   addBranch() {
@@ -157,7 +162,7 @@ export class BulkAddUpdateBranchComponent {
   }
   private resetComponent() {
     this.branchForm.reset();
-    this.branch =[];
+    this.branch = [];
     this.addbranch = [];
     this.updatebranch = [];
   }

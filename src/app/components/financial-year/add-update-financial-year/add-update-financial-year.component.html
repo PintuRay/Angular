@@ -1,1 +1,85 @@
-<p>add-update-financial-year works!</p>
+<div class="card">
+    <div class="col-12">
+        <p-toolbar styleClass="mb-1">
+            <ng-template pTemplate="left"></ng-template>
+            <ng-template pTemplate="right">
+                <button (click)="display=true" pButton icon="pi pi-external-link" label="Show"></button>
+            </ng-template>
+        </p-toolbar>
+    </div>
+    <div class="col-12">
+        <form [formGroup]="financialYearForm" (ngSubmit)="submit()" class="pt-4">
+            <div class="p-fluid p-formgrid grid">
+                <div class="field col-12 md:col-4">
+                    <span class="p-float-label">
+                        <p-inputMask mask="9999 - 9999" placeholder="xxxx - xxxx"   id="financial_Year" formControlName="financial_Year"
+                        autocomplete="off">
+                      </p-inputMask>
+                        <label for="financial_Year">Financial Year</label>
+                    </span>
+                    <small class="p-error block" *ngIf="financialYearControl?.invalid && (financialYearControl?.dirty || financialYearControl?.touched)"> {{ getFinancialYearErrorMessage() }}</small>
+                </div>
+                <div class="field col-12 md:col-4">
+                    <span class="p-float-label">
+                        <p-calendar [showIcon]="true" appDateFormat inputId="icon" formControlName="startDate"
+                            name="startDate" [minYear]="1800" autocomplete="off">></p-calendar>
+                        <label for="startDate">Start Date</label>
+                    </span>
+                    <small class="p-error block" *ngIf="startDateControl?.invalid && (startDateControl?.dirty || startDateControl?.touched)"> {{ getStartDateErrorMessage() }}</small>
+                </div>
+                <div class="field col-12 md:col-4">
+                    <span class="p-float-label">
+                        <p-calendar [showIcon]="true" appDateFormat inputId="icon" formControlName="endDate"
+                            name="endDate" [minYear]="1800" autocomplete="off">></p-calendar>
+                        <label for="endDate">End Date</label>
+                    </span>
+                    <small class="p-error block" *ngIf="endDateControl?.invalid && (endDateControl?.dirty || endDateControl?.touched)"> {{ getEndDateErrorMessage() }}</small>
+                </div>
+            </div>
+            <div class="flex justify-content-end mb-3">
+                <p-button label="Cancel" severity="secondary" (onClick)="resetComponent()" class="mr-2"/>
+                <button pButton type="submit" [disabled]="!financialYearForm.valid">
+                    <ng-container *ngIf="isLoading; else fyLabel">
+                        <i class="pi pi-spin pi-spinner mr-2"></i> Loading...
+                    </ng-container>
+                    <ng-template #fyLabel><i class="pi pi-save mr-2"></i>Save</ng-template>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<p-dialog header="Dialog" [(visible)]="display" [modal]="true" showEffect="fade" [style]="{width: '60vw'}"
+    [breakpoints]="{'960px': '75vw'}">
+    <p-accordion>
+        <p-accordionTab header="Dto" class="line-height-3 m-0">
+            <pre class="p-2 border rounded bg-gray-100" style="white-space: pre-wrap;">{{ FinancialYearDtoJson }}</pre>
+        </p-accordionTab>
+
+        <p-accordionTab header="Add Model" class="line-height-3 m-0">
+            <pre class="p-2 border rounded bg-gray-100"
+                style="white-space: pre-wrap;">{{ financialYearModelJson }}</pre>
+        </p-accordionTab>
+
+        <p-accordionTab header="Update Model" class="line-height-3 m-0">
+            <pre class="p-2 border rounded bg-gray-100"
+                style="white-space: pre-wrap;">{{ financialYearUpdateModelJson }}</pre>
+        </p-accordionTab>
+
+        <p-accordionTab header="Form Values" class="line-height-3 m-0">
+            <pre class="p-2 border rounded bg-gray-100" style="white-space: pre-wrap;">{{ formJson }}</pre>
+        </p-accordionTab>
+
+
+        <p-accordionTab header="Form Status" class="line-height-3 m-0">
+            <p><strong>Valid:</strong> {{ financialYearForm.valid }}</p>
+            <p><strong>Touched:</strong> {{ financialYearForm.touched }}</p>
+            <p><strong>Dirty:</strong> {{ financialYearForm.dirty }}</p>
+            <p><strong>Status:</strong> {{ financialYearForm.status }}</p>
+            <p><strong>Operation Type:</strong> {{ operationType }}</p>
+        </p-accordionTab>
+    </p-accordion>
+    <ng-template pTemplate="footer">
+        <button pButton icon="pi pi-check" (click)="display=false" label="Ok" class="p-button-outlined"></button>
+    </ng-template>
+</p-dialog>

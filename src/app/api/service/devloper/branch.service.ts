@@ -1,21 +1,22 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { ConfigService } from '../config.Service';
-import { Router } from '@angular/router';
 import { BehaviorSubject, Observable, Subject, switchMap } from 'rxjs';
 import { Base } from '../../base';
 import { PaginationParams } from '../../model/paginationParams';
 import { BranchDto, BranchModel, BranchUpdateModel } from '../../entity/branch';
 export interface BranchOperation {
-  branch: BranchDto;
-  isSuccess?: boolean; 
+  branch: BranchDto | null;
+  isSuccess?: boolean;
+  message?: string;
 }
 export interface bulkBranchOperation {
   branches: BranchDto[];
-  isSuccess?: boolean; 
+  isSuccess?: boolean;
 }
 @Injectable()
 export class BranchService {
+
   //#region Property Declaration
   private addUpdateBranchVisibilitySubject = new BehaviorSubject<boolean>(false);
   changeAddUpdateBranchDialogVisibility$ = this.addUpdateBranchVisibilitySubject.asObservable();
@@ -149,10 +150,8 @@ export class BranchService {
         )
       );
   }
-
   //#endregion
 
-//#endregion
   //#region component modal service
   showAddUpdateBranchdDialog() {
     this.addUpdateBranchVisibilitySubject.next(true);
@@ -161,7 +160,7 @@ export class BranchService {
     this.addUpdateBranchVisibilitySubject.next(false);
   }
   //#endregion
- 
+
   //#region component Set service
   setOperationType(operationType: string) {
     this.operationTypeSubject.next(operationType);
@@ -169,8 +168,8 @@ export class BranchService {
   setBulkOperationType(operationType: string) {
     this.bulkOperationTypeSubject.next(operationType);
   }
-  setBranch(branch: BranchDto, isSuccess: boolean = false): void {
-    this.branchSubject.next({ branch, isSuccess });
+  setBranch(branch: BranchDto | null, isSuccess: boolean = false, message:string =''): void {
+    this.branchSubject.next({ branch, isSuccess, message });
   }
   setBulkBranch(branches: BranchDto[], isSuccess: boolean = false): void {
     this.bulkBranchSubject.next({ branches, isSuccess });
@@ -188,7 +187,7 @@ export class BranchService {
   getBranch(): Observable<BranchOperation | null> {
     return this.branchSubject.asObservable();
   }
-  getBulkBranch(): Observable<bulkBranchOperation| null> {
+  getBulkBranch(): Observable<bulkBranchOperation | null> {
     return this.bulkBranchSubject.asObservable();
   }
   //#endregion

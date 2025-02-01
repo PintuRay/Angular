@@ -101,7 +101,7 @@ import { BadgeModule } from 'primeng/badge'; //Badge
 // import { ScrollTopModule } from 'primeng/scrolltop'; //ScrollTop
 //import { SkeletonModule } from 'primeng/skeleton'; //Skeleton
 //import { ProgressBarModule } from 'primeng/progressbar'; //ProgressBar
-//import { ProgressSpinnerModule } from 'primeng/progressspinner'; //ProgressSpinner  
+import { ProgressSpinnerModule } from 'primeng/progressspinner'; //ProgressSpinner  
 //import { TagModule } from 'primeng/tag'; //Tag
 //import { TerminalModule } from 'primeng/terminal';//Terminal
 /*-----------------------------------------------Directive-----------------------------------------------*/
@@ -206,7 +206,7 @@ import { MessageService } from 'primeng/api';
     // ScrollTopModule,
     // SkeletonModule,
     // ProgressBarModule,
-    // ProgressSpinnerModule,
+     ProgressSpinnerModule,
     // TagModule,
     // TerminalModule,
     // DeferModule,
@@ -306,7 +306,7 @@ import { MessageService } from 'primeng/api';
     // ScrollTopModule,
     // SkeletonModule,
     // ProgressBarModule,
-    // ProgressSpinnerModule,
+     ProgressSpinnerModule,
     // TagModule,
     // TerminalModule,
     // DeferModule,

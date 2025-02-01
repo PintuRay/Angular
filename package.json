@@ -2,7 +2,7 @@
     "name": "atlantis-ng",
     "version": "17.18.13",
     "scripts": {
-        "ng": "ng",
+        "ng": "ng --help",
         "start": "ng serve",
         "build": "ng build",
         "watch": "ng build --watch --configuration development",
