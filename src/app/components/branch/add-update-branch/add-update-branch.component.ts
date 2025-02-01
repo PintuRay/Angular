@@ -161,7 +161,15 @@ export class AddUpdateBranchComponent {
             error: (err) => {
               this.isLoading = false;
               if (err.error.responseCode === 400) {
-                this.branchSvcs.setBranch(this.branch, true, err.error.message);
+                if (err.error?.data) {
+                  const errorMessages = err.error.data.map((error: any) => {
+                    return `${error.formattedMessagePlaceholderValues.PropertyName}: ${error.errorMessage}`;
+                  }).join(', ');
+                this.branchSvcs.setBranch( null, true, errorMessages);
+                }
+                else {
+                  this.branchSvcs.setBranch(null, true, err.error.message);
+                }
               }
               else {
                 this.branchSvcs.setBranch(this.branch, true, 'Some Error Occoured');

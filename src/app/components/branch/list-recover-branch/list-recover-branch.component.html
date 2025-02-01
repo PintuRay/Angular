@@ -7,8 +7,8 @@
                     <button pButton pRipple label="Back To List" icon="fa-solid fa-circle-left" class="p-button-outlined p-button-info" (click)="BackToList()"></button>
                 </ng-template>
                 <ng-template pTemplate="right">
-                        <button pButton pRipple label="Bulk Recover" icon="fa-solid fa-pen-to-square" class="p-button-outlined p-button-info mr-2" (click)="bulkRecoverBranch()" [disabled]="!selectedBranches || !selectedBranches.length"></button>
-                        <button pButton pRipple label="Bulk Delete" icon="fa-solid fa-trash" class="p-button-outlined p-button-danger" (click)="bulkDeleteBranch()" [disabled]="!selectedBranches || !selectedBranches.length"></button>
+                        <button pButton pRipple label="Bulk Recover" icon="fa-solid fa-pen-to-square" class="p-button-outlined p-button-info mr-2" (click)="bulkRecoverBranch()" [disabled]="!selectedBranches || !selectedBranches.length|| (!isDevloper && !canUpdate)"></button>
+                        <button pButton pRipple label="Bulk Delete" icon="fa-solid fa-trash" class="p-button-outlined p-button-danger" (click)="bulkDeleteBranch()" [disabled]="!selectedBranches || !selectedBranches.length || (!isDevloper && !canDelete)"></button>
                 </ng-template>
             </p-toolbar>
                 
@@ -64,8 +64,8 @@
                         </td>
                         <td>
                             <div class="flex">
-                                <button pButton pRipple icon="fa-solid fa-trash-can-arrow-up" class="p-button-rounded p-button-success mr-2" (click)="recoverBranch(branch.branchId)"></button>
-                                <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-warning" (click)="deleteBranch(branch.branchId )"></button>
+                                <button pButton pRipple icon="fa-solid fa-trash-can-arrow-up" class="p-button-rounded p-button-success mr-2" [disabled]="!isDevloper && !canUpdate" (click)="recoverBranch(branch.branchId)"></button>
+                                <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-warning" [disabled]="!isDevloper && !canDelete" (click)="deleteBranch(branch.branchId )"></button>
                                 <p-confirmPopup key="confirm2"></p-confirmPopup>
                             </div>
                         </td>

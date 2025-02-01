@@ -103,8 +103,8 @@ export class ListBranchComponent {
               this.messageService.add({ severity: 'success', summary: 'Success', detail: operation.message });
             }
           }
-          else{
-            this.messageService.add({ severity: 'error', summary: 'Error', detail: operation.message});
+          else {
+            this.messageService.add({ severity: 'error', summary: 'Error', detail: operation.message });
           }
         }
       });
@@ -189,11 +189,12 @@ export class ListBranchComponent {
           if (response.responseCode === 201) {
             const newBranches = response.data.records as BranchDto[];
             this.branches = [...this.branches, ...newBranches];
+            this.totalRecords += this.branches.length;
             this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Branches imported successfully' });
             this.importOptionsVisible = false;
           }
         },
-        error: (error) => {
+        error: (err) => {
           this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error importing branches' });
         },
         complete: () => {
@@ -357,11 +358,24 @@ export class ListBranchComponent {
           next: async (response) => {
             if (response.responseCode === 200) {
               this.branches = this.branches.filter(branch => branch.branchId !== id);
-              this.messageService.add({ severity: 'info', summary: 'Confirmed', detail: response.message });
+              this.totalRecords -= 1;
+              if (this.branches.length === 0) {
+                this.pagination = new PaginationParams();
+                this.getBranches(this.pagination);
+              }
+              this.messageService.add({ severity: 'success', summary: 'Success', detail: response.message });
             }
           },
-          error: (response) => {
-            this.messageService.add({ severity: 'error', summary: 'error', detail: 'Some Error Occoured' });
+          error: (err) => {
+            if (err.error.responseCode === 404) {
+              this.messageService.add({ severity: 'info', summary: 'Info', detail: err.error.message });
+            }
+            else if (err.error.responseCode === 400) {
+              this.messageService.add({ severity: 'error', summary: 'error', detail: `Server Side Eroor: ${err.error.message}` });
+            }
+            else {
+              this.messageService.add({ severity: 'error', summary: 'error', detail: 'An unknown error occurred.' });
+            }
           }
         })
       },
@@ -380,11 +394,24 @@ export class ListBranchComponent {
             if (response.responseCode === 200) {
               this.branches = this.branches.filter(branch => !branchIds.includes(branch.branchId));
               this.selectedBranches = [];
-              this.messageService.add({ severity: 'info', summary: 'Confirmed', detail: response.message });
+              this.totalRecords -= branchIds.length;
+              if (this.branches.length === 0) {
+                this.pagination = new PaginationParams();
+                this.getBranches(this.pagination);
+              }
+              this.messageService.add({ severity: 'success', summary: 'Success', detail: response.message });
             }
           },
-          error: (response) => {
-            this.messageService.add({ severity: 'error', summary: 'error', detail: 'Some Error Occoured' });
+          error: (err) => {
+            if (err.error.responseCode === 404) {
+              this.messageService.add({ severity: 'info', summary: 'Info', detail: err.error.message });
+            }
+            else if (err.error.responseCode === 400) {
+              this.messageService.add({ severity: 'error', summary: 'error', detail: `Server Side Eroor: ${err.error.message}` });
+            }
+            else {
+              this.messageService.add({ severity: 'error', summary: 'error', detail: 'An unknown error occurred.' });
+            }
           }
         })
       }

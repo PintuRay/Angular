@@ -110,7 +110,7 @@ export class BulkAddUpdateBranchComponent {
       return `${this.getFieldLabel(controlName)} should be in uppercase `;
     }
     if (controlName === 'branchCode' && control.hasError('pattern')) {
-      return  `${this.getFieldLabel(controlName)} should start with a letter and followed by a combination of letters and numbers.`;
+      return  `${this.getFieldLabel(controlName)} should start with a uppercase letters and followed by a combination of letters and numbers.`;
     }
     return '';
   }
@@ -179,16 +179,27 @@ export class BulkAddUpdateBranchComponent {
               if (response.responseCode === 201) {
                 this.branchSvcs.setBulkBranch(response.data.records as BranchDto[], true);
                 this.messageService.add({ severity: 'success', summary: 'Success', detail: response.message });
-                //this.branchForm = this.initializeBranchForm();
                 this.resetComponent();
                 this.addBranch();
-
               }
               this.isLoading = false;
             },
-            error: (error) => {
+            error: (err) => {
               this.isLoading = false;
-              this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error adding branches' });
+              if (err.error.responseCode === 400) {
+                if (err.error?.data) {
+                  const errorMessages = err.error.data.map((error: any) => {
+                    return `${error.formattedMessagePlaceholderValues.PropertyName}: ${error.errorMessage}`;
+                  }).join(', ');
+                  this.messageService.add({ severity: 'error', summary: 'Error', detail: errorMessages });
+                }
+                else {
+                  this.messageService.add({ severity: 'error', summary: 'Error', detail: err.error.message });
+                }
+              }
+              else {
+                this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error adding branches' });
+              }
             }
           });
         }
@@ -198,15 +209,27 @@ export class BulkAddUpdateBranchComponent {
               if (response.responseCode === 200) {
                 this.branchSvcs.setBulkBranch(response.data.records as BranchDto[], true);
                 this.messageService.add({ severity: 'success', summary: 'Success', detail: response.message });
-                this.branchForm = this.initializeBranchForm();
                 this.resetComponent();
                 this.addBranch();
               }
               this.isLoading = false;
             },
-            error: (error) => {
+            error: (err) => {
               this.isLoading = false;
-              this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error updating branches' });
+              if (err.error.responseCode === 400) {
+                if (err.error?.data) {
+                  const errorMessages = err.error.data.map((error: any) => {
+                    return `${error.formattedMessagePlaceholderValues.PropertyName}: ${error.errorMessage}`;
+                  }).join(', ');
+                  this.messageService.add({ severity: 'error', summary: 'Error', detail: errorMessages });
+                }
+                else {
+                  this.messageService.add({ severity: 'error', summary: 'Error', detail: err.error.message });
+                }
+              }
+              else {
+                this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error adding branches' });
+              }
             }
           });
         }
@@ -214,7 +237,6 @@ export class BulkAddUpdateBranchComponent {
     }
     catch (error) {
       this.messageService.add({ severity: 'error', summary: 'Error', detail: 'An unexpected error occurred' });
-      console.error('Unexpected error', error);
     }
   }
   //#endregion

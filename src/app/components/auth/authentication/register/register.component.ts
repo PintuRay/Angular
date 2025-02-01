@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MessageService } from 'primeng/api';
 import { AuthenticationService } from 'src/app/api/service/account/authentication/authentication.service';
 import { CommonService } from 'src/app/api/service/common/common.services';
@@ -15,6 +15,7 @@ import { DistDto } from 'src/app/api/entity/dist';
 	templateUrl: './register.component.html',
 })
 export class RegisterComponent implements OnInit {
+
 	//#region Property Declaration
 	public registerForm!: FormGroup;
 	private formData: FormData = new FormData();
@@ -150,181 +151,73 @@ export class RegisterComponent implements OnInit {
 	//#endregion
 
 	//#region Client Side Vaildation
-	get emailControl() {
-		return this.registerForm.get('accountInfo.email');
+	private getFieldLabel(controlName: string): string {
+		const labels: { [key: string]: string } = {
+			email: 'Email',
+			phoneNumber: 'Phone Number',
+			password: 'Password',
+			confirmPassword: 'Confirm Password',
+			name: 'Name',
+			birthDate: 'Birth Date',
+			profilePhoto: 'Profile Photo',
+			maritalStatus: 'Marital Status',
+			gender: 'Gender',
+			country: 'Country',
+			state: 'State',
+			dist: 'District',
+			at: 'Address Line 1',
+			post: 'Address Line 2',
+			city: 'City',
+			pinCode: 'Pin Code'
+		};
+		return labels[controlName] || controlName;
 	}
-	getEmailErrorMessage() {
-		if (this.emailControl?.hasError('required')) {
-			return 'Email is required.';
+	private getFormControl(groupName: string ,controlName: string): AbstractControl | null {
+		return this.registerForm.get([groupName, controlName]);
+	}
+	public isFieldInvalid(groupName: string, controlName: string): boolean {
+		const control = this.getFormControl(groupName, controlName);
+		return !!control && control.invalid && (control.dirty || control.touched);
+	}
+	public getErrorMessage(groupName: string, controlName: string): string {
+
+		const control = this.getFormControl(groupName, controlName);
+		if (!control) return '';
+		if (control.hasError('required')) {
+			return `${this.getFieldLabel(controlName)} is required.`;
 		}
-		if (this.emailControl?.hasError('pattern')) {
-			return 'Email should be in bellow Format e.g John@example.com.';
+		if (controlName === 'email' && control.hasError('pattern')) {
+			return `${this.getFieldLabel(controlName)} should be in bellow Format e.g John@example.com.`;
+		}
+		if (controlName === 'phoneNumber' && control.hasError('pattern')) {
+			return `${this.getFieldLabel(controlName)} must be 10  digit.`;
+		}
+		if(controlName === 'password'){
+			if(control.hasError('minlength')){
+				return `${this.getFieldLabel(controlName)} must be at least 8 characters long.`;
+			}
+			if(control.hasError('pattern')){
+				return `${this.getFieldLabel(controlName)} must contain at least one uppercase letter, one lowercase letter, one digit, and one special character.`;
+			}
+		}
+		if(controlName === 'confirmPassword'){
+           const password = this.getFormControl('accountInfo', 'password')?.value;
+		   if(password !== control.value){
+			return 'Password and conform password not Matched';
+		   }
+		}
+		if(controlName === 'name'){
+			if(control.hasError('minlength')){
+				return `${this.getFieldLabel(controlName)} minimum length should be greater than 5`;
+			}
+			if(control.hasError('pattern')){
+				return `${this.getFieldLabel(controlName)} field only allow small , capital Letter  and spaces.`;
+			}
+		}
+		if(controlName === 'pinCode' && control.hasError('pattern')){
+				return `${this.getFieldLabel(controlName)} must be six digit long.`;
 		}
 		return '';
-	}
-	get phoneControl() {
-		return this.registerForm.get('accountInfo.phoneNumber');
-	}
-	getPhoneErrorMessage() {
-		if (this.phoneControl?.hasError('required')) {
-			return 'Phone Number is required.';
-		} else if (this.phoneControl?.hasError('pattern')) {
-			return 'Phone Number Must Be 10  digit.';
-		} else {
-			return '';
-		}
-	}
-	get passwordControl() {
-		return this.registerForm.get('accountInfo.password');
-	}
-	getPasswordErrorMessage() {
-		if (this.passwordControl?.hasError('required')) {
-			return 'Password is required.';
-		} else if (this.passwordControl?.hasError('minlength')) {
-			return 'Password must be at least 8 characters long.';
-		} else if (this.passwordControl?.hasError('pattern')) {
-			return 'Password must contain at least one uppercase letter, one lowercase letter, one digit, and one special character.';
-		} else {
-			return '';
-		}
-	}
-	get conformPasswordControl() {
-		return this.registerForm.get('accountInfo.confirmPassword');
-	}
-	getConformPasswordErrorMessage() {
-		if (this.passwordControl?.value !== this.conformPasswordControl?.value) {
-			return 'Password and conform password not Matched';
-		} else if (this.conformPasswordControl?.hasError('required')) {
-			return 'conform password is required';
-		} else {
-			return '';
-		}
-	}
-	get nameControl() {
-		return this.registerForm.get('personalInfo.name');
-	}
-	getNameErrorMessage() {
-		if (this.nameControl?.hasError('required')) {
-			return 'Name is required.';
-		}
-		else if (this.nameControl?.hasError('pattern')) {
-			return 'name field only allow small , capital Letter  and spaces.';
-		}
-		else if (this.nameControl?.hasError('minlength')) {
-			return 'name minimum length should be greater than 5 .';
-		} else {
-			return '';
-		}
-	}
-	get birthDateControl() {
-		return this.registerForm.get('personalInfo.birthDate');
-	}
-	getBirthDateErrorMessage() {
-		if (this.birthDateControl?.hasError('required')) {
-			return 'Birth Date is required.';
-		}
-		else {
-			return '';
-		}
-	}
-	get maritalStatusControl() {
-		return this.registerForm.get('personalInfo.maritalStatus');
-	}
-	getMaritalStatusErrorMessage() {
-		if (this.maritalStatusControl?.hasError('required')) {
-			return 'Marital Status is required.';
-		}
-		else {
-			return '';
-		}
-	}
-	get genderControl() {
-		return this.registerForm.get('personalInfo.gender');
-	}
-	getGenderErrorMessage() {
-		if (this.genderControl?.hasError('required')) {
-			return 'gender is required.';
-		}
-		else {
-			return '';
-		}
-	}
-	get countryControl() {
-		return this.registerForm.get('address.country');
-	}
-	getCountryErrorMessage() {
-		if (this.countryControl?.hasError('required')) {
-			return 'Country is required.';
-		}
-		else {
-			return '';
-		}
-	}
-	get stateControl() {
-		return this.registerForm.get('address.state');
-	}
-	getStateErrorMessage() {
-		if (this.stateControl?.hasError('required')) {
-			return 'State is required.';
-		}
-		else {
-			return '';
-		}
-	}
-	get distControl() {
-		return this.registerForm.get('address.dist');
-	}
-	getDistErrorMessage() {
-		if (this.distControl?.hasError('required')) {
-			return 'State is required.';
-		}
-		else {
-			return '';
-		}
-	}
-	get atControl() {
-		return this.registerForm.get('address.at');
-	}
-	getAtErrorMessage() {
-		if (this.atControl?.hasError('required')) {
-			return 'At is required.';
-		}
-		else {
-			return '';
-		}
-	}
-	get postControl() {
-		return this.registerForm.get('address.post');
-	}
-	getPostErrorMessage() {
-		if (this.postControl?.hasError('required')) {
-			return 'Post is required.';
-		}
-		else {
-			return '';
-		}
-	}
-	get cityControl() {
-		return this.registerForm.get('address.city');
-	}
-	getCityErrorMessage() {
-		if (this.cityControl?.hasError('required')) {
-			return 'City is required.';
-		}
-		else {
-			return '';
-		}
-	}
-	get pinCodeControl() {
-		return this.registerForm.get('address.pinCode');
-	}
-	getPinCodeErrorMessage() {
-		if (this.pinCodeControl?.hasError('required')) {
-			return 'Pin Code is required.';
-		}
-		else {
-			return '';
-		}
 	}
 	//#endregion
 

@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { LayoutService } from '../../service/app.layout.service';
 import { CommonService } from 'src/app/api/service/common/common.services';
 import { MessageService } from 'primeng/api';
@@ -15,6 +15,7 @@ import { AddressUpdateModel } from 'src/app/api/entity/address';
   templateUrl: './user-profile.component.html',
 })
 export class UserProfileComponent {
+  
   //#region Property Declaration
   display: boolean = false;
   userForm!: FormGroup;
@@ -51,6 +52,7 @@ export class UserProfileComponent {
     private authSvcs: AuthenticationService,
     private commonSvcs: CommonService,
     private messageService: MessageService) {
+
   }
   //#endregion
 
@@ -95,6 +97,66 @@ export class UserProfileComponent {
       })
     });
   }
+  //#endregion
+ 
+  //#region Client Side Validation
+  private getFieldLabel(controlName: string): string {
+    const labels: { [key: string]: string } = {
+      name: 'Name',
+      birthDate: 'Birth Date',
+      maratialStatus: 'Marital Status',
+      gender: 'Gender',
+      email: 'Email',
+      phoneNumber: 'Phone Number',
+      profilePhoto: 'Profile Photo',
+      country: 'Country',
+      state: 'State',
+      dist: 'District',
+      at: 'At',
+      post: 'Post',
+      city: 'City',
+      pinCode: 'Pin Code'
+    };
+    return labels[controlName] || controlName;
+  }
+
+  private getFormControl(controlName: string, groupName?: string): AbstractControl | null {
+    if (groupName) {
+      return this.userForm.get([groupName, controlName]);
+    }
+    else {
+      return this.userForm.get(controlName);
+    }
+  }
+
+  public isFieldInvalid(controlName: string, groupName?: string): boolean {
+    const control = this.getFormControl(controlName, groupName);
+    return !!control && control.invalid && (control.dirty || control.touched);
+  }
+
+  public getErrorMessage(controlName: string, groupName?: string): string {
+    const control = this.getFormControl(controlName, groupName);
+    if (!control) return '';
+    if (control.hasError('required')) {
+      return `${this.getFieldLabel(controlName)} is required.`;
+    }
+    if (controlName === 'phoneNumber' && control.hasError('pattern')) {
+      return `Please enter a valid 10-digit ${this.getFieldLabel(controlName)}`;
+    }
+    if (controlName === 'email' && control.hasError('email')) {
+      return `Please enter a valid ${this.getFieldLabel(controlName)}`;
+    }
+    if (controlName === 'pinCode' && control.hasError('pattern')) {
+      return `Please enter a valid 6-digit ${this.getFieldLabel(controlName)}`;
+    }
+    if (controlName === 'name' && control.hasError('minlength')) {
+      return `${this.getFieldLabel(controlName)} must be at least 2 characters long.`;
+    }
+    return '';
+  }
+  //#endregion
+  
+  //#region Client Side Operation
   onProfilePhotoSelect(event: any) {
     if (event.files && event.files.length > 0) {
       const file = event.files[0];
@@ -309,26 +371,26 @@ export class UserProfileComponent {
     return JSON.stringify(this.userForm.value, null, 2);
   }
   get formDataJson(): string {
-		const formDataObj: { [key: string]: any } = {};
-		try {
-			this.formData?.forEach((value, key) => {
-				// Handle File objects specially
-				if (value instanceof File) {
-					formDataObj[key] = {
-						fileName: value.name,
-						type: value.type,
-						size: `${(value.size / 1024).toFixed(2)} KB`
-					};
-				} else {
-					formDataObj[key] = value;
-				}
-			});
+    const formDataObj: { [key: string]: any } = {};
+    try {
+      this.formData?.forEach((value, key) => {
+        // Handle File objects specially
+        if (value instanceof File) {
+          formDataObj[key] = {
+            fileName: value.name,
+            type: value.type,
+            size: `${(value.size / 1024).toFixed(2)} KB`
+          };
+        } else {
+          formDataObj[key] = value;
+        }
+      });
 
-			return JSON.stringify(formDataObj, null, 2);
-		} catch (error) {
-			return 'No form data available';
-		}
-	}
+      return JSON.stringify(formDataObj, null, 2);
+    } catch (error) {
+      return 'No form data available';
+    }
+  }
   get userDtoJson(): string {
     return JSON.stringify(this.user, null, 2);
   }

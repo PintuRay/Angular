@@ -42,14 +42,15 @@ export class ListRecoverBranchComponent {
   //#region Property Declaration
   public display: boolean = false;
   public loading: boolean = false;
-  canDelete: boolean = false;
-  canUpdate: boolean = false;
+  public canDelete: boolean = false;
+  public canUpdate: boolean = false;
+  public isDevloper: boolean = false;
   subscription!: Subscription;
-  branches: BranchDto[];
-  selectedBranches: BranchDto[];
+  public branches: BranchDto[];
+  public selectedBranches: BranchDto[];
   public totalRecords: number = 0;
-  pagination: PaginationParams;
-  cols: any[];
+  public pagination: PaginationParams;
+  public cols: any[];
   //#endregion 
 
   //#region constructor
@@ -70,12 +71,13 @@ export class ListRecoverBranchComponent {
   ngOnInit(): void {
     this.canDelete = this.authSvcs.getUserDetails().permissions.delete;
     this.canUpdate = this.authSvcs.getUserDetails().permissions.update;
+    this.isDevloper = this.authSvcs.getUserDetails().role.toLowerCase() === "devloper";
     this.getRemovedBranches(this.pagination);
   }
   //#endregion 
 
   //#region Pagination , Searching , Shorting
-  onGlobalFilter(searchText: HTMLInputElement) { 
+   public onGlobalFilter(searchText: HTMLInputElement) {
     this.pagination.searchTerm = searchText.value;
     this.pagination.pageNumber = 0;
     this.getRemovedBranches(this.pagination);
@@ -89,20 +91,20 @@ export class ListRecoverBranchComponent {
     this.pagination.searchTerm = '';
     this.getRemovedBranches(this.pagination);
   }
-    //#endregion
+  //#endregion
 
   //#region Client Side Operations
-  BackToList() {
+ public  BackToList() {
     this.router.navigate(['branch/list-branch']);
   }
   //#endregion
 
   //#region Server Side Operation
-   getRemovedBranches(pagination: PaginationParams): void {
+  private getRemovedBranches(pagination: PaginationParams): void {
     this.loading = true;
     try {
       this.branchSvcs.getRemovedBranches(pagination).subscribe({
-        next: async(response) => {
+        next: async (response) => {
           this.loading = false;
           if (response.responseCode === 200) {
             this.branches = response.data.collectionObjData as BranchDto[];
@@ -127,70 +129,118 @@ export class ListRecoverBranchComponent {
       this.loading = false;
     }
   }
-  recoverBranch(id: string) { 
+  public recoverBranch(id: string) {
     this.branchSvcs.recoverBranch(id).subscribe({
       next: (response) => {
         if (response.responseCode == 200) {
           this.branches = this.branches.filter(branch => branch.branchId !== id);
-          this.messageService.add({ severity: 'info', summary: 'Confirmed', detail: response.message });
+          this.totalRecords -= 1;
+          if (this.branches.length === 0) {
+            this.pagination = new PaginationParams();
+            this.getRemovedBranches(this.pagination);
+          }
+          this.messageService.add({ severity: 'success', summary: 'Success', detail: response.message });
         }
       },
-      error: (response) => {},
-      complete: () => {}
+      error: (err) => {
+        if (err.error.responseCode === 404) {
+          this.messageService.add({ severity: 'info', summary: 'Info', detail: err.error.message });
+        }
+        else if (err.error.responseCode === 400) {
+          this.messageService.add({ severity: 'error', summary: 'error', detail: `Server Side Eroor: ${err.error.message}` });
+        }
+        else {
+          this.messageService.add({ severity: 'error', summary: 'error', detail: 'An unknown error occurred.' });
+        }
+      }
     })
   }
-  bulkRecoverBranch() {
+  public bulkRecoverBranch() {
     const branchIds = this.selectedBranches.map(branch => branch.branchId);
     this.branchSvcs.bulkRecoverBranch(branchIds).subscribe({
       next: (response) => {
         if (response.responseCode == 200) {
           this.branches = this.branches.filter(branch => !branchIds.includes(branch.branchId));
+          this.totalRecords -= branchIds.length;
           this.selectedBranches = [];
-          this.messageService.add({ severity: 'info', summary: 'Confirmed', detail: response.message });
+          if (this.branches.length === 0) {
+            this.pagination = new PaginationParams();
+            this.getRemovedBranches(this.pagination);
+          }
+          this.messageService.add({ severity: 'success', summary: 'Success', detail: response.message });
         }
       },
-      error: (response) => {
-
-      },
-      complete: () => {
-
+      error: (err) => {
+        if (err.error.responseCode === 404) {
+          this.messageService.add({ severity: 'info', summary: 'Info', detail: err.error.message });
+        }
+        else if (err.error.responseCode === 400) {
+          this.messageService.add({ severity: 'error', summary: 'error', detail: `Server Side Eroor: ${err.error.message}` });
+        }
+        else {
+          this.messageService.add({ severity: 'error', summary: 'error', detail: 'An unknown error occurred.' });
+        }
       }
     })
-   }
-  deleteBranch(id: string) { 
+  }
+  public deleteBranch(id: string) {
     this.branchSvcs.deleteBranch(id).subscribe({
       next: (response) => {
-        if (response.responseCode == 200) {
+        if (response.responseCode === 200) {
           this.branches = this.branches.filter(branch => branch.branchId !== id);
-          this.messageService.add({ severity: 'info', summary: 'Confirmed', detail: response.message });
+          this.totalRecords -= 1;
+          if (this.branches.length === 0) {
+            this.pagination = new PaginationParams();
+            this.getRemovedBranches(this.pagination);
+          }
+          this.messageService.add({ severity: 'success', summary: 'Success', detail: response.message });
         }
       },
-      error: (response) => {},
-      complete: () => {}
+      error: (err) => { 
+        if (err.error.responseCode === 404) {
+          this.messageService.add({ severity: 'info', summary: 'Info', detail: err.error.message });
+        }
+        else if (err.error.responseCode === 400) {
+          this.messageService.add({ severity: 'error', summary: 'error', detail: `Server Side Eroor: ${err.error.message}` });
+        }
+        else {
+          this.messageService.add({ severity: 'error', summary: 'error', detail: 'An unknown error occurred.' });
+        }
+      }
     })
   }
-  bulkDeleteBranch() { 
+  public bulkDeleteBranch() {
     const branchIds = this.selectedBranches.map(branch => branch.branchId);
     this.branchSvcs.bulkDeleteBranch(branchIds).subscribe({
       next: (response) => {
         if (response.responseCode == 200) {
           this.branches = this.branches.filter(branch => !branchIds.includes(branch.branchId));
+          this.totalRecords -= branchIds.length;
           this.selectedBranches = [];
-          this.messageService.add({ severity: 'info', summary: 'Confirmed', detail: response.message });
+          if (this.branches.length === 0) {
+            this.pagination = new PaginationParams();
+            this.getRemovedBranches(this.pagination);
+          }
+          this.messageService.add({ severity: 'success', summary: 'Success', detail: response.message });
         }
       },
-      error: (response) => {
-
-      },
-      complete: () => {
-
+      error: (err) => {
+        if (err.error.responseCode === 404) {
+          this.messageService.add({ severity: 'info', summary: 'Info', detail: err.error.message });
+        }
+        else if (err.error.responseCode === 400) {
+          this.messageService.add({ severity: 'error', summary: 'error', detail: `Server Side Eroor: ${err.error.message}` });
+        }
+        else {
+          this.messageService.add({ severity: 'error', summary: 'error', detail: 'An unknown error occurred.' });
+        }
       }
     })
   }
   //#endregion
-    //#region Test form
-    get branchDtoJson(): string {
-      return JSON.stringify(this.branches, null, 2);
-    }
-    //#endregion
+  //#region Test form
+  get branchDtoJson(): string {
+    return JSON.stringify(this.branches, null, 2);
+  }
+  //#endregion
 }

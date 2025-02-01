@@ -28,48 +28,54 @@
                         </div>
                         <div class="field col-12 md:col-6">
                             <span class="p-float-label">
-                                <input type="text" pInputText transformToUppercase id="name" formControlName="name"
-                                    autocomplete="off">
+                                <input type="text" pInputText transformToUppercase id="name" formControlName="name"autocomplete="off"
+                                [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid('name')}" >
                                 <label for="name">User Name</label>
                             </span>
+                            <small class="p-error block" *ngIf="isFieldInvalid('name')">{{ getErrorMessage('name') }}</small>
                         </div>
                         <div class="field col-12 md:col-6">
                             <span class="p-float-label">
                                 <p-calendar [showIcon]="true" appDateFormat inputId="icon" formControlName="birthDate"
-                                    name="birthDate" [minYear]="1800" autocomplete="off">></p-calendar>
+                                    name="birthDate" [minYear]="1800" autocomplete="off" [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid('birthDate')}"></p-calendar>
                                 <label for="birthDate">Birth Date</label>
                             </span>
+                            <small class="p-error block" *ngIf="isFieldInvalid('birthDate')">{{ getErrorMessage('birthDate') }}</small>
                         </div>
                         <div class="field col-12 md:col-6">
                             <span class="p-float-label">
                                 <p-autoComplete formControlName="maratialStatus" [suggestions]="filteredMaritalStatus"
                                     (completeMethod)="filterMaritalStatus($event)" dataKey="key" field="value" [dropdown]="true"
-                                    name="maritalStatus">
+                                    name="maritalStatus" [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid('maritalStatus')}">
                                 </p-autoComplete>
                                 <label for="maritalStatus">Marital Status</label>
                             </span>
+                            <small class="p-error block" *ngIf="isFieldInvalid('maratialStatus')">{{ getErrorMessage('maratialStatus') }}</small>
                         </div>
                         <div class="field col-12 md:col-6">
                             <span class="p-float-label">
                                 <p-autoComplete formControlName="gender" [suggestions]="filteredGender"
                                     (completeMethod)="filterGender($event)" dataKey="key" field="value" [dropdown]="true"
-                                    name="gender">
+                                    name="gender" [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid('gender')}">
                                 </p-autoComplete>
                                 <label for="gender">Gender</label>
                             </span>
+                            <small class="p-error block" *ngIf="isFieldInvalid('gender')">{{ getErrorMessage('gender') }}</small>
                         </div>
                         <div class="field col-12 md:col-6">
                             <span class="p-float-label">
-                                <input type="email" pInputText id="email" formControlName="email" autocomplete="off" />
+                                <input type="email" pInputText id="email" formControlName="email" autocomplete="off" [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid('email')}" />
                                 <label for="email">Email</label>
                             </span>
+                            <small class="p-error block" *ngIf="isFieldInvalid('email')">{{ getErrorMessage('email') }}</small>
                         </div>
                         <div class="field col-12 md:col-6">
                             <span class="p-float-label">
                                 <input type="tel" pInputText id="phoneNumber" formControlName="phoneNumber" onlyNumbers
-                                    [maxLength]="10" autocomplete="off" />
+                                    [maxLength]="10" autocomplete="off" [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid('phoneNumber')}" />
                                 <label for="phoneNumber">Phone Number</label>
                             </span>
+                            <small class="p-error block" *ngIf="isFieldInvalid('phoneNumber')">{{ getErrorMessage('phoneNumber') }}</small>
                         </div>
 
                         <ng-container formGroupName="address">
@@ -78,56 +84,63 @@
                                     <p-autoComplete formControlName="country" [suggestions]="filteredCountries"
                                         (completeMethod)="filterCountries($event)" dataKey="countryId"
                                         field="countryName" [dropdown]="true" (onSelect)="onCountrySelect($event)"
-                                        name="country">
+                                        name="country" [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid('country','address')}">
                                     </p-autoComplete>
                                     <label for="country">Country</label>
                                 </span>
+                                <small class="p-error block" *ngIf="isFieldInvalid('country','address')">{{ getErrorMessage('country','address') }}</small>
                             </div>
                             <div class="field col-12 md:col-6">
                                 <span class="p-float-label">
                                     <p-autoComplete formControlName="state" [suggestions]="filteredStates"
                                         (completeMethod)="filterStates($event)" dataKey="stateId" field="stateName"
-                                        [dropdown]="true" (onSelect)="onStateSelect($event)" name="state">
+                                        [dropdown]="true" (onSelect)="onStateSelect($event)" name="state" [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid('state','address')}">
                                     </p-autoComplete>
                                     <label for="state">State</label>
                                 </span>
+                                <small class="p-error block" *ngIf="isFieldInvalid('state','address')">{{ getErrorMessage('state','address') }}</small>
                             </div>
                             <div class="field col-12 md:col-6">
                                 <span class="p-float-label">
                                     <p-autoComplete formControlName="dist" [suggestions]="filteredDists"
                                         (completeMethod)="filterDists($event)" dataKey="distId" field="distName"
-                                        [dropdown]="true" name="dist">
+                                        [dropdown]="true" name="dist" [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid('dist','address')}">
                                     </p-autoComplete>
                                     <label for="dist">Dist</label>
                                 </span>
+                                <small class="p-error block" *ngIf="isFieldInvalid('dist','address')">{{ getErrorMessage('dist','address') }}</small>
                             </div>
                             <div class="field col-12 md:col-6">
                                 <span class="p-float-label">
                                     <input type="text" pInputText id="at" formControlName="at" transformToUppercase
-                                        autocomplete="off">
+                                        autocomplete="off" [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid('at','address')}">
                                     <label htmlFor="at">At</label>
                                 </span>
+                                <small class="p-error block" *ngIf="isFieldInvalid('at','address')">{{ getErrorMessage('at','address') }}</small>
                             </div>
                             <div class="field col-12 md:col-6">
                                 <span class="p-float-label">
                                     <input type="text" pInputText id="post" formControlName="post" class="w-full"
-                                        transformToUppercase autocomplete="off">
+                                        transformToUppercase autocomplete="off" [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid('post','address')}">
                                     <label htmlFor="post">Post</label>
                                 </span>
+                                <small class="p-error block" *ngIf="isFieldInvalid('post','address')">{{ getErrorMessage('post','address') }}</small>
                             </div>
                             <div class="field col-12 md:col-6">
                                 <span class="p-float-label">
                                     <input type="text" pInputText id="city" formControlName="city" class="w-full"
-                                        transformToUppercase autocomplete="off">
+                                        transformToUppercase autocomplete="off" [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid('city','address')}">
                                     <label htmlFor="city">City</label>
                                 </span>
+                                <small class="p-error block" *ngIf="isFieldInvalid('city','address')">{{ getErrorMessage('city','address') }}</small>
                             </div>
                             <div class="field col-12 md:col-6">
                                 <span class="p-float-label">
                                     <input type="text" pInputText id="pinCode" formControlName="pinCode" class="w-full"
-                                        onlyNumbers [maxLength]="6" autocomplete="off">
+                                        onlyNumbers [maxLength]="6" autocomplete="off" [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid('pinCode','address')}">
                                     <label htmlFor="pinCode">Pin Code</label>
                                 </span>
+                                <small class="p-error block" *ngIf="isFieldInvalid('pinCode','address')">{{ getErrorMessage('pinCode','address') }}</small>
                             </div>
                         </ng-container>
                     </div>
