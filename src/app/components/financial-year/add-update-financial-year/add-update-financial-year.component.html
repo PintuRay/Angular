@@ -13,27 +13,27 @@
                 <div class="field col-12 md:col-4">
                     <span class="p-float-label">
                         <p-inputMask mask="9999 - 9999" placeholder="xxxx - xxxx"   id="financial_Year" formControlName="financial_Year"
-                        autocomplete="off">
+                        autocomplete="off" [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid('financial_Year')}">
                       </p-inputMask>
                         <label for="financial_Year">Financial Year</label>
                     </span>
-                    <small class="p-error block" *ngIf="financialYearControl?.invalid && (financialYearControl?.dirty || financialYearControl?.touched)"> {{ getFinancialYearErrorMessage() }}</small>
+                    <small class="p-error block" *ngIf="isFieldInvalid('financial_Year')">{{ getErrorMessage('financial_Year') }}</small>
                 </div>
                 <div class="field col-12 md:col-4">
                     <span class="p-float-label">
                         <p-calendar [showIcon]="true" appDateFormat inputId="icon" formControlName="startDate"
-                            name="startDate" [minYear]="1800" autocomplete="off">></p-calendar>
+                            name="startDate" [minYear]="1800" autocomplete="off" [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid('startDate')}"></p-calendar>
                         <label for="startDate">Start Date</label>
                     </span>
-                    <small class="p-error block" *ngIf="startDateControl?.invalid && (startDateControl?.dirty || startDateControl?.touched)"> {{ getStartDateErrorMessage() }}</small>
+                    <small class="p-error block" *ngIf="isFieldInvalid('startDate')">{{ getErrorMessage('startDate') }}</small>
                 </div>
                 <div class="field col-12 md:col-4">
                     <span class="p-float-label">
-                        <p-calendar [showIcon]="true" appDateFormat inputId="icon" formControlName="endDate"
-                            name="endDate" [minYear]="1800" autocomplete="off">></p-calendar>
+                        <p-calendar [showIcon]="true"  inputId="icon" formControlName="endDate"
+                            name="endDate"  autocomplete="off" [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid('endDate')}"></p-calendar>
                         <label for="endDate">End Date</label>
                     </span>
-                    <small class="p-error block" *ngIf="endDateControl?.invalid && (endDateControl?.dirty || endDateControl?.touched)"> {{ getEndDateErrorMessage() }}</small>
+                    <small class="p-error block" *ngIf="isFieldInvalid('endDate')">{{ getErrorMessage('endDate') }}</small>
                 </div>
             </div>
             <div class="flex justify-content-end mb-3">

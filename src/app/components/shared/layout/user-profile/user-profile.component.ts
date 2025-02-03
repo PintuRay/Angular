@@ -15,7 +15,7 @@ import { AddressUpdateModel } from 'src/app/api/entity/address';
   templateUrl: './user-profile.component.html',
 })
 export class UserProfileComponent {
-  
+
   //#region Property Declaration
   display: boolean = false;
   userForm!: FormGroup;
@@ -79,26 +79,26 @@ export class UserProfileComponent {
   private initializeUserForm(user?: UserUpdateModel): void {
     this.userForm = this.fb.group({
       id: [user?.id || ''],
-      name: [user?.name || '', [Validators.required, Validators.minLength(2)]],
+      name: [user?.name || '', [Validators.required, Validators.minLength(5), Validators.pattern(/^[A-Za-z\s]+$/)]],
       birthDate: [user?.birthDate ? new Date(user.birthDate) : null, Validators.required],
       maratialStatus: [user?.maratialStatus ? this.marriedStatus.find(s => s.key === user.maratialStatus) : '', Validators.required],
       gender: [user?.gender ? this.gender.find(g => g.key === user.gender) : '', Validators.required],
-      email: [user?.email || '', [Validators.required, Validators.email]],
-      phoneNumber: [user?.phoneNumber || '', [Validators.required, Validators.pattern(/^[0-9]{10}$/)]],
+      email: [user?.email || '', [Validators.required, Validators.email, Validators.pattern(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)]],
+      phoneNumber: [user?.phoneNumber || '', [Validators.required, Validators.maxLength(10), Validators.pattern(/^[0-9]{10}$/)]],
       profilePhoto: [user?.profilePhoto || null],
       address: this.fb.group({
         country: [user?.address?.fk_CountryId ? this.countries.find(c => c.countryId === user.address.fk_CountryId) : '', Validators.required],
         state: [user?.address?.fk_StateId ? this.states.find(s => s.stateId === user.address.fk_StateId) : '', Validators.required],
         dist: [user?.address?.fk_DistId ? this.dists.find(d => d.distId === user.address.fk_DistId) : '', Validators.required],
-        at: [user?.address?.at || ''],
-        post: [user?.address?.post || ''],
-        city: [user?.address?.city || ''],
-        pinCode: [user?.address?.pinCode || '', [Validators.pattern(/^[0-9]{6}$/)]]
+        at: [user?.address?.at || '', Validators.required],
+        post: [user?.address?.post || '', Validators.required],
+        city: [user?.address?.city || '', Validators.required],
+        pinCode: [user?.address?.pinCode || '', [Validators.pattern(/^\d{6}$/)]]
       })
     });
   }
   //#endregion
- 
+
   //#region Client Side Validation
   private getFieldLabel(controlName: string): string {
     const labels: { [key: string]: string } = {
@@ -155,7 +155,7 @@ export class UserProfileComponent {
     return '';
   }
   //#endregion
-  
+
   //#region Client Side Operation
   onProfilePhotoSelect(event: any) {
     if (event.files && event.files.length > 0) {

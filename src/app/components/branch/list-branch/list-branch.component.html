@@ -171,8 +171,15 @@
         <p-accordionTab header="Dto Model" [selected]="true" class="line-height-3 m-0">
             <pre class="p-2 border rounded bg-gray-100" style="white-space: pre-wrap;">{{ branchDtoJson }}</pre>
         </p-accordionTab>
+        <p-accordionTab header="selected Dto" [selected]="true" class="line-height-3 m-0">
+            <pre class="p-2 border rounded bg-gray-100" style="white-space: pre-wrap;">{{ SeletedDtoJson }}</pre>
+        </p-accordionTab>
         <p-accordionTab header="Property" class="line-height-3 m-0">
-            <p><strong>Operation Type:</strong> </p>
+            <p><strong>canDelete:</strong>{{canDelete}} </p>
+            <p><strong>canCreate:</strong>{{canCreate}} </p>
+            <p><strong>canUpdate:</strong> {{canUpdate}}</p>
+            <p><strong>isDevloper:</strong> {{isDevloper}}</p>
+            <p><strong>totalRecords:</strong> {{totalRecords}}</p>
         </p-accordionTab>
     </p-accordion>
     <ng-template pTemplate="footer">

@@ -100,6 +100,7 @@ export class ListBranchComponent {
               this.messageService.add({ severity: 'success', summary: 'Success', detail: operation.message });
             } else {
               this.branches = [...this.branches, operation.branch];
+              this.totalRecords += 1;
               this.messageService.add({ severity: 'success', summary: 'Success', detail: operation.message });
             }
           }
@@ -111,8 +112,8 @@ export class ListBranchComponent {
     //Bulk Insert or Update Subscription
     this.bulkBranchsubscription = this.branchSvcs.getBulkBranch()
       .subscribe(operation => {
-        if (operation?.branches && operation?.branches.length > 0) {
-          if (operation.isSuccess) {
+        if (operation?.isSuccess) {
+          if (operation?.branches && operation?.branches.length > 0) {
             const updatedBranches = [...this.branches];
             operation?.branches.forEach(newBranch => {
               const existingIndex = updatedBranches.findIndex(b => b.branchId === newBranch.branchId);
@@ -299,7 +300,7 @@ export class ListBranchComponent {
   }
   public editBranch(branch: BranchDto) {
     this.branchSvcs.setOperationType("edit");
-    this.branchSvcs.setBranch(branch);
+    this.branchSvcs.setBranch({ branch, isSuccess: false });
     this.branchSvcs.showAddUpdateBranchdDialog();
   }
   public bulkAddBranch() {
@@ -308,7 +309,7 @@ export class ListBranchComponent {
   }
   public bulkEditBranch() {
     this.branchSvcs.setBulkOperationType("edit");
-    this.branchSvcs.setBulkBranch(this.selectedBranches);
+    this.branchSvcs.setBulkBranch({branches : this.selectedBranches, isSuccess: false} );
     this.router.navigate(['branch/bulk-add-update']);
   }
   public recoverBranch() {
@@ -422,6 +423,9 @@ export class ListBranchComponent {
   //#region Test form
   get branchDtoJson(): string {
     return JSON.stringify(this.branches, null, 2);
+  }
+  get SeletedDtoJson(): string {
+    return JSON.stringify(this.selectedBranches, null, 2);
   }
   //#endregion
 }

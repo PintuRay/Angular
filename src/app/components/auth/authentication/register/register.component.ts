@@ -74,7 +74,7 @@ export class RegisterComponent implements OnInit {
 		this.registerForm = this.fb.group({
 			// Account Information
 			accountInfo: this.fb.group({
-				email: ['', [Validators.required, Validators.pattern(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)]],
+				email: ['', [Validators.required, Validators.email, Validators.pattern(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)]],
 				phoneNumber: ['', [Validators.required, Validators.maxLength(10), Validators.pattern(/^\d{10}$/)]],
 				password: ['', [Validators.required, Validators.minLength(8), Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@#$%^&*!])[A-Za-z\d@#$%^&*!]{8,}$/)]],
 				confirmPassword: ['', [Validators.required]]
@@ -165,8 +165,8 @@ export class RegisterComponent implements OnInit {
 			country: 'Country',
 			state: 'State',
 			dist: 'District',
-			at: 'Address Line 1',
-			post: 'Address Line 2',
+			at: 'At',
+			post: 'Post',
 			city: 'City',
 			pinCode: 'Pin Code'
 		};

@@ -1,6 +1,7 @@
+/*------------------------- Api Model----------------*/
 export class FinancialYearModel {
     financial_Year: string;
-    startDate: Date ;
+    startDate: Date;
     endDate: Date;
     constructor() {
         this.financial_Year = '';
@@ -19,4 +20,13 @@ export class FinancialYearDto extends FinancialYearUpdateModel {
     constructor() {
         super();
     }
+}
+/*-------------------------opertion Model----------------*/
+export interface FinancialYearOperation {
+    financialYear: FinancialYearDto | null;
+    isSuccess: boolean;
+
+}
+export interface RecoverFinancialYearOperation extends FinancialYearOperation {
+    message: string;
 }

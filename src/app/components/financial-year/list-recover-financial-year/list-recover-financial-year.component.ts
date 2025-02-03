@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { Subscription } from 'rxjs';
 import { FinancialYearDto } from 'src/app/api/entity/financialYear';
 import { PaginationParams } from 'src/app/api/model/paginationParams';
@@ -8,11 +9,11 @@ import { FinancialYearService } from 'src/app/api/service/devloper/financial-yea
 @Component({
   selector: 'app-list-recover-financial-year',
   templateUrl: './list-recover-financial-year.component.html',
-
 })
 export class ListRecoverFinancialYearComponent {
   //#region Property Declaration
   public visible: boolean = false;
+  public loading: boolean = false;
   private dialogSub!: Subscription;
   public canDelete: boolean = false;
   public canUpdate: boolean = false;
@@ -27,7 +28,9 @@ export class ListRecoverFinancialYearComponent {
   //#region constructor
   constructor(
     private financialYearSvcs: FinancialYearService,
-    private authSvcs: AuthenticationService
+    private authSvcs: AuthenticationService,
+    private confirmationService: ConfirmationService,
+    private messageService: MessageService
   ) {
     this.financialYears = [];
     this.cols = [];
@@ -53,11 +56,7 @@ export class ListRecoverFinancialYearComponent {
     this.dialogSub?.unsubscribe();
   }
   //#endregion 
-  public hideDialog() {
-    this.financialYearSvcs.hideRecoverDialog();
-    this.financialYears = [];
-    this.selectedfinancialYears = [];
-  }
+
   //#region Pagination , Searching , Shorting
   onGlobalFilter(searchText: HTMLInputElement) {
     this.pagination.searchTerm = searchText.value;
@@ -75,42 +74,94 @@ export class ListRecoverFinancialYearComponent {
   }
   //#endregion
 
+  //#region Client Side Operations
+  public hideDialog() {
+    this.financialYearSvcs.hideRecoverDialog();
+    this.financialYears = [];
+    this.selectedfinancialYears = [];
+  }
+  //#endregion 
   //#region Server Side Operation
   private getRemovedFinancialYears(pagination: PaginationParams) {
+    this.loading = true;
     try {
       this.financialYearSvcs.getRemovedFinancialYears(pagination).subscribe({
         next: async (response) => {
+          this.loading = false;
           if (response.responseCode === 200) {
             this.financialYears = response.data.collectionObjData as FinancialYearDto[];
+            this.totalRecords = response.data.count;
           }
         },
-        error: (response) => { },
+        error: (err) => {
+          this.loading = false;
+          if (err.error.responseCode === 404) {
+            this.messageService.add({ severity: 'info', summary: 'Info', detail: err.error.message });
+          }
+          else if (err.error.responseCode === 400) {
+            this.messageService.add({ severity: 'error', summary: 'error', detail: `Server Side Eroor: ${err.error.message}` });
+          }
+          else {
+            this.messageService.add({ severity: 'error', summary: 'error', detail: 'An unknown error occurred.' });
+          }
+        },
       })
     }
     catch (error) {
-
+      this.loading = false;
+      // this.messageService.add({ severity: 'error', summary: 'error', detail: 'Some Error Occoured' });
     }
   }
   public recoverFinancialYear(data: FinancialYearDto) {
     this.financialYearSvcs.recoverFinancialYear(data.financialYearId).subscribe({
       next: async (response) => {
-        if (response.responseCode == 200) {
+        if (response.responseCode === 200) {
           this.financialYears = this.financialYears.filter(fy => fy.financialYearId !== data.financialYearId);
-          this.financialYearSvcs.setRecoverfinancialYear(data, true);
+          this.financialYearSvcs.setRecoverfinancialYear({ financialYear: data, isSuccess: true, message: response.message });
+          this.totalRecords -= 1;
         }
       },
-      error: (response) => { },
+      error: (err) => {
+        if (err.error.responseCode === 404) {
+          this.financialYearSvcs.setRecoverfinancialYear({ financialYear: null, isSuccess: true, message: err.error.message });
+        }
+        else if (err.error.responseCode === 400) {
+          this.financialYearSvcs.setRecoverfinancialYear({ financialYear: null, isSuccess: true, message: `Server Side Eroor: ${err.error.message}` });
+        }
+        else {
+          this.financialYearSvcs.setRecoverfinancialYear({ financialYear: null, isSuccess: true, message: 'An unknown error occurred.' });
+        }
+      },
     })
   }
-  public deleteFinancialYear(id: string) {
-    this.financialYearSvcs.deleteFinancialYear(id).subscribe({
-      next: async (response) => {
-        if (response.responseCode == 200) {
-          this.financialYears = this.financialYears.filter(fy => fy.financialYearId !== id);
-
-        }
+  public deleteFinancialYear(id: string, event: Event) {
+    this.confirmationService.confirm({
+      key: 'deleteFinancialYear',
+      target: event.target || new EventTarget,
+      message: 'Are you sure that you want to Delete?',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        this.financialYearSvcs.deleteFinancialYear(id).subscribe({
+          next: async (response) => {
+            if (response.responseCode === 200) {
+              this.financialYears = this.financialYears.filter(fy => fy.financialYearId !== id);
+              this.totalRecords -= 1;
+            }
+          },
+          error: (err) => {
+            if (err.error.responseCode === 404) {
+              this.financialYearSvcs.setRecoverfinancialYear({ financialYear: null, isSuccess: true, message: err.error.message });
+            }
+            else if (err.error.responseCode === 400) {
+              this.financialYearSvcs.setRecoverfinancialYear({ financialYear: null, isSuccess: true, message: `Server Side Eroor: ${err.error.message}` });
+            }
+            else {
+              this.financialYearSvcs.setRecoverfinancialYear({ financialYear: null, isSuccess: true, message: 'An unknown error occurred.' });
+            }
+          },
+        })
       },
-      error: (response) => { },
+      reject: () => { }
     })
   }
   //#endregion 

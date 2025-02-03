@@ -4,12 +4,13 @@ import { Subscription } from 'rxjs';
 import { FinancialYearDto, FinancialYearModel, FinancialYearUpdateModel } from 'src/app/api/entity/financialYear';
 import { FinancialYearService } from 'src/app/api/service/devloper/financial-year.service';
 import { LayoutService } from '../../shared/service/app.layout.service';
-import { DatePipe } from '@angular/common';
+import { MessageService } from 'primeng/api';
 @Component({
   selector: 'app-add-update-financial-year',
   templateUrl: './add-update-financial-year.component.html',
 })
 export class AddUpdateFinancialYearComponent {
+
   //#region Property Declaration
   public display: boolean = false;
   public operationType: string = '';
@@ -24,9 +25,10 @@ export class AddUpdateFinancialYearComponent {
 
   //#region constructor
   constructor(
-    private fb: FormBuilder, 
-    private financialYearSvcs: FinancialYearService, 
+    private fb: FormBuilder,
+    private financialYearSvcs: FinancialYearService,
     public layoutSvcs: LayoutService,
+    private messageService: MessageService
   ) {
     this.financialYearForm = this.initializeForm();
     this.financialyear = new FinancialYearDto();
@@ -44,7 +46,7 @@ export class AddUpdateFinancialYearComponent {
         this.financialYearForm.patchValue({
           financial_Year: operation.financialYear.financial_Year,
           startDate: new Date(operation.financialYear.startDate),
-          endDate: new Date(operation.financialYear.endDate) ,
+          endDate: new Date(operation.financialYear.endDate),
         });
       }
     });
@@ -75,7 +77,7 @@ export class AddUpdateFinancialYearComponent {
   //#endregion
 
   //#region Form Initialization
-  private initializeForm(fy?:FinancialYearUpdateModel): FormGroup {
+  private initializeForm(fy?: FinancialYearUpdateModel): FormGroup {
     return this.fb.group({
       financial_Year: ['', [Validators.required]],
       startDate: ['', [Validators.required]],
@@ -85,104 +87,123 @@ export class AddUpdateFinancialYearComponent {
   //#endregion
 
   //#region Client Side Vaildation
-  get financialYearControl() {
-    return this.financialYearForm.get('financial_Year');
+  private getFieldLabel(controlName: string): string {
+    const labels: { [key: string]: string } = {
+      financial_Year: 'Financial Year',
+      startDate: 'Start Date',
+      endDate: 'End Date'
+    };
+    return labels[controlName] || controlName;
   }
-  getFinancialYearErrorMessage() {
-    if (this.financialYearControl?.hasError('required')) {
-      return 'FinancialYear is Required.';
-    }
-    else {
-      return '';
-    }
+  private getFormControl(controlName: string) {
+    return this.financialYearForm.get(controlName);
   }
-  get startDateControl() {
-    return this.financialYearForm.get('startDate');
+  public isFieldInvalid(controlName: string): boolean {
+    const control = this.getFormControl(controlName);
+    return !!control && control.invalid && (control.dirty || control.touched);
   }
-  getStartDateErrorMessage() {
-    if (this.startDateControl?.hasError('required')) {
-      return 'Start Date is Required.';
+  public getErrorMessage(controlName: string): string {
+    const control = this.getFormControl(controlName);
+    if (!control) return '';
+    if (control.hasError('required')) {
+      return `${this.getFieldLabel(controlName)} is required.`;
     }
-    else {
-      return '';
-    }
-  }
-  get endDateControl() {
-    return this.financialYearForm.get('endDate');
-  }
-  getEndDateErrorMessage() {
-    if (this.endDateControl?.hasError('required')) {
-      return 'End Date is Required.';
-    }
-    else {
-      return '';
-    }
+    return '';
   }
   //#endregion
 
   //#region Client Side Operations
   public resetComponent() {
     this.financialYearForm.reset();
+    this.operationType = '';
     this.financialyear = new FinancialYearDto();
     this.addFinancialYear = new FinancialYearModel();
-    this.updateFinancialYear = new FinancialYearUpdateModel()
-  }
-
-  private getDate(){
-
+    this.updateFinancialYear = new FinancialYearUpdateModel();
   }
   //#endregion
+
   //#region Server Side Operation
   async submit(): Promise<void> {
     try {
-      if (this.financialYearForm.valid) {
-        this.isLoading = true;
-        if (this.operationType === 'edit') {
-          this.financialYearSvcs.updateFinancialYear(this.updateFinancialYear).subscribe({
-            next: (response) => {
-              if (response.responseCode == 200) {
-                this.financialyear = {
-                  ...this.updateFinancialYear,
-                };
-                this.financialYearSvcs.setfinancialYear(this.financialyear, true);
-                this.resetComponent();
+      if (this.financialYearForm.dirty && this.financialYearForm.touched) {
+        if (this.financialYearForm.valid) {
+          this.isLoading = true;
+          if (this.operationType === 'edit') {
+            this.financialYearSvcs.updateFinancialYear(this.updateFinancialYear).subscribe({
+              next: async (response) => {
+                if (response.responseCode === 200) {
+                  this.financialyear = {
+                    ...this.updateFinancialYear,
+                  };
+                  this.financialYearSvcs.setfinancialYear({ financialYear: this.financialyear, isSuccess: true });
+                  this.resetComponent();
+                  this.messageService.add({ severity: 'success', summary: 'Success', detail: response.message });
+                }
+                this.isLoading = false;
+              },
+              error: (err) => {
+                if (err.error.responseCode === 400) {
+                  if (err.error?.data) {
+                    const errorMessages = err.error.data.map((error: any) => {
+                      return `${error.formattedMessagePlaceholderValues.PropertyName}: ${error.errorMessage}`;
+                    }).join(', ');
+                    this.messageService.add({ severity: 'error', summary: 'Error', detail: errorMessages });
+                  }
+                  else {
+                    this.messageService.add({ severity: 'error', summary: 'Error', detail: err.error.message });
+                  }
+                }
+                else {
+                  this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error updating  Financial Year' });
+                }
               }
-              this.isLoading = false;
-            },
-            error: (response) => {
-              this.isLoading = false;
-            }
-          })
-
-         
-        } else {
-          this.financialYearSvcs.createFinancialYear(this.addFinancialYear).subscribe({
-            next: (response) => {
-              if (response.responseCode === 201) {
-                this.financialyear = {
-                  ...this.addFinancialYear,
-                  financialYearId: response.data.id
-                };
-                this.financialYearSvcs.setfinancialYear(this.financialyear, true);
-               this.resetComponent();
+            })
+          } else {
+            this.financialYearSvcs.createFinancialYear(this.addFinancialYear).subscribe({
+              next: async (response) => {
+                if (response.responseCode === 201) {
+                  this.financialyear = {
+                    ...this.addFinancialYear,
+                    financialYearId: response.data.id
+                  };
+                  this.financialYearSvcs.setfinancialYear({ financialYear: this.financialyear, isSuccess: true });
+                  this.resetComponent();
+                  this.messageService.add({ severity: 'success', summary: 'Success', detail: response.message });
+                }
+                this.isLoading = false;
+              },
+              error: (err) => {
+                this.isLoading = false;
+                if (err.error.responseCode === 400) {
+                  if (err.error?.data) {
+                    const errorMessages = err.error.data.map((error: any) => {
+                      return `${error.formattedMessagePlaceholderValues.PropertyName}: ${error.errorMessage}`;
+                    }).join(', ');
+                    this.messageService.add({ severity: 'error', summary: 'Error', detail: errorMessages });
+                  }
+                  else {
+                    this.messageService.add({ severity: 'error', summary: 'Error', detail: err.error.message });
+                  }
+                }
+                else {
+                  this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error adding Financial Year' });
+                }
               }
-              this.isLoading = false;
-            },
-            error: (response) => {
-              this.isLoading = false;
-            
-            }
-          })
+            })
+          }
         }
+      }
+      else {
+        this.messageService.add({ severity: 'warn', summary: 'warn', detail: 'No Change Detected' });
       }
     }
     catch (error) {
-
+      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'An unexpected error occurred' });
     }
   }
-   //#endregion
+  //#endregion
 
-     //#region Test form
+  //#region Test form
   get formJson(): string {
     return JSON.stringify(this.financialYearForm.value, null, 2);
   }

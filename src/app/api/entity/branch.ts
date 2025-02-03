@@ -1,3 +1,4 @@
+/*------------------------- Api Model----------------*/
 export class BranchModel {
     branchName: string;
     branchAddress: string;
@@ -21,4 +22,15 @@ export class BranchModel {
     constructor() {
       super();
     }
+  }
+/*-------------------------opertion Model----------------*/
+  export interface BranchOperation {
+    branch: BranchDto | null;
+    isSuccess?: boolean;
+    message?: string;
+  }
+
+  export interface BulkBranchOperation {
+    branches: BranchDto[] | null;
+    isSuccess?: boolean;
   }

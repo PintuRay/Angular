@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { Router } from '@angular/router';
+
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { Subscription } from 'rxjs';
 import { FinancialYearDto } from 'src/app/api/entity/financialYear';
@@ -40,6 +40,8 @@ import { FinancialYearService } from 'src/app/api/service/devloper/financial-yea
 })
 export class ListFinancialYearComponent {
   //#region Property Declaration
+  public display: boolean = false;
+  public loading: boolean = false;
   public canDelete: boolean = false;
   public canCreate: boolean = false;
   public canUpdate: boolean = false;
@@ -47,7 +49,6 @@ export class ListFinancialYearComponent {
   private financialYearSubscription!: Subscription;
   private recoverSubscription!: Subscription;
   public financialYears: FinancialYearDto[];
-  public selectedfinancialYears: FinancialYearDto[];
   public cols: any[];
   public pagination: PaginationParams;
   public totalRecords: number = 0;
@@ -61,7 +62,6 @@ export class ListFinancialYearComponent {
     private messageService: MessageService
   ) {
     this.financialYears = [];
-    this.selectedfinancialYears = [];
     this.cols = [];
     this.pagination = new PaginationParams();
   }
@@ -79,16 +79,15 @@ export class ListFinancialYearComponent {
     //Single Insert or Update Subscription
     this.financialYearSubscription = this.financialYearSvcs.getFinanancialYear()
       .subscribe(operation => {
-        if (operation?.financialYear) {
-          const index = this.financialYears.findIndex(b => b.financialYearId === operation.financialYear.financialYearId);
-          if (operation.isSuccess) {
+        if (operation?.isSuccess) {
+          if (operation?.financialYear) {
+            const index = this.financialYears.findIndex(b => b.financialYearId === operation.financialYear?.financialYearId);
             if (index !== -1) {
               this.financialYears[index] = operation.financialYear;
               this.financialYears = [...this.financialYears];
-              this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Financial Year updated successfully' });
             } else {
               this.financialYears = [...this.financialYears, operation.financialYear];
-              this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Financial Year added successfully' });
+              this.totalRecords += 1;
             }
           }
         }
@@ -97,7 +96,14 @@ export class ListFinancialYearComponent {
     this.recoverSubscription = this.financialYearSvcs.getRecoverFinanancialYear()
       .subscribe(operation => {
         if (operation?.isSuccess) {
-          this.financialYears = [...this.financialYears, operation.financialYear];
+          if (operation.financialYear) {
+            this.financialYears = [...this.financialYears, operation.financialYear];
+            this.totalRecords += 1;
+            this.messageService.add({ severity: 'success', summary: 'Success', detail: operation.message });
+          }
+          else {
+            this.messageService.add({ severity: 'error', summary: 'Error', detail: operation.message });
+          }
         }
       });
   }
@@ -125,36 +131,51 @@ export class ListFinancialYearComponent {
   //#endregion
 
   //#region Client Side Operations
-  editFinancialYear(financialYear: FinancialYearDto) {
+  public editFinancialYear(financialYear: FinancialYearDto) {
     this.financialYearSvcs.setOperationType("edit");
-    this.financialYearSvcs.setfinancialYear(financialYear);
+    this.financialYearSvcs.setfinancialYear({ financialYear, isSuccess: false });
   }
-  recoverBranch() {
+  public recoverBranch() {
     this.financialYearSvcs.showRecoverDialog();
+  }
+  
+  public scrollToTop() {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
   //#endregion
 
   //#region Server Side Operation
-  async getFinancialYears(pagination: PaginationParams): Promise<void> {
+  private getFinancialYears(pagination: PaginationParams): void {
+    this.loading = true;
     try {
       this.financialYearSvcs.getFinancialYears(pagination).subscribe({
-        next: (response) => {
+        next: async (response) => {
+          this.loading = false;
           if (response.responseCode === 200) {
             this.financialYears = response.data.collectionObjData as FinancialYearDto[];
             this.totalRecords = response.data.count;
           }
         },
-        error: (response) => {
-          this.messageService.add({ severity: 'error', summary: 'error', detail: 'Internal Server Error' });
-        },
-        complete: () => { }
+        error: (err) => {
+          this.loading = false;
+          if (err.error.responseCode === 404) {
+            this.messageService.add({ severity: 'info', summary: 'Info', detail: err.error.message });
+          }
+          else if (err.error.responseCode === 400) {
+            this.messageService.add({ severity: 'error', summary: 'error', detail: `Server Side Eroor: ${err.error.message}` });
+          }
+          else {
+            this.messageService.add({ severity: 'error', summary: 'error', detail: 'An unknown error occurred.' });
+          }
+        }
       })
     }
-    catch (error) {
+    catch (err) {
+      this.loading = false;
       this.messageService.add({ severity: 'error', summary: 'error', detail: 'Some Error Occoured' });
     }
   }
-  removeFinancialYear(id: string, event: Event) {
+  public removeFinancialYear(id: string, event: Event) {
     this.confirmationService.confirm({
       key: 'removeFinancialYear',
       target: event.target || new EventTarget,
@@ -162,22 +183,40 @@ export class ListFinancialYearComponent {
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
         this.financialYearSvcs.removeFinancialYear(id).subscribe({
-          next: (response) => {
+          next: async (response) => {
             if (response.responseCode === 200) {
               this.financialYears = this.financialYears.filter(fy => fy.financialYearId !== id);
-              this.messageService.add({ severity: 'info', summary: 'Confirmed', detail: response.message });
+              this.totalRecords -= 1;
+              if (this.financialYears.length === 0) {
+                this.pagination = new PaginationParams();
+                this.getFinancialYears(this.pagination);
+              }
+              this.messageService.add({ severity: 'success', summary: 'Success', detail: response.message });
             }
           },
-          error: (response) => {
-            this.messageService.add({ severity: 'error', summary: 'error', detail: 'Some Error Occoured' });
-          },
-          complete: () => { }
+          error: (err) => {
+            if (err.error.responseCode === 404) {
+              this.messageService.add({ severity: 'info', summary: 'Info', detail: err.error.message });
+            }
+            else if (err.error.responseCode === 400) {
+              this.messageService.add({ severity: 'error', summary: 'error', detail: `Server Side Eroor: ${err.error.message}` });
+            }
+            else {
+              this.messageService.add({ severity: 'error', summary: 'error', detail: 'An unknown error occurred.' });
+            }
+          }
         })
       },
       reject: () => {
         this.messageService.add({ severity: 'error', summary: 'Rejected', detail: 'You have rejected' });
       }
     });
+  }
+  //#endregion
+
+  //#region Test form
+  get financialYearDtoJson(): string {
+    return JSON.stringify(this.financialYears, null, 2);
   }
   //#endregion
 }

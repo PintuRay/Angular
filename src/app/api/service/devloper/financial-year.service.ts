@@ -4,13 +4,7 @@ import { ConfigService } from '../config.Service';
 import { BehaviorSubject, Observable, switchMap } from 'rxjs';
 import { Base } from '../../base';
 import { PaginationParams } from '../../model/paginationParams';
-import { FinancialYearDto, FinancialYearModel, FinancialYearUpdateModel } from '../../entity/financialYear';
-
-export interface FinancialYearOperation {
-  financialYear: FinancialYearDto;
-  isSuccess?: boolean;
-}
-
+import { FinancialYearDto, FinancialYearModel, FinancialYearOperation, FinancialYearUpdateModel, RecoverFinancialYearOperation } from '../../entity/financialYear';
 @Injectable()
 export class FinancialYearService {
   //#region Property Declaration
@@ -18,7 +12,7 @@ export class FinancialYearService {
   changeRecoverDialogVisibility$ = this.changeRecoverVisibilitySubject.asObservable();
   private operationTypeSubject = new BehaviorSubject<string>('');
   private financialYearSubject = new BehaviorSubject<FinancialYearOperation | null>(null);
-  private recoverFinancialYearSubject = new BehaviorSubject<FinancialYearOperation | null>(null);
+  private recoverFinancialYearSubject = new BehaviorSubject<RecoverFinancialYearOperation | null>(null);
   //#endregion
 
   //#region Constructor
@@ -160,17 +154,17 @@ export class FinancialYearService {
   getOperationType(): Observable<string> {
     return this.operationTypeSubject.asObservable();
   }
-  setfinancialYear(financialYear: FinancialYearDto, isSuccess: boolean = false): void {
-      this.financialYearSubject.next({ financialYear, isSuccess });
-    }
+  setfinancialYear(financialYearOperation: FinancialYearOperation): void {
+    this.financialYearSubject.next(financialYearOperation);
+  }
   getFinanancialYear(): Observable<FinancialYearOperation | null> {
     return this.financialYearSubject.asObservable();
   }
-  setRecoverfinancialYear(financialYear: FinancialYearDto, isSuccess: boolean = false): void {
-    this.recoverFinancialYearSubject.next({ financialYear, isSuccess });
+  setRecoverfinancialYear( recoverFinancialYearOperation: RecoverFinancialYearOperation): void {
+    this.recoverFinancialYearSubject.next(recoverFinancialYearOperation);
   }
-getRecoverFinanancialYear(): Observable<FinancialYearOperation | null> {
-  return this.recoverFinancialYearSubject.asObservable();
-}
+  getRecoverFinanancialYear(): Observable<RecoverFinancialYearOperation | null> {
+    return this.recoverFinancialYearSubject.asObservable();
+  }
   //#endregion
 }

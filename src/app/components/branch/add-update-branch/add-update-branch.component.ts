@@ -10,7 +10,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
   templateUrl: './add-update-branch.component.html',
 })
 export class AddUpdateBranchComponent {
-  
+
   //#region Property Declaration
   public display: boolean = false;
   public visible: boolean = false;
@@ -84,7 +84,7 @@ export class AddUpdateBranchComponent {
   private initializeBranchForm(): FormGroup {
     return this.fb.group({
       branchCode: ['', [Validators.required, Validators.pattern(/^[A-Z][A-Za-z0-9]*$/)]],
-      branchName: ['', [Validators.required,Validators.pattern(/^[A-Z\s]+$/)]],
+      branchName: ['', [Validators.required, Validators.pattern(/^[A-Z\s]+$/)]],
       branchAddress: ['', [Validators.required]],
       contactNumber: ['', [Validators.required, Validators.pattern(/^\d{10}$/)]],
     })
@@ -121,7 +121,7 @@ export class AddUpdateBranchComponent {
       return `${this.getFieldLabel(controlName)} should be in uppercase `;
     }
     if (controlName === 'branchCode' && control.hasError('pattern')) {
-      return  `${this.getFieldLabel(controlName)} should start with a letter and followed by a combination of letters and numbers.`;
+      return `${this.getFieldLabel(controlName)} should start with a letter and followed by a combination of letters and numbers.`;
     }
     return '';
   }
@@ -153,7 +153,7 @@ export class AddUpdateBranchComponent {
                   ...this.addbranch,
                   branchId: response.data.id
                 };
-                this.branchSvcs.setBranch(this.branch, true, response.message);
+                this.branchSvcs.setBranch({ branch: this.branch, isSuccess: true, message: response.message });
                 this.hideDialog();
               }
               this.isLoading = false;
@@ -165,14 +165,14 @@ export class AddUpdateBranchComponent {
                   const errorMessages = err.error.data.map((error: any) => {
                     return `${error.formattedMessagePlaceholderValues.PropertyName}: ${error.errorMessage}`;
                   }).join(', ');
-                this.branchSvcs.setBranch( null, true, errorMessages);
+                  this.branchSvcs.setBranch({ branch: null, isSuccess: true, message: errorMessages });
                 }
                 else {
-                  this.branchSvcs.setBranch(null, true, err.error.message);
+                  this.branchSvcs.setBranch({ branch: null, isSuccess: true, message: err.error.message });
                 }
               }
               else {
-                this.branchSvcs.setBranch(this.branch, true, 'Some Error Occoured');
+                this.branchSvcs.setBranch({ branch: this.branch, isSuccess: true, message: 'Some Error Occoured' });
               }
             }
           })
@@ -184,7 +184,7 @@ export class AddUpdateBranchComponent {
                   ...this.updatebranch,
                   branchId: response.data.id
                 };
-                this.branchSvcs.setBranch(this.branch, true, response.message);
+                this.branchSvcs.setBranch({ branch: this.branch, isSuccess: true, message: response.message });
                 this.hideDialog();
               }
               this.isLoading = false;
@@ -196,14 +196,14 @@ export class AddUpdateBranchComponent {
                   const errorMessages = err.error.data.map((error: any) => {
                     return `${error.formattedMessagePlaceholderValues.PropertyName}: ${error.errorMessage}`;
                   }).join(', ');
-                  this.branchSvcs.setBranch(null, true, errorMessages); 
+                  this.branchSvcs.setBranch({ branch: null, isSuccess: true, message: errorMessages });
                 }
                 else {
-                  this.branchSvcs.setBranch(null, true, err.error.message);
+                  this.branchSvcs.setBranch({ branch: null, isSuccess: true, message: err.error.message });
                 }
               }
               else {
-                this.branchSvcs.setBranch(null, true, 'Some Error Occoured');
+                this.branchSvcs.setBranch({ branch: this.branch, isSuccess: true, message: 'Some Error Occoured' });
               }
               this.hideDialog();
             }
