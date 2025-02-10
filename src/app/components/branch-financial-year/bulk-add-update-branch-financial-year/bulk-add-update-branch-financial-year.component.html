@@ -1,0 +1,68 @@
+<p-dialog [(visible)]="visible" [modal]="true" [style]="{width: '60vw'}" [draggable]="false" [resizable]="false" (onHide)="hideDialog()">
+    <ng-template pTemplate="header">
+        <div class="flex align-items-center gap-2">
+            <span class="font-bold">{{operationType === 'add' ? 'Add' : 'Edit'}} Branch Financial Years</span>
+        </div>
+    </ng-template>
+    <ng-template pTemplate="content">
+        <form [formGroup]="branchFinancialYearForm">
+            <div formArrayName="branchFinancialYears">
+                <div *ngFor="let item of branchFinancialYearArray.controls; let i=index" [formGroupName]="i"
+                    class="mb-4">
+                    <div class="grid">
+                        <!-- Branch Dropdown -->
+                        <div class="col-12 md:col-5">
+                            <label class="block text-900 font-medium mb-2">Branch</label>
+                            <p-dropdown [options]="filteredBranches" formControlName="branch" [filter]="true"
+                                filterBy="branchName" [showClear]="true" placeholder="Select Branch"
+                                optionLabel="branchName" [style]="{'width':'100%'}"
+                                [class.ng-invalid]="isFieldInvalid(i, 'branch')"
+                                [class.ng-dirty]="isFieldInvalid(i, 'branch')">
+                            </p-dropdown>
+                            <small class="p-error" *ngIf="isFieldInvalid(i, 'branch')">
+                                {{getErrorMessage(i, 'branch')}}
+                            </small>
+                        </div>
+
+                        <div class="col-12 md:col-5">
+                            <label class="block text-900 font-medium mb-2">Financial Year</label>
+                            <p-dropdown [options]="filteredFinancialYears" formControlName="financialYear"
+                                [filter]="true" filterBy="financial_Year" [showClear]="true"
+                                placeholder="Select Financial Year" optionLabel="financial_Year"
+                                [style]="{'width':'100%'}" [class.ng-invalid]="isFieldInvalid(i, 'financialYear')"
+                                [class.ng-dirty]="isFieldInvalid(i, 'financialYear')">
+                            </p-dropdown>
+                            <small class="p-error" *ngIf="isFieldInvalid(i, 'financialYear')">
+                                {{getErrorMessage(i, 'financialYear')}}
+                            </small>
+                        </div>
+
+                        <!-- Remove Button -->
+                        <div class="col-12 md:col-2 flex align-items-end">
+                            <button pButton type="button" icon="pi pi-trash" class="p-button-danger"
+                                [disabled]="branchFinancialYearArray.length === 1" (click)="removeBranch(i)">
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add Button -->
+            <div class="mt-4">
+                <button pButton type="button" label="Add More" icon="pi pi-plus" class="p-button-secondary"
+                    (click)="addBranchFinancialYear()">
+                </button>
+            </div>
+        </form>
+    </ng-template>
+
+    <ng-template pTemplate="footer">
+        <div class="flex justify-content-end gap-2">
+            <button pButton label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()">
+            </button>
+            <button pButton label="Save" icon="pi pi-check" [loading]="isLoading"
+                [disabled]="!branchFinancialYearForm.valid || !branchFinancialYearForm.dirty" (click)="submit()">
+            </button>
+        </div>
+    </ng-template>
+</p-dialog>

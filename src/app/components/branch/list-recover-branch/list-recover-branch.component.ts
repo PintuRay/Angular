@@ -39,6 +39,7 @@ import { BranchService } from 'src/app/api/service/devloper/branch.service';
 `
 })
 export class ListRecoverBranchComponent {
+ 
   //#region Property Declaration
   public display: boolean = false;
   public loading: boolean = false;
@@ -77,7 +78,7 @@ export class ListRecoverBranchComponent {
   //#endregion 
 
   //#region Pagination , Searching , Shorting
-   public onGlobalFilter(searchText: HTMLInputElement) {
+  public onGlobalFilter(searchText: HTMLInputElement) {
     this.pagination.searchTerm = searchText.value;
     this.pagination.pageNumber = 0;
     this.getRemovedBranches(this.pagination);
@@ -94,7 +95,7 @@ export class ListRecoverBranchComponent {
   //#endregion
 
   //#region Client Side Operations
- public  BackToList() {
+  public BackToList() {
     this.router.navigate(['branch/list-branch']);
   }
   //#endregion
@@ -103,7 +104,7 @@ export class ListRecoverBranchComponent {
   private getRemovedBranches(pagination: PaginationParams): void {
     this.loading = true;
     try {
-      this.branchSvcs.getRemovedBranches(pagination).subscribe({
+      this.branchSvcs.getRemoved(pagination).subscribe({
         next: async (response) => {
           this.loading = false;
           if (response.responseCode === 200) {
@@ -130,7 +131,7 @@ export class ListRecoverBranchComponent {
     }
   }
   public recoverBranch(id: string) {
-    this.branchSvcs.recoverBranch(id).subscribe({
+    this.branchSvcs.recover(id).subscribe({
       next: (response) => {
         if (response.responseCode == 200) {
           this.branches = this.branches.filter(branch => branch.branchId !== id);
@@ -156,13 +157,37 @@ export class ListRecoverBranchComponent {
     })
   }
   public bulkRecoverBranch() {
-    const branchIds = this.selectedBranches.map(branch => branch.branchId);
-    this.branchSvcs.bulkRecoverBranch(branchIds).subscribe({
+    this.branchSvcs.bulkRecover(this.selectedBranches).subscribe({
       next: (response) => {
         if (response.responseCode == 200) {
+          const recoveredbranches = response.data.records as BranchDto[];
+          const branchIds = recoveredbranches.map(branch => branch.branchId);
           this.branches = this.branches.filter(branch => !branchIds.includes(branch.branchId));
-          this.totalRecords -= branchIds.length;
           this.selectedBranches = [];
+          this.totalRecords -= response.data.count;
+          if (this.branches.length === 0) {
+            this.pagination = new PaginationParams();
+            this.getRemovedBranches(this.pagination);
+          }
+          this.messageService.add({ severity: 'success', summary: 'Success', detail: response.message });
+        }
+      },
+      error: (err) => {
+        if (err.error.responseCode === 400) {
+          this.messageService.add({ severity: 'error', summary: 'error', detail: `Server Side Eroor: ${err.error.message}` });
+        }
+        else {
+          this.messageService.add({ severity: 'error', summary: 'error', detail: 'An unknown error occurred.' });
+        }
+      }
+    })
+  }
+  public deleteBranch(id: string) {
+    this.branchSvcs.delete(id).subscribe({
+      next: (response) => {
+        if (response.responseCode === 200) {
+          this.branches = this.branches.filter(branch => branch.branchId !== id);
+          this.totalRecords -= 1;
           if (this.branches.length === 0) {
             this.pagination = new PaginationParams();
             this.getRemovedBranches(this.pagination);
@@ -183,35 +208,9 @@ export class ListRecoverBranchComponent {
       }
     })
   }
-  public deleteBranch(id: string) {
-    this.branchSvcs.deleteBranch(id).subscribe({
-      next: (response) => {
-        if (response.responseCode === 200) {
-          this.branches = this.branches.filter(branch => branch.branchId !== id);
-          this.totalRecords -= 1;
-          if (this.branches.length === 0) {
-            this.pagination = new PaginationParams();
-            this.getRemovedBranches(this.pagination);
-          }
-          this.messageService.add({ severity: 'success', summary: 'Success', detail: response.message });
-        }
-      },
-      error: (err) => { 
-        if (err.error.responseCode === 404) {
-          this.messageService.add({ severity: 'info', summary: 'Info', detail: err.error.message });
-        }
-        else if (err.error.responseCode === 400) {
-          this.messageService.add({ severity: 'error', summary: 'error', detail: `Server Side Eroor: ${err.error.message}` });
-        }
-        else {
-          this.messageService.add({ severity: 'error', summary: 'error', detail: 'An unknown error occurred.' });
-        }
-      }
-    })
-  }
   public bulkDeleteBranch() {
     const branchIds = this.selectedBranches.map(branch => branch.branchId);
-    this.branchSvcs.bulkDeleteBranch(branchIds).subscribe({
+    this.branchSvcs.bulkDelete(branchIds).subscribe({
       next: (response) => {
         if (response.responseCode == 200) {
           this.branches = this.branches.filter(branch => !branchIds.includes(branch.branchId));
@@ -238,6 +237,7 @@ export class ListRecoverBranchComponent {
     })
   }
   //#endregion
+  
   //#region Test form
   get branchDtoJson(): string {
     return JSON.stringify(this.branches, null, 2);

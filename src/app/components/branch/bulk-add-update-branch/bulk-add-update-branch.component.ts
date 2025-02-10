@@ -167,6 +167,54 @@ export class BulkAddUpdateBranchComponent {
     this.addbranch = [];
     this.updatebranch = [];
   }
+  private handleBulkAddBrachError(err: any) {
+    if (err.error.responseCode === 302) {
+      const existingBranch = err.error.data as BranchDto[];
+      existingBranch.forEach(branch => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: `: ${branch.branchName} already exist`
+        });
+      });
+    }
+    else if (err.error.responseCode === 400) {
+      if (err.error?.data) {
+        const errorMessages = err.error.data.map((error: any) => {
+          return `${error.formattedMessagePlaceholderValues.PropertyName}: ${error.errorMessage}`;
+        }).join(', ');
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: errorMessages });
+      }
+      else {
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: err.error.message });
+      }
+    }
+    else {
+      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error adding branches' });
+    }
+  }
+  private handleBulkUpdateBranchError(err: any) {
+    if (err.error.responseCode === 404) {
+      const notFoundBranches = err.error.data as BranchDto[];
+      notFoundBranches.forEach(branch => {
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: `: ${branch.branchName} not found` });
+      });
+    }
+    else if (err.error.responseCode === 400) {
+      if (err.error?.data) {
+        const errorMessages = err.error.data.map((error: any) => {
+          return `${error.formattedMessagePlaceholderValues.PropertyName}: ${error.errorMessage}`;
+        }).join(', ');
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: errorMessages });
+      }
+      else {
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: err.error.message });
+      }
+    }
+    else {
+      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error adding branches' });
+    }
+  }
   //#endregion
 
   //#region Server Side Operation
@@ -176,7 +224,7 @@ export class BulkAddUpdateBranchComponent {
         if (this.branchForm.valid) {
           this.isLoading = true;
           if (this.operationType === 'add') {
-            this.branchSvcs.bulkCreateBranch(this.addbranch).subscribe({
+            this.branchSvcs.bulkCreate(this.addbranch).subscribe({
               next: (response) => {
                 if (response.responseCode === 201) {
                   this.branchSvcs.setBulkBranch({ branches: response.data.records as BranchDto[], isSuccess: true });
@@ -188,25 +236,12 @@ export class BulkAddUpdateBranchComponent {
               },
               error: (err) => {
                 this.isLoading = false;
-                if (err.error.responseCode === 400) {
-                  if (err.error?.data) {
-                    const errorMessages = err.error.data.map((error: any) => {
-                      return `${error.formattedMessagePlaceholderValues.PropertyName}: ${error.errorMessage}`;
-                    }).join(', ');
-                    this.messageService.add({ severity: 'error', summary: 'Error', detail: errorMessages });
-                  }
-                  else {
-                    this.messageService.add({ severity: 'error', summary: 'Error', detail: err.error.message });
-                  }
-                }
-                else {
-                  this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error adding branches' });
-                }
+                this.handleBulkAddBrachError(err);
               }
             });
           }
           else {
-            this.branchSvcs.bulkUpdateBranch(this.updatebranch).subscribe({
+            this.branchSvcs.bulkUpdate(this.updatebranch).subscribe({
               next: (response) => {
                 if (response.responseCode === 200) {
                   this.branchSvcs.setBulkBranch({ branches: response.data.records as BranchDto[], isSuccess: true });
@@ -218,20 +253,7 @@ export class BulkAddUpdateBranchComponent {
               },
               error: (err) => {
                 this.isLoading = false;
-                if (err.error.responseCode === 400) {
-                  if (err.error?.data) {
-                    const errorMessages = err.error.data.map((error: any) => {
-                      return `${error.formattedMessagePlaceholderValues.PropertyName}: ${error.errorMessage}`;
-                    }).join(', ');
-                    this.messageService.add({ severity: 'error', summary: 'Error', detail: errorMessages });
-                  }
-                  else {
-                    this.messageService.add({ severity: 'error', summary: 'Error', detail: err.error.message });
-                  }
-                }
-                else {
-                  this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error adding branches' });
-                }
+                this.handleBulkUpdateBranchError(err);
               }
             });
           }
@@ -262,4 +284,7 @@ export class BulkAddUpdateBranchComponent {
     return JSON.stringify(this.updatebranch, null, 2);
   }
   //#endregion
+
 }
+
+

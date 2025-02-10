@@ -185,7 +185,7 @@ export class ListBranchComponent {
         branch.branchAddress = row['Branch Address'] || '';
         return branch;
       });
-      this.branchSvcs.bulkCreateBranch(branches).subscribe({
+      this.branchSvcs.bulkCreate(branches).subscribe({
         next: (response) => {
           if (response.responseCode === 201) {
             const newBranches = response.data.records as BranchDto[];
@@ -233,7 +233,7 @@ export class ListBranchComponent {
     XLSX.writeFile(workbook, `${fileName}.xlsx`);
   }
   public exportAsExcel() {
-    this.branchSvcs.getAllBranch().subscribe({
+    this.branchSvcs.getAll().subscribe({
       next: (response) => {
         if (response.responseCode === 200) {
           const data = response.data.collectionObjData as BranchDto[];
@@ -276,7 +276,7 @@ export class ListBranchComponent {
     doc.save(`${fileName}.pdf`);
   }
   public exportAsPdf() {
-    this.branchSvcs.getAllBranch().subscribe({
+    this.branchSvcs.getAll().subscribe({
       next: (response) => {
         if (response.responseCode === 200) {
           const data = response.data.collectionObjData as BranchDto[];
@@ -296,12 +296,12 @@ export class ListBranchComponent {
   //#region Client Side Operations
   public addBranch() {
     this.branchSvcs.setOperationType("add");
-    this.branchSvcs.showAddUpdateBranchdDialog();
+    this.branchSvcs.showAddUpdatedDialog();
   }
   public editBranch(branch: BranchDto) {
     this.branchSvcs.setOperationType("edit");
     this.branchSvcs.setBranch({ branch, isSuccess: false });
-    this.branchSvcs.showAddUpdateBranchdDialog();
+    this.branchSvcs.showAddUpdatedDialog();
   }
   public bulkAddBranch() {
     this.branchSvcs.setBulkOperationType("add");
@@ -309,7 +309,7 @@ export class ListBranchComponent {
   }
   public bulkEditBranch() {
     this.branchSvcs.setBulkOperationType("edit");
-    this.branchSvcs.setBulkBranch({branches : this.selectedBranches, isSuccess: false} );
+    this.branchSvcs.setBulkBranch({ branches: this.selectedBranches, isSuccess: false });
     this.router.navigate(['branch/bulk-add-update']);
   }
   public recoverBranch() {
@@ -321,7 +321,7 @@ export class ListBranchComponent {
   private getBranches(pagination: PaginationParams): void {
     this.loading = true;
     try {
-      this.branchSvcs.getBranches(pagination).subscribe({
+      this.branchSvcs.get(pagination).subscribe({
         next: async (response) => {
           this.loading = false;
           if (response.responseCode === 200) {
@@ -355,7 +355,7 @@ export class ListBranchComponent {
       message: 'Are you sure that you want to Delete?',
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
-        this.branchSvcs.removeBranch(id).subscribe({
+        this.branchSvcs.remove(id).subscribe({
           next: async (response) => {
             if (response.responseCode === 200) {
               this.branches = this.branches.filter(branch => branch.branchId !== id);
@@ -389,13 +389,14 @@ export class ListBranchComponent {
     this.confirmationService.confirm({
       key: 'bulkRemoveBranch',
       accept: () => {
-        const branchIds = this.selectedBranches.map(branch => branch.branchId);
-        this.branchSvcs.bulkRemoveBranch(branchIds).subscribe({
+        this.branchSvcs.bulkRemove(this.selectedBranches).subscribe({
           next: async (response) => {
             if (response.responseCode === 200) {
+              const removedBranches = response.data.records as BranchDto[];
+              const branchIds = removedBranches.map(branch => branch.branchId);
               this.branches = this.branches.filter(branch => !branchIds.includes(branch.branchId));
               this.selectedBranches = [];
-              this.totalRecords -= branchIds.length;
+              this.totalRecords -= response.data.count;
               if (this.branches.length === 0) {
                 this.pagination = new PaginationParams();
                 this.getBranches(this.pagination);
@@ -404,10 +405,7 @@ export class ListBranchComponent {
             }
           },
           error: (err) => {
-            if (err.error.responseCode === 404) {
-              this.messageService.add({ severity: 'info', summary: 'Info', detail: err.error.message });
-            }
-            else if (err.error.responseCode === 400) {
+           if (err.error.responseCode === 400) {
               this.messageService.add({ severity: 'error', summary: 'error', detail: `Server Side Eroor: ${err.error.message}` });
             }
             else {

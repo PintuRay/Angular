@@ -14,6 +14,7 @@ export class AddUpdateBranchComponent {
   //#region Property Declaration
   public display: boolean = false;
   public visible: boolean = false;
+  public isLoading: boolean = false;
   public operationType: string = '';
   private dialogSub!: Subscription;
   private branchDataSub!: Subscription;
@@ -22,7 +23,6 @@ export class AddUpdateBranchComponent {
   private addbranch: BranchModel;
   private updatebranch: BranchUpdateModel;
   public branchForm: FormGroup;
-  public isLoading: boolean = false;
   //#endregion
 
   //#region constructor
@@ -129,7 +129,7 @@ export class AddUpdateBranchComponent {
 
   //#region Client Side Operations
   public hideDialog() {
-    this.branchSvcs.hideAddUpdateBranchDialog();
+    this.branchSvcs.hideAddUpdateDialog();
     this.resetComponent();
   }
   private resetComponent() {
@@ -141,75 +141,78 @@ export class AddUpdateBranchComponent {
   //#endregion
 
   //#region Server Side Operation
-  submit(): void {
+  public submit(): void {
     try {
-      if (this.branchForm.valid) {
-        this.isLoading = true;
-        if (this.operationType === 'add') {
-          this.branchSvcs.createBranch(this.addbranch).subscribe({
-            next: async (response) => {
-              if (response.responseCode === 201) {
-                this.branch = {
-                  ...this.addbranch,
-                  branchId: response.data.id
-                };
-                this.branchSvcs.setBranch({ branch: this.branch, isSuccess: true, message: response.message });
-                this.hideDialog();
-              }
-              this.isLoading = false;
-            },
-            error: (err) => {
-              this.isLoading = false;
-              if (err.error.responseCode === 400) {
-                if (err.error?.data) {
-                  const errorMessages = err.error.data.map((error: any) => {
-                    return `${error.formattedMessagePlaceholderValues.PropertyName}: ${error.errorMessage}`;
-                  }).join(', ');
-                  this.branchSvcs.setBranch({ branch: null, isSuccess: true, message: errorMessages });
+      if (this.branchForm.dirty && this.branchForm.touched) {
+        if (this.branchForm.valid) {
+          this.isLoading = true;
+          if (this.operationType === 'add') {
+            this.branchSvcs.create(this.addbranch).subscribe({
+              next: async (response) => {
+                if (response.responseCode === 201) {
+                  this.branch = response.data.records as BranchDto ;
+                  this.branchSvcs.setBranch({ branch: this.branch, isSuccess: true, message: response.message });
+                  this.hideDialog();
+                }
+                this.isLoading = false;
+              },
+              error: (err) => { 
+                this.isLoading = false;
+                if (err.error.responseCode === 400) {
+                  if (err.error?.data) {
+                    const errorMessages = err.error.data.map((error: any) => {
+                      return `${error.formattedMessagePlaceholderValues.PropertyName}: ${error.errorMessage}`;
+                    }).join(', ');
+                    this.branchSvcs.setBranch({ branch: null, isSuccess: true, message: errorMessages });
+                  }
+                  else {
+                    this.branchSvcs.setBranch({ branch: null, isSuccess: true, message: err.error.message });
+                  }
                 }
                 else {
-                  this.branchSvcs.setBranch({ branch: null, isSuccess: true, message: err.error.message });
+                  this.branchSvcs.setBranch({ branch: this.branch, isSuccess: true, message: 'Some Error Occoured' });
                 }
               }
-              else {
-                this.branchSvcs.setBranch({ branch: this.branch, isSuccess: true, message: 'Some Error Occoured' });
-              }
-            }
-          })
-        } else {
-          this.branchSvcs.updateBranch(this.updatebranch).subscribe({
-            next: async (response) => {
-              if (response.responseCode == 200) {
-                this.branch = {
-                  ...this.updatebranch,
-                  branchId: response.data.id
-                };
-                this.branchSvcs.setBranch({ branch: this.branch, isSuccess: true, message: response.message });
-                this.hideDialog();
-              }
-              this.isLoading = false;
-            },
-            error: (err) => {
-              this.isLoading = false;
-              if (err.error.responseCode === 400) {
-                if (err.error?.data) {
-                  const errorMessages = err.error.data.map((error: any) => {
-                    return `${error.formattedMessagePlaceholderValues.PropertyName}: ${error.errorMessage}`;
-                  }).join(', ');
-                  this.branchSvcs.setBranch({ branch: null, isSuccess: true, message: errorMessages });
+            })
+          } else {
+            this.branchSvcs.update(this.updatebranch).subscribe({
+              next: async (response) => {
+                if (response.responseCode == 200) {
+                  this.branch = {
+                    ...this.updatebranch,
+                    branchId: response.data.id
+                  };
+                  this.branchSvcs.setBranch({ branch: this.branch, isSuccess: true, message: response.message });
+                  this.hideDialog();
+                }
+                this.isLoading = false;
+              },
+              error: (err) => {
+                this.isLoading = false;
+                if (err.error.responseCode === 400) {
+                  if (err.error?.data) {
+                    const errorMessages = err.error.data.map((error: any) => {
+                      return `${error.formattedMessagePlaceholderValues.PropertyName}: ${error.errorMessage}`;
+                    }).join(', ');
+                    this.branchSvcs.setBranch({ branch: null, isSuccess: true, message: errorMessages });
+                  }
+                  else {
+                    this.branchSvcs.setBranch({ branch: null, isSuccess: true, message: err.error.message });
+                  }
                 }
                 else {
-                  this.branchSvcs.setBranch({ branch: null, isSuccess: true, message: err.error.message });
+                  this.branchSvcs.setBranch({ branch: this.branch, isSuccess: true, message: 'Some Error Occoured' });
                 }
+                this.hideDialog();
               }
-              else {
-                this.branchSvcs.setBranch({ branch: this.branch, isSuccess: true, message: 'Some Error Occoured' });
-              }
-              this.hideDialog();
-            }
-          })
+            })
+          }
         }
       }
+      else{
+       // this.messageService.add({ severity: 'warn', summary: 'warn', detail: 'No Change Detected' });
+      }
+     
     }
     catch (error) {
 

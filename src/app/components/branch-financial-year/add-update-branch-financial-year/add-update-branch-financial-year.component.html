@@ -1,1 +1,73 @@
-<p>add-update-branch-financial-year works!</p>
+<p-dialog header="{{ operationType === 'add' ? 'Add Branch Financial Year' : 'Update Branch Financial Year' }}" [modal]="true" [(visible)]="visible" [style]="{ width: '25rem' }" (onHide)="hideDialog()">
+    <p-messages />
+    <form [formGroup]="branchFinancialYearForm" class="pt-4">
+        <div class="grid">
+            <div class="col-12 flex justify-content-end">
+                <button (click)="display=true" pButton icon="pi pi-external-link" label="Show"></button>
+            </div>
+            <div class="col-12">
+                <div class="p-fluid">
+                    <div class="field mb-5">
+                        <span class="p-float-label">
+                            <p-autoComplete formControlName="branch" [suggestions]="filteredBranches"
+                              (completeMethod)="filterBranches($event)" dataKey="branchId" field="branchName" [dropdown]="true"
+                               name="branch" [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid('branch')}" >
+                            </p-autoComplete>
+                            <label for="country">Branch</label>
+                          </span>
+                          <small class="p-error block" *ngIf="isFieldInvalid('branch')">{{ getErrorMessage('branch') }}</small>
+                    </div>
+                    <div class="field mb-5">
+                        <span class="p-float-label">
+                            <p-autoComplete formControlName="financialYear" [suggestions]="filteredFinancialYears"
+                              (completeMethod)="filterFinancialYears($event)" dataKey="financialYearId" field="financial_Year" [dropdown]="true"
+                               name="financialYear" [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid( 'financialYear')}" >
+                            </p-autoComplete>
+                            <label for="country">Financial Year</label>
+                          </span>
+                          <small class="p-error block" *ngIf="isFieldInvalid('financialYear')">{{ getErrorMessage('financialYear') }}</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="grid">
+            <div class="col-6 flex justify-content-start">
+                <p-button label="Cancel" severity="secondary" (onClick)="hideDialog()" />
+            </div>
+            <div class="col-6 flex justify-content-end">
+                <button pButton type="button" [disabled]="!branchFinancialYearForm.valid" (click)="submit()">
+                    <ng-container *ngIf="isLoading; else branchLabel">
+                        <i class="pi pi-spin pi-spinner mr-2"></i> Loading...
+                    </ng-container>
+                    <ng-template #branchLabel><i class="pi pi-save mr-2"></i>Save</ng-template>
+                </button>
+            </div>
+        </div>
+    </form>
+</p-dialog>
+<!---------------------------------------------Operational Data Modal------------------------------------------------->
+<p-dialog header="Dialog" [(visible)]="display" [modal]="true" showEffect="fade" [style]="{width: '60vw'}"
+    [breakpoints]="{'960px': '75vw'}">
+    <p-accordion>
+        <p-accordionTab header="Form" [selected]="true" class="line-height-3 m-0">
+            <pre class="p-2 border rounded bg-gray-100" style="white-space: pre-wrap;">{{ formJson }}</pre>
+        </p-accordionTab>
+        <p-accordionTab header="Form Status" [selected]="true" class="line-height-3 m-0">
+            <pre class="p-2 border rounded bg-gray-100" style="white-space: pre-wrap;">{{ formErrors }}</pre>
+        </p-accordionTab>
+        <p-accordionTab header="Branch Dto" [selected]="true" class="line-height-3 m-0">
+            <pre class="p-2 border rounded bg-gray-100" style="white-space: pre-wrap;">{{ branchDtoJson }}</pre>
+        </p-accordionTab>
+        <p-accordionTab header="Financial Year Dto" [selected]="true" class="line-height-3 m-0">
+            <pre class="p-2 border rounded bg-gray-100" style="white-space: pre-wrap;">{{ financialYearDtoJson }}</pre>
+        </p-accordionTab>
+        <p-accordionTab header="Model Data" [selected]="true" class="line-height-3 m-0">
+            <pre class="p-2 border rounded bg-gray-100" style="white-space: pre-wrap;">{{ ModelData }}</pre>
+        </p-accordionTab>
+        <p-accordionTab header="Property" class="line-height-3 m-0">
+        </p-accordionTab>
+    </p-accordion>
+    <ng-template pTemplate="footer">
+        <button pButton icon="pi pi-check" (click)="display=false" label="Ok" class="p-button-outlined"></button>
+    </ng-template>
+</p-dialog>

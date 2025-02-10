@@ -26,7 +26,7 @@ export class BranchService {
   //#endregion
 
   //#region Api
-  getAllBranch(): Observable<Base> {
+  getAll(): Observable<Base> {
     return this.configService
       .getEndpoint('devloper', 'getAllBranches')
       .pipe(
@@ -35,7 +35,7 @@ export class BranchService {
         )
       );
   }
-  getBranches(data: PaginationParams): Observable<Base> {
+  get(data: PaginationParams): Observable<Base> {
     let params = new HttpParams()
       .set('pageNumber', data.pageNumber.toString())
       .set('pageSize', data.pageSize.toString())
@@ -52,49 +52,49 @@ export class BranchService {
         )
       );
   }
-  createBranch(data: BranchModel): Observable<Base> {
+  create(data: BranchModel): Observable<Base> {
     return this.configService
       .getEndpoint('devloper', 'createBranch')
       .pipe(
         switchMap((endpoint) => this.http.post<Base>(endpoint, data))
       );
   }
-  bulkCreateBranch(data: BranchModel[]): Observable<Base> {
+  bulkCreate(data: BranchModel[]): Observable<Base> {
     return this.configService
       .getEndpoint('devloper', 'bulkCreateBranch')
       .pipe(
         switchMap((endpoint) => this.http.post<Base>(endpoint, data))
       );
   }
-  updateBranch(data: BranchUpdateModel): Observable<Base> {
+  update(data: BranchUpdateModel): Observable<Base> {
     return this.configService
       .getEndpoint('devloper', 'updateBranch')
       .pipe(
         switchMap((endpoint) => this.http.patch<Base>(endpoint, data))
       );
   }
-  bulkUpdateBranch(data: BranchUpdateModel[]): Observable<Base> {
+  bulkUpdate(data: BranchUpdateModel[]): Observable<Base> {
     return this.configService
       .getEndpoint('devloper', 'bulkUpdateBranch')
       .pipe(
         switchMap((endpoint) => this.http.patch<Base>(endpoint, data))
       );
   }
-  removeBranch(id: string): Observable<Base> {
+  remove(id: string): Observable<Base> {
     return this.configService
       .getEndpoint('devloper', 'removeBranch')
       .pipe(
         switchMap((endpoint) => this.http.put<Base>(`${endpoint}/${id}`, {}))
       );
   }
-  bulkRemoveBranch(Ids: string[]): Observable<Base> {
+  bulkRemove(data: BranchUpdateModel[]): Observable<Base> {
     return this.configService
       .getEndpoint('devloper', 'bulkRemoveBranch')
       .pipe(
-        switchMap((endpoint) => this.http.put<Base>(endpoint, Ids))
+        switchMap((endpoint) => this.http.put<Base>(endpoint, data))
       );
   }
-  getRemovedBranches(data: PaginationParams): Observable<Base> {
+  getRemoved(data: PaginationParams): Observable<Base> {
     let params = new HttpParams()
       .set('pageNumber', data.pageNumber.toString())
       .set('pageSize', data.pageSize.toString())
@@ -110,28 +110,28 @@ export class BranchService {
         )
       );
   }
-  recoverBranch(id: string): Observable<Base> {
+  recover(id: string): Observable<Base> {
     return this.configService
       .getEndpoint('devloper', 'recoverBranch')
       .pipe(
         switchMap((endpoint) => this.http.put<Base>(`${endpoint}/${id}`, {}))
       );
   }
-  bulkRecoverBranch(Ids: string[]): Observable<Base> {
+  bulkRecover(data: BranchUpdateModel[]): Observable<Base> {
     return this.configService
       .getEndpoint('devloper', 'bulkRecoverBranch')
       .pipe(
-        switchMap((endpoint) => this.http.put<Base>(endpoint, Ids))
+        switchMap((endpoint) => this.http.put<Base>(endpoint, data))
       );
   }
-  deleteBranch(Id: string): Observable<Base> {
+  delete(Id: string): Observable<Base> {
     return this.configService
       .getEndpoint('devloper', 'deleteBranch')
       .pipe(
         switchMap((endpoint) => this.http.delete<Base>(`${endpoint}/${Id}`))
       );
   }
-  bulkDeleteBranch(ids: string[]): Observable<Base> {
+  bulkDelete(ids: string[]): Observable<Base> {
     return this.configService
       .getEndpoint('devloper', 'bulkDeleteBranch')
       .pipe(
@@ -145,10 +145,10 @@ export class BranchService {
   //#endregion
 
   //#region component modal service
-  showAddUpdateBranchdDialog() {
+  showAddUpdatedDialog() {
     this.addUpdateBranchVisibilitySubject.next(true);
   }
-  hideAddUpdateBranchDialog() {
+  hideAddUpdateDialog() {
     this.addUpdateBranchVisibilitySubject.next(false);
   }
   //#endregion

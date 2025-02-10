@@ -8,12 +8,19 @@ import { FieldsValidationModule } from 'src/app/utility/directives/fields-valida
 import { ListBranchFinancialYearComponent } from './list-branch-financial-year/list-branch-financial-year.component';
 import { AddUpdateBranchFinancialYearComponent } from './add-update-branch-financial-year/add-update-branch-financial-year.component';
 import { BranchFinancialYearComponent } from './branch-financial-year.component';
+import { BulkAddUpdateBranchFinancialYearComponent } from './bulk-add-update-branch-financial-year/bulk-add-update-branch-financial-year.component';
+import { ListRecoverBranchFinancialYearComponent } from './list-recover-branch-financial-year/list-recover-branch-financial-year.component';
+import { BranchFinancialYearService } from 'src/app/api/service/devloper/branch-financial-year.service';
+import { BranchService } from 'src/app/api/service/devloper/branch.service';
+import { FinancialYearService } from 'src/app/api/service/devloper/financial-year.service';
 
 @NgModule({
   declarations: [
     ListBranchFinancialYearComponent,
     AddUpdateBranchFinancialYearComponent,
-    BranchFinancialYearComponent
+    BulkAddUpdateBranchFinancialYearComponent,
+    BranchFinancialYearComponent,
+    ListRecoverBranchFinancialYearComponent
   ],
   imports: [
     CommonModule,
@@ -23,6 +30,7 @@ import { BranchFinancialYearComponent } from './branch-financial-year.component'
     PrimeNgModule,
     FieldsRestrictionModule,
     FieldsValidationModule
-  ]
+  ],
+  providers: [BranchFinancialYearService, BranchService, FinancialYearService]
 })
 export class BranchFinancialYearModule { }

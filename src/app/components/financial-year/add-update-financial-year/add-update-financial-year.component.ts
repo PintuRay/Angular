@@ -10,26 +10,26 @@ import { MessageService } from 'primeng/api';
   templateUrl: './add-update-financial-year.component.html',
 })
 export class AddUpdateFinancialYearComponent {
-
+  
   //#region Property Declaration
-  public display: boolean = false;
-  public operationType: string = '';
-  private finanancialYearDataSub!: Subscription;
-  private operationTypeSub!: Subscription;
+  public display: boolean;
+  public isLoading: boolean;
+  public operationType: string;
+  private finanancialYearDataSub: Subscription;
+  private operationTypeSub: Subscription;
   private financialyear: FinancialYearDto;
   private addFinancialYear: FinancialYearModel;
   private updateFinancialYear: FinancialYearUpdateModel;
   public financialYearForm: FormGroup;
-  public isLoading: boolean = false;
   //#endregion
 
   //#region constructor
-  constructor(
-    private fb: FormBuilder,
-    private financialYearSvcs: FinancialYearService,
-    public layoutSvcs: LayoutService,
-    private messageService: MessageService
-  ) {
+  constructor(private fb: FormBuilder, private financialYearSvcs: FinancialYearService, public layoutSvcs: LayoutService, private messageService: MessageService) {
+    this.display = false;
+    this.isLoading = false;
+    this.operationType = '';
+    this.finanancialYearDataSub = new Subscription;
+    this.operationTypeSub = new Subscription;
     this.financialYearForm = this.initializeForm();
     this.financialyear = new FinancialYearDto();
     this.addFinancialYear = new FinancialYearModel();
