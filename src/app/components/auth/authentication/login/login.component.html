@@ -1,3 +1,32 @@
+<p-dialog header="Dialog" [(visible)]="display" [modal]="true" showEffect="fade"
+[style]="{width: '60vw'}" [breakpoints]="{'960px': '75vw'}">
+<p-accordion>
+    <p-accordionTab header="Form Values" [selected]="true" class="line-height-3 m-0">
+        <pre class="p-2 border rounded bg-gray-100"
+            style="white-space: pre-wrap;">{{ formJson }}</pre>
+    </p-accordionTab>
+    <p-accordionTab header="Model" class="line-height-3 m-0">
+        <pre class="p-2 border rounded bg-gray-100"
+            style="white-space: pre-wrap;">{{ modelJson }}</pre>
+    </p-accordionTab>
+    <p-accordionTab header="Form Errors" class="line-height-3 m-0">
+        <pre class="p-2 border rounded bg-gray-100"
+            style="white-space: pre-wrap;">{{ formErrors }}</pre>
+    </p-accordionTab>
+    <p-accordionTab header="Form Status" class="line-height-3 m-0">
+        <p><strong>Valid:</strong> {{ loginForm.valid }}</p>
+        <p><strong>Touched:</strong> {{ loginForm.touched }}</p>
+        <p><strong>Dirty:</strong> {{ loginForm.dirty }}</p>
+        <p><strong>Status:</strong> {{ loginForm.status }}</p>
+    </p-accordionTab>
+</p-accordion>
+<ng-template pTemplate="footer">
+    <button pButton icon="pi pi-check" (click)="display=false" label="Ok"
+        class="p-button-outlined"></button>
+</ng-template>
+</p-dialog>
+
+
 <p-toast />
 <div class="surface-ground flex align-items-center justify-content-center min-h-screen"
     style="background:var(--surface-ground)">
@@ -11,35 +40,6 @@
             <span class="text-600 font-medium">Sign in to start your session</span>
         </div>
         <div class="grid">
-            <div class="col-12">
-                <p-dialog header="Dialog" [(visible)]="display" [modal]="true" showEffect="fade"
-                    [style]="{width: '60vw'}" [breakpoints]="{'960px': '75vw'}">
-                    <p-accordion>
-                        <p-accordionTab header="Form Values" [selected]="true" class="line-height-3 m-0">
-                            <pre class="p-2 border rounded bg-gray-100"
-                                style="white-space: pre-wrap;">{{ formJson }}</pre>
-                        </p-accordionTab>
-                        <p-accordionTab header="Model" class="line-height-3 m-0">
-                            <pre class="p-2 border rounded bg-gray-100"
-                                style="white-space: pre-wrap;">{{ modelJson }}</pre>
-                        </p-accordionTab>
-                        <p-accordionTab header="Form Errors" class="line-height-3 m-0">
-                            <pre class="p-2 border rounded bg-gray-100"
-                                style="white-space: pre-wrap;">{{ formErrors }}</pre>
-                        </p-accordionTab>
-                        <p-accordionTab header="Form Status" class="line-height-3 m-0">
-                            <p><strong>Valid:</strong> {{ loginForm.valid }}</p>
-                            <p><strong>Touched:</strong> {{ loginForm.touched }}</p>
-                            <p><strong>Dirty:</strong> {{ loginForm.dirty }}</p>
-                            <p><strong>Status:</strong> {{ loginForm.status }}</p>
-                        </p-accordionTab>
-                    </p-accordion>
-                    <ng-template pTemplate="footer">
-                        <button pButton icon="pi pi-check" (click)="display=false" label="Ok"
-                            class="p-button-outlined"></button>
-                    </ng-template>
-                </p-dialog>
-            </div>
             <div class="col-12 flex justify-content-end">
                 <button (click)="display=true" pButton icon="pi pi-external-link" label="Show"></button>
             </div>
@@ -51,26 +51,21 @@
                         <div class="p-input-icon-left">
                             <i class="pi pi-envelope"></i>
                             <input id="email" type="text" pInputText formControlName="email"
-                                placeholder="Enter your email" autocomplete="off"/>
+                                placeholder="Enter your email" autocomplete="off" [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid('email')}"/>
                         </div>
-                        <small class="p-error block mt-2"
-                            *ngIf=" emailControl?.hasError('required') && (emailControl?.touched || emailControl?.dirty)">
-                            {{getEmailErrorMessage()}}
-                        </small>
+                        <small class="p-error block" *ngIf="isFieldInvalid('email')">{{ getErrorMessage('email') }}</small>
                     </div>
                     <div class="field mb-4">
                         <div class="p-input-icon-left p-input-icon-right">
                             <i class="pi pi-key"></i>
                             <input id="password" [type]="showPassword ? 'text' : 'password'" pInputText
-                                formControlName="password" placeholder="Enter your password" autocomplete="off">
+                                formControlName="password" placeholder="Enter your password" autocomplete="off" 
+                                [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid('password')}">
                             <i class="pi cursor-pointer pi-eye"
                                 [ngClass]="{'pi-eye-slash' : !showPassword, 'pi-eye': showPassword}"
                                 (click)="togglePasswordVisibility()"></i>
                         </div>
-                        <small class="p-error block mt-2"
-                            *ngIf=" passwordControl?.hasError('required') && (passwordControl?.touched || passwordControl?.dirty)">
-                            {{getPasswordErrorMessage()}}
-                        </small>
+                        <small class="p-error block" *ngIf="isFieldInvalid('password')">{{ getErrorMessage('password') }}</small>
                     </div>
                     <div class="flex align-items-center justify-content-between mb-4">
                         <div class="flex align-items-center">

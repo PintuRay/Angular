@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import { MessageService } from 'primeng/api';
 import { Subscription } from 'rxjs';
 import { BranchDto } from 'src/app/api/entity/branch';
 import { PaginationParams } from 'src/app/api/model/paginationParams';
 import { AuthenticationService } from 'src/app/api/service/account/authentication/authentication.service';
+import { BranchMessageService } from 'src/app/api/service/devloper/branch/branch-message.service';
 import { BranchService } from 'src/app/api/service/devloper/branch/branch.service';
 
 @Component({
@@ -39,33 +39,28 @@ import { BranchService } from 'src/app/api/service/devloper/branch/branch.servic
 `
 })
 export class ListRecoverBranchComponent {
- 
-  //#region Property Declaration
-  public display: boolean = false;
-  public loading: boolean = false;
-  public canDelete: boolean = false;
-  public canUpdate: boolean = false;
-  public isDevloper: boolean = false;
-  subscription!: Subscription;
-  public branches: BranchDto[];
-  public selectedBranches: BranchDto[];
-  public totalRecords: number = 0;
-  public pagination: PaginationParams;
-  public cols: any[];
-  //#endregion 
 
+  //#region Property Declaration
+  public display = false;
+  public loading = false;
+  public canDelete = false;
+  public canUpdate = false;
+  public isDevloper = false;
+  public subscription: Subscription = new Subscription();
+  public branches: BranchDto[] = [];
+  public selectedBranches: BranchDto[] = [];
+  public totalRecords = 0;
+  public pagination = new PaginationParams();
+  public cols: any[] = []
+  //#endregion 
+ 
   //#region constructor
   constructor(
-    private branchSvcs: BranchService,
-    private authSvcs: AuthenticationService,
-    private router: Router,
-    private messageService: MessageService
-  ) {
-    this.branches = [];
-    this.selectedBranches = [];
-    this.cols = [];
-    this.pagination = new PaginationParams();
-  }
+    private readonly branchSvcs: BranchService,
+    private readonly authSvcs: AuthenticationService,
+    private readonly router: Router,
+    private readonly messageService: BranchMessageService,
+  ) { }
   //#endregion 
 
   //#region Lifecycle Hooks
@@ -103,32 +98,18 @@ export class ListRecoverBranchComponent {
   //#region Server Side Operation
   private getRemovedBranches(pagination: PaginationParams): void {
     this.loading = true;
-    try {
-      this.branchSvcs.getRemoved(pagination).subscribe({
-        next: async (response) => {
-          this.loading = false;
-          if (response.responseCode === 200) {
-            this.branches = response.data.collectionObjData as BranchDto[];
-            this.totalRecords = response.data.count;
-          }
-        },
-        error: (err) => {
-          this.loading = false;
-          if (err.error.responseCode === 404) {
-            this.messageService.add({ severity: 'info', summary: 'Info', detail: err.error.message });
-          }
-          else if (err.error.responseCode === 400) {
-            this.messageService.add({ severity: 'error', summary: 'error', detail: `Server Side Eroor: ${err.error.message}` });
-          }
-          else {
-            this.messageService.add({ severity: 'error', summary: 'error', detail: 'An unknown error occurred.' });
-          }
-        },
-      })
-    }
-    catch (error) {
-      this.loading = false;
-    }
+    this.branchSvcs.getRemoved(pagination).subscribe({
+      next: async (response) => {
+        this.loading = false;
+        if (response.responseCode === 200) {
+          this.branches = response.data.records as BranchDto[];
+          this.totalRecords = response.data.count;
+        }
+      },
+      error: (err) => {
+        this.loading = false;
+      },
+    })
   }
   public recoverBranch(id: string) {
     this.branchSvcs.recover(id).subscribe({
@@ -140,20 +121,10 @@ export class ListRecoverBranchComponent {
             this.pagination = new PaginationParams();
             this.getRemovedBranches(this.pagination);
           }
-          this.messageService.add({ severity: 'success', summary: 'Success', detail: response.message });
+          this.messageService.success(response.message);
         }
       },
-      error: (err) => {
-        if (err.error.responseCode === 404) {
-          this.messageService.add({ severity: 'info', summary: 'Info', detail: err.error.message });
-        }
-        else if (err.error.responseCode === 400) {
-          this.messageService.add({ severity: 'error', summary: 'error', detail: `Server Side Eroor: ${err.error.message}` });
-        }
-        else {
-          this.messageService.add({ severity: 'error', summary: 'error', detail: 'An unknown error occurred.' });
-        }
-      }
+      error: (err) => { }
     })
   }
   public bulkRecoverBranch() {
@@ -169,17 +140,10 @@ export class ListRecoverBranchComponent {
             this.pagination = new PaginationParams();
             this.getRemovedBranches(this.pagination);
           }
-          this.messageService.add({ severity: 'success', summary: 'Success', detail: response.message });
+          this.messageService.success(response.message);
         }
       },
-      error: (err) => {
-        if (err.error.responseCode === 400) {
-          this.messageService.add({ severity: 'error', summary: 'error', detail: `Server Side Eroor: ${err.error.message}` });
-        }
-        else {
-          this.messageService.add({ severity: 'error', summary: 'error', detail: 'An unknown error occurred.' });
-        }
-      }
+      error: (err) => { }
     })
   }
   public deleteBranch(id: string) {
@@ -192,27 +156,17 @@ export class ListRecoverBranchComponent {
             this.pagination = new PaginationParams();
             this.getRemovedBranches(this.pagination);
           }
-          this.messageService.add({ severity: 'success', summary: 'Success', detail: response.message });
+          this.messageService.success(response.message);
         }
       },
-      error: (err) => {
-        if (err.error.responseCode === 404) {
-          this.messageService.add({ severity: 'info', summary: 'Info', detail: err.error.message });
-        }
-        else if (err.error.responseCode === 400) {
-          this.messageService.add({ severity: 'error', summary: 'error', detail: `Server Side Eroor: ${err.error.message}` });
-        }
-        else {
-          this.messageService.add({ severity: 'error', summary: 'error', detail: 'An unknown error occurred.' });
-        }
-      }
+      error: (err) => { }
     })
   }
   public bulkDeleteBranch() {
     const branchIds = this.selectedBranches.map(branch => branch.branchId);
     this.branchSvcs.bulkDelete(branchIds).subscribe({
       next: (response) => {
-        if (response.responseCode == 200) {
+        if (response.responseCode === 200) {
           this.branches = this.branches.filter(branch => !branchIds.includes(branch.branchId));
           this.totalRecords -= branchIds.length;
           this.selectedBranches = [];
@@ -220,24 +174,14 @@ export class ListRecoverBranchComponent {
             this.pagination = new PaginationParams();
             this.getRemovedBranches(this.pagination);
           }
-          this.messageService.add({ severity: 'success', summary: 'Success', detail: response.message });
+          this.messageService.success(response.message);
         }
       },
-      error: (err) => {
-        if (err.error.responseCode === 404) {
-          this.messageService.add({ severity: 'info', summary: 'Info', detail: err.error.message });
-        }
-        else if (err.error.responseCode === 400) {
-          this.messageService.add({ severity: 'error', summary: 'error', detail: `Server Side Eroor: ${err.error.message}` });
-        }
-        else {
-          this.messageService.add({ severity: 'error', summary: 'error', detail: 'An unknown error occurred.' });
-        }
-      }
+      error: (err) => { }
     })
   }
   //#endregion
-  
+
   //#region Test form
   get branchDtoJson(): string {
     return JSON.stringify(this.branches, null, 2);

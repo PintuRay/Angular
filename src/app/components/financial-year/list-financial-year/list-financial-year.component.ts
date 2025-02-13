@@ -5,7 +5,7 @@ import { Subscription } from 'rxjs';
 import { FinancialYearDto } from 'src/app/api/entity/financialYear';
 import { PaginationParams } from 'src/app/api/model/paginationParams';
 import { AuthenticationService } from 'src/app/api/service/account/authentication/authentication.service';
-import { FinancialYearService } from 'src/app/api/service/devloper/financial-year.service';
+import { FinancialYearService } from 'src/app/api/service/devloper/financial-year/financial-year.service';
 
 @Component({
   selector: 'app-list-financial-year',

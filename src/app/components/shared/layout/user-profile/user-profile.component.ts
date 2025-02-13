@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { AbstractControl, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { LayoutService } from '../../service/app.layout.service';
-import { CommonService } from 'src/app/api/service/common/common.services';
+import { CommonService } from 'src/app/api/service/common/common.service';
 import { MessageService } from 'primeng/api';
 import { AuthorizationService } from 'src/app/api/service/account/authorization/authorization.service';
 import { CountryDto } from 'src/app/api/entity/country';

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { MessageService } from 'primeng/api';
-import { ApiResponse } from './ApiResponse';
-import { ValidationError } from './ValidationError';
+import { ApiResponse } from '../model/ApiResponse';
+import { ValidationError } from '../model/ValidationError';
 
 @Injectable({
   providedIn: 'root'

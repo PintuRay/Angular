@@ -8,9 +8,10 @@ import { StateDto } from 'src/app/api/entity/state';
 import { BranchService } from 'src/app/api/service/devloper/branch/branch.service';
 import { LayoutService } from '../../shared/service/app.layout.service';
 import { AuthenticationService } from 'src/app/api/service/account/authentication/authentication.service';
-import { CommonService } from 'src/app/api/service/common/common.services';
+import { CommonService } from 'src/app/api/service/common/common.service';
 import { MessageService } from 'primeng/api';
 import { GenericMessageService } from 'src/app/api/service/generic-message.Service';
+import { BranchMessageService } from 'src/app/api/service/devloper/branch/branch-message.service';
 
 @Component({
   selector: 'add-update-branch',
@@ -19,46 +20,31 @@ import { GenericMessageService } from 'src/app/api/service/generic-message.Servi
 export class AddUpdateBranchComponent implements OnInit, OnDestroy {
 
   //#region Property Declaration
-  public display: boolean;
-  public isLoading: boolean;
-  public operationType: string;
-  private branchDataSub: Subscription;
-  private operationTypeSub: Subscription;
-  private branch: BranchDto;
-  private addbranch: BranchModel;
-  private updatebranch: BranchUpdateModel;
-  private countries: CountryDto[];
-  private states: StateDto[];
-  private dists: DistDto[];
-  public filteredCountries: CountryDto[];
-  public filteredStates: StateDto[];
-  public filteredDists: DistDto[];
-  public branchForm: FormGroup;
+  public display = false;
+  public isLoading = false;
+  public operationType = '';
+  private branchDataSub: Subscription = new Subscription();
+  private operationTypeSub: Subscription = new Subscription();
+  private branch: BranchDto = new BranchDto();
+  private addbranch: BranchModel = new BranchModel();
+  private updatebranch: BranchUpdateModel = new BranchUpdateModel();
+  private countries: CountryDto[] = [];
+  private states: StateDto[] = [];
+  private dists: DistDto[] = [];
+  public filteredCountries: CountryDto[] = [];
+  public filteredStates: StateDto[] = [];
+  public filteredDists: DistDto[] = [];
+  public branchForm: FormGroup = this.initializeBranchForm();
   //#endregion
 
   //#region constructor
   constructor(
     private fb: FormBuilder,
-    private branchSvcs: BranchService,
-    public layoutSvcs: LayoutService,
-    private authSvcs: AuthenticationService,
-    private commonSvcs: CommonService,
-    private messageService: GenericMessageService) {
-    this.display = false;
-    this.isLoading = false;
-    this.operationType = '';
-    this.branchDataSub = new Subscription;
-    this.operationTypeSub = new Subscription;
-    this.branch = new BranchDto();
-    this.addbranch = new BranchModel();
-    this.updatebranch = new BranchUpdateModel();
-    this.countries = [];
-    this.states = [];
-    this.dists = [];
-    this.filteredCountries = [];
-    this.filteredStates = [];
-    this.filteredDists = [];
-    this.branchForm = this.initializeBranchForm();
+    private readonly branchSvcs: BranchService,
+    public readonly layoutSvcs: LayoutService,
+    private readonly authSvcs: AuthenticationService,
+    private readonly commonSvcs: CommonService,
+    private readonly messageService: BranchMessageService) {
   }
   //#endregion
 

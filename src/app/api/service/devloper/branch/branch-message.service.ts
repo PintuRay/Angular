@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { MessageService } from 'primeng/api';
-import { ApiResponse } from '../../ApiResponse';
+import { ApiResponse } from '../../../model/ApiResponse';
 import { GenericMessageService } from '../../generic-message.Service';
 
 @Injectable()

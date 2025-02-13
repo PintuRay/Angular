@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { FinancialYearDto, FinancialYearModel, FinancialYearUpdateModel } from 'src/app/api/entity/financialYear';
-import { FinancialYearService } from 'src/app/api/service/devloper/financial-year.service';
+import { FinancialYearService } from 'src/app/api/service/devloper/financial-year/financial-year.service';
 import { LayoutService } from '../../shared/service/app.layout.service';
 import { MessageService } from 'primeng/api';
 @Component({

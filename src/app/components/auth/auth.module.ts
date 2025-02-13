@@ -20,6 +20,7 @@ import {FieldsValidationModule} from '../../utility/directives/fields-validation
 //import Services
 import { LayoutService } from '../shared/service/app.layout.service';
 import { AuthenticationService } from '../../api/service/account/authentication/authentication.service';
+import { GenericMessageService } from 'src/app/api/service/generic-message.Service';
 
 @NgModule({
   declarations: [

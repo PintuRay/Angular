@@ -2,10 +2,10 @@ import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http'
 import { Injectable } from '@angular/core';
 import { ConfigService } from '../../config.Service';
 import { BehaviorSubject, catchError, Observable, switchMap, throwError } from 'rxjs';
-import { Base } from '../../../base';
+import { Base } from '../../../model/base';
 import { PaginationParams } from '../../../model/paginationParams';
 import { BranchModel, BranchOperation, BranchUpdateModel, BulkBranchOperation } from '../../../entity/branch';
-import { BranchMessageService } from '../branch/branch-message.Service ';
+import { BranchMessageService } from './branch-message.service';
 
 @Injectable()
 export class BranchService {
@@ -18,13 +18,23 @@ export class BranchService {
   //#endregion
 
   //#region Constructor
-  constructor( private http: HttpClient, private configService: ConfigService, private errorHandler: BranchMessageService ) { }
+  constructor(private http: HttpClient, private configService: ConfigService, private errorHandler: BranchMessageService) { }
   //#endregion
 
   //#region Api
   private handleApiError(error: HttpErrorResponse): Observable<never> {
     this.errorHandler.handleApiError(error);
     return throwError(() => error);
+  }
+  private buildHttpParams = (data: PaginationParams): HttpParams => {
+    let params = new HttpParams()
+      .set('pageNumber', data.pageNumber.toString())
+      .set('pageSize', data.pageSize.toString());
+
+    if (data.searchTerm) {
+      params = params.set('searchTerm', data.searchTerm);
+    }
+    return params;
   }
   private createHttpRequest<T>(methodType: string, endpointKey: string, data?: any, params?: HttpParams, id?: string): Observable<Base> {
     return this.configService.getEndpoint('devloper', endpointKey).pipe(
@@ -52,85 +62,30 @@ export class BranchService {
     );
   }
 
-  getAll(): Observable<Base> {
-    return this.createHttpRequest('GET', 'getAllBranches');
-  }
-  get(data: PaginationParams): Observable<Base> {
-    let params = new HttpParams()
-      .set('pageNumber', data.pageNumber.toString())
-      .set('pageSize', data.pageSize.toString())
-    if (data.searchTerm !== null) {
-      params = params.set('searchTerm', data.searchTerm);
-    }
-    return this.createHttpRequest('GET', 'getBranches', null, params);
-  }
-  create(data: BranchModel): Observable<Base> {
-    return this.createHttpRequest('POST', 'createBranch', data);
-  }
-  bulkCreate(data: BranchModel[]): Observable<Base> {
-    return this.createHttpRequest('POST', 'bulkCreateBranch', data);
-  }
-  update(data: BranchUpdateModel): Observable<Base> {
-    return this.createHttpRequest('PATCH', 'updateBranch', data);
-  }
-  bulkUpdate(data: BranchUpdateModel[]): Observable<Base> {
-    return this.createHttpRequest('PATCH', 'bulkUpdateBranch', data);
-  }
-  remove(id: string): Observable<Base> {
-    return this.createHttpRequest('PUT', 'removeBranch', {}, undefined, id);
-  }
-  bulkRemove(data: BranchUpdateModel[]): Observable<Base> {
-    return this.createHttpRequest('PUT', 'bulkRemoveBranch', data);
-  }
-  getRemoved(data: PaginationParams): Observable<Base> {
-    let params = new HttpParams()
-      .set('pageNumber', data.pageNumber.toString())
-      .set('pageSize', data.pageSize.toString())
-    if (data.searchTerm !== null) {
-      params = params.set('searchTerm', data.searchTerm);
-    }
-    return this.createHttpRequest('GET', 'getRemovedBranches', null, params)
-  }
-  recover(id: string): Observable<Base> {
-    return this.createHttpRequest('PUT', 'recoverBranch', {}, undefined, id);
-  }
-  bulkRecover(data: BranchUpdateModel[]): Observable<Base> {
-    return this.createHttpRequest('PUT', 'bulkRecoverBranch', data)
-  }
-  delete(id: string): Observable<Base> {
-    return this.createHttpRequest('DELETE', 'deleteBranch', null, undefined, id)
-  }
-  bulkDelete(ids: string[]): Observable<Base> {
-    return this.createHttpRequest('DELETE', 'bulkDeleteBranch', ids);
-  }
+  public getAll = (): Observable<Base> => this.createHttpRequest('GET', 'getAllBranches');
+  public get = (data: PaginationParams): Observable<Base> => this.createHttpRequest('GET', 'getBranches', null, this.buildHttpParams(data));
+  public create = (data: BranchModel): Observable<Base> => this.createHttpRequest('POST', 'createBranch', data);
+  public bulkCreate = (data: BranchModel[]): Observable<Base> => this.createHttpRequest('POST', 'bulkCreateBranch', data);
+  public update = (data: BranchUpdateModel): Observable<Base> => this.createHttpRequest('PATCH', 'updateBranch', data);
+  public bulkUpdate = (data: BranchUpdateModel[]): Observable<Base> => this.createHttpRequest('PATCH', 'bulkUpdateBranch', data);
+  public remove = (id: string): Observable<Base> => this.createHttpRequest('PUT', 'removeBranch', {}, undefined, id);
+  public bulkRemove = (data: BranchUpdateModel[]): Observable<Base> => this.createHttpRequest('PUT', 'bulkRemoveBranch', data);
+  public getRemoved = (data: PaginationParams): Observable<Base> => this.createHttpRequest('GET', 'getRemovedBranches', null, this.buildHttpParams(data));
+  public recover = (id: string): Observable<Base> => this.createHttpRequest('PUT', 'recoverBranch', {}, undefined, id);
+  public  bulkRecover = (data: BranchUpdateModel[]): Observable<Base> => this.createHttpRequest('PUT', 'bulkRecoverBranch', data);
+  public delete = (id: string): Observable<Base> => this.createHttpRequest('DELETE', 'deleteBranch', null, undefined, id);
+  public bulkDelete = (ids: string[]): Observable<Base> => this.createHttpRequest('DELETE', 'bulkDeleteBranch', ids);
   //#endregion
 
   //#region component  service
-  //single
-  setOperationType(operationType: string) {
-    this.operationTypeSubject.next(operationType);
-  }
-  getOperationType(): Observable<string> {
-    return this.operationTypeSubject.asObservable();
-  }
-  setBulkOperationType(operationType: string) {
-    this.bulkOperationTypeSubject.next(operationType);
-  }
-  getBulkOperationType(): Observable<string> {
-    return this.bulkOperationTypeSubject.asObservable();
-  }
-  setBranch(branchOperation: BranchOperation): void {
-    this.branchSubject.next(branchOperation);
-  }
-  getBranch(): Observable<BranchOperation | null> {
-    return this.branchSubject.asObservable();
-  }
-  setBulkBranch(bulkBranchOperation: BulkBranchOperation): void {
-    this.bulkBranchSubject.next(bulkBranchOperation);
-  }
-  getBulkBranch(): Observable<BulkBranchOperation | null> {
-    return this.bulkBranchSubject.asObservable();
-  }
+  public setOperationType = (operationType: string) => this.operationTypeSubject.next(operationType);
+  public getOperationType = (): Observable<string> => this.operationTypeSubject.asObservable();
+  public setBulkOperationType = (operationType: string) => this.bulkOperationTypeSubject.next(operationType);
+  public getBulkOperationType = (): Observable<string> => this.bulkOperationTypeSubject.asObservable();
+  public setBranch = (branchOperation: BranchOperation): void => this.branchSubject.next(branchOperation);
+  public getBranch = (): Observable<BranchOperation | null> => this.branchSubject.asObservable();
+  public setBulkBranch = (bulkBranchOperation: BulkBranchOperation): void => this.bulkBranchSubject.next(bulkBranchOperation);
+  public getBulkBranch = (): Observable<BulkBranchOperation | null> => this.bulkBranchSubject.asObservable();
   //#endregion
 
 }

@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Observable, switchMap } from 'rxjs';
-import { Base } from '../../base';
+import { Base } from '../../model/base';
 import { HttpClient } from '@angular/common/http';
-import { ConfigService } from '../../service/config.Service';
+import { ConfigService } from '../config.Service';
 @Injectable({
     providedIn: 'root',
 })

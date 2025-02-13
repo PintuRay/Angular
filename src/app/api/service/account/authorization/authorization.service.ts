@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { map, Observable, switchMap } from 'rxjs';
-import { Base } from '../../../base';
+import { Base } from '../../../model/base';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { UserRoleClaimModel } from '../../../model/account/autherization/user-role-claim-model';
 import { ConfigService } from '../../config.Service';

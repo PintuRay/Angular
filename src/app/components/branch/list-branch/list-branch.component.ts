@@ -1,15 +1,15 @@
 import { Component, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
-import { Subscription } from 'rxjs';
 import { BranchDto, BranchModel } from 'src/app/api/entity/branch';
 import { PaginationParams } from 'src/app/api/model/paginationParams';
 import { AuthenticationService } from 'src/app/api/service/account/authentication/authentication.service';
 import { BranchService } from 'src/app/api/service/devloper/branch/branch.service';
-import { ConfirmationService, MessageService, MenuItem } from 'primeng/api';
+import { ConfirmationService, MenuItem } from 'primeng/api';
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { FileUpload } from 'primeng/fileupload';
+import { BranchMessageService } from 'src/app/api/service/devloper/branch/branch-message.service';
 @Component({
   selector: 'app-list-branch',
   templateUrl: './list-branch.component.html',
@@ -42,7 +42,7 @@ import { FileUpload } from 'primeng/fileupload';
   `
 })
 export class ListBranchComponent {
-
+  
   //#region Property Declaration
   public display: boolean = false;
   public loading: boolean = false;
@@ -50,89 +50,33 @@ export class ListBranchComponent {
   public canCreate: boolean = false;
   public canUpdate: boolean = false;
   public isDevloper: boolean = false;
-  private branchsubscription!: Subscription;
-  private bulkBranchsubscription!: Subscription
-  private deleteSubscription!: Subscription;
-  private bulkDeleteSubscription!: Subscription;
-  public branches: BranchDto[];
-  public selectedBranches: BranchDto[];
-  public cols: any[];
-  public pagination: PaginationParams;
-  @ViewChild('fileUpload') fileUpload!: FileUpload;
+  public branches: BranchDto[] = [];
+  public selectedBranches: BranchDto[] = [];
+  public cols: any[] = [];
+  public pagination: PaginationParams = new PaginationParams();
   public importOptionsVisible: boolean = false;
   public exportOptionsVisible: boolean = false;
   public totalRecords: number = 0;
+  @ViewChild('fileUpload') public readonly fileUpload!: FileUpload;
   //#endregion 
 
   //#region constructor
   constructor(
-    private branchSvcs: BranchService,
-    private authSvcs: AuthenticationService,
-    private router: Router,
-    private confirmationService: ConfirmationService,
-    private messageService: MessageService
-  ) {
-    this.branches = [];
-    this.selectedBranches = [];
-    this.cols = [];
-    this.pagination = new PaginationParams();
-  }
+    private readonly branchSvcs: BranchService,
+    private readonly authSvcs: AuthenticationService,
+    private readonly router: Router,
+    private readonly confirmationService: ConfirmationService,
+    private readonly messageService: BranchMessageService,
+  ) { }
   //#endregion 
 
   //#region Lifecycle Hooks
   ngOnInit(): void {
-    //Permissions
     this.canDelete = this.authSvcs.getUserDetails().permissions.delete;
     this.canCreate = this.authSvcs.getUserDetails().permissions.create;
     this.canUpdate = this.authSvcs.getUserDetails().permissions.update;
     this.isDevloper = this.authSvcs.getUserDetails().role.toLowerCase() === "devloper";
-    //Get branch records
     this.getBranches(this.pagination);
-    //Single Insert or Update Subscription
-    this.branchsubscription = this.branchSvcs.getBranch()
-      .subscribe(operation => {
-        if (operation?.isSuccess) {
-          if (operation.branch) {
-            const index = this.branches.findIndex(b => b.branchId === operation.branch?.branchId);
-            if (index !== -1) {
-              this.branches[index] = operation.branch;
-              this.branches = [...this.branches];
-              this.messageService.add({ severity: 'success', summary: 'Success', detail: operation.message });
-            } else {
-              this.branches = [...this.branches, operation.branch];
-              this.totalRecords += 1;
-              this.messageService.add({ severity: 'success', summary: 'Success', detail: operation.message });
-            }
-          }
-          else {
-            this.messageService.add({ severity: 'error', summary: 'Error', detail: operation.message });
-          }
-        }
-      });
-    //Bulk Insert or Update Subscription
-    this.bulkBranchsubscription = this.branchSvcs.getBulkBranch()
-      .subscribe(operation => {
-        if (operation?.isSuccess) {
-          if (operation?.branches && operation?.branches.length > 0) {
-            const updatedBranches = [...this.branches];
-            operation?.branches.forEach(newBranch => {
-              const existingIndex = updatedBranches.findIndex(b => b.branchId === newBranch.branchId);
-              if (existingIndex !== -1) {
-                updatedBranches[existingIndex] = newBranch;
-              } else {
-                updatedBranches.push(newBranch);
-              }
-            });
-            this.branches = [...updatedBranches];
-          }
-        }
-      });
-  }
-  ngOnDestroy(): void {
-    this.branchsubscription?.unsubscribe();
-    this.bulkBranchsubscription?.unsubscribe();
-    this.deleteSubscription?.unsubscribe();
-    this.bulkDeleteSubscription?.unsubscribe();
   }
   //#endregion
 
@@ -191,12 +135,12 @@ export class ListBranchComponent {
             const newBranches = response.data.records as BranchDto[];
             this.branches = [...this.branches, ...newBranches];
             this.totalRecords += this.branches.length;
-            this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Branches imported successfully' });
+            this.messageService.success('Branches imported successfully');
             this.importOptionsVisible = false;
           }
         },
         error: (err) => {
-          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error importing branches' });
+          this.messageService.error('Error importing branches');
         },
         complete: () => {
           this.fileUpload.clear();
@@ -241,7 +185,7 @@ export class ListBranchComponent {
         }
       },
       error: (err) => {
-        this.messageService.add({ severity: 'error', summary: 'error', detail: 'Internal Server Error' });
+        this.messageService.error('Internal Server Error');
       },
     })
   }
@@ -284,7 +228,7 @@ export class ListBranchComponent {
         }
       },
       error: (err) => {
-        this.messageService.add({ severity: 'error', summary: 'error', detail: 'Internal Server Error' });
+        this.messageService.error('Internal Server Error');
       },
     })
   }
@@ -333,6 +277,7 @@ export class ListBranchComponent {
       },
     })
   }
+
   public removeBranch(id: string, event: Event): void {
     this.confirmationService.confirm({
       key: 'removeBranch',
@@ -351,11 +296,11 @@ export class ListBranchComponent {
               }
             }
           },
-          error: (err) => {}
+          error: (err) => { }
         })
       },
       reject: () => {
-        this.messageService.add({ severity: 'error', summary: 'Rejected', detail: 'You have rejected' });
+        this.messageService.error('You have rejected');
       }
     });
   }
@@ -375,14 +320,14 @@ export class ListBranchComponent {
                 this.pagination = new PaginationParams();
                 this.getBranches(this.pagination);
               }
-              
+
             }
           },
           error: (err) => { }
         })
       },
       reject: () => {
-        this.messageService.add({ severity: 'error', summary: 'Rejected', detail: 'You have rejected' });
+        this.messageService.error('You have rejected');
       }
     });
   }

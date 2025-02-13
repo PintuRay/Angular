@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MessageService } from 'primeng/api';
 import { AuthenticationService } from 'src/app/api/service/account/authentication/authentication.service';
-import { CommonService } from 'src/app/api/service/common/common.services';
+import { CommonService } from 'src/app/api/service/common/common.service';
 import { LayoutService } from '../../../shared/service/app.layout.service';
 import { environment } from 'src/app/utility/environment/environment';
 import { MenuItem } from 'primeng/api';

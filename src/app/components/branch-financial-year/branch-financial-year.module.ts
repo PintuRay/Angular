@@ -10,9 +10,9 @@ import { AddUpdateBranchFinancialYearComponent } from './add-update-branch-finan
 import { BranchFinancialYearComponent } from './branch-financial-year.component';
 import { BulkAddUpdateBranchFinancialYearComponent } from './bulk-add-update-branch-financial-year/bulk-add-update-branch-financial-year.component';
 import { ListRecoverBranchFinancialYearComponent } from './list-recover-branch-financial-year/list-recover-branch-financial-year.component';
-import { BranchFinancialYearService } from 'src/app/api/service/devloper/branch-financial-year.service';
+import { BranchFinancialYearService } from 'src/app/api/service/devloper/branch-financial-year/branch-financial-year.service';
 import { BranchService } from 'src/app/api/service/devloper/branch/branch.service';
-import { FinancialYearService } from 'src/app/api/service/devloper/financial-year.service';
+import { FinancialYearService } from 'src/app/api/service/devloper/financial-year/financial-year.service';
 
 @NgModule({
   declarations: [

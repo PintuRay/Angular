@@ -6,38 +6,38 @@ import { SignInModel } from 'src/app/api/model/account/authentication/signIn-mod
 import { AuthenticationService } from 'src/app/api/service/account/authentication/authentication.service';
 import { LayoutService } from '../../../shared/service/app.layout.service';
 import { ActivatedRoute } from '@angular/router';
+import { GenericMessageService } from 'src/app/api/service/generic-message.Service';
 @Component({
     selector: 'app-login',
     templateUrl: './login.component.html',
 })
 export class LoginComponent implements OnInit {
+
     //#region Property Declaration
     private readonly destroy$ = new Subject<void>();
     msg: string = '';
     user: SignInModel = new SignInModel();
-    loginForm!: FormGroup;
+    loginForm: FormGroup = this.initializeLoginForm();
     isLoading = false;
     showPassword = false;
     display: boolean = false;
     //#endregion
+
     //#region Constructor
     constructor(
         private fb: FormBuilder,
         public route: ActivatedRoute,
         public layoutSvcs: LayoutService,
         private authSvcs: AuthenticationService,
-        private messageService: MessageService
-    ) {}
+        private messageService: GenericMessageService
+    ) { }
     //#endregion
+
     //#region Lifecycle Hooks
     ngOnInit(): void {
         this.msg = this.route.snapshot.paramMap.get('message') ?? '';
         if (this.msg !== '') {
-            this.messageService.add({
-                severity: 'success',
-                summary: 'success',
-                detail: this.msg,
-            });
+            this.messageService.success(this.msg);
         }
         this.initializeLoginForm();
         this.loginForm.valueChanges.subscribe((values) => {
@@ -49,46 +49,42 @@ export class LoginComponent implements OnInit {
         this.destroy$.complete();
     }
     //#endregion
+
     //#region Form Initialization
-    private initializeLoginForm(): void {
-        this.loginForm = this.fb.group({
+    private initializeLoginForm() {
+        return this.fb.group({
             email: ['', [Validators.required, Validators.email]],
-            password: [
-                '',
-                [
-                    Validators.required,
-                    Validators.minLength(8),
-                    Validators.pattern(
-                        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@#$%^&*!])[A-Za-z\d@#$%^&*!]{8,}$/
-                    ),
-                ],
-            ],
+            password: ['', [Validators.required, Validators.minLength(8), Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@#$%^&*!])[A-Za-z\d@#$%^&*!]{8,}$/)]],
             rememberMe: [false],
         });
     }
     //#endregion
+
     //#region Client side Vaildation
-    get emailControl() {
-        return this.loginForm.get('email');
+    private getFieldLabel(controlName: string): string {
+        const labels: { [key: string]: string } = {
+            email: 'Email',
+            password: 'Password',
+        };
+        return labels[controlName] || controlName;
     }
-    getEmailErrorMessage() {
-        if (this.emailControl?.hasError('required')) {
-            return 'Email is required.';
-        } else {
-            return '';
+    private getFormControl(controlName: string) {
+        return this.loginForm.get(controlName);
+    }
+    public isFieldInvalid(controlName: string): boolean {
+        const control = this.getFormControl(controlName);
+        return !!control && control.invalid && (control.dirty || control.touched);
+    }
+    public getErrorMessage(controlName: string): string {
+        const control = this.getFormControl(controlName);
+        if (!control) return '';
+        if (control.hasError('required')) {
+            return `${this.getFieldLabel(controlName)} is required.`;
         }
-    }
-    get passwordControl() {
-        return this.loginForm.get('password');
-    }
-    getPasswordErrorMessage() {
-        if (this.passwordControl?.hasError('required')) {
-            return 'Password is required.';
-        } else {
-            return '';
-        }
+        return '';
     }
     //#endregion
+
     //#region Client Side Operations
     togglePasswordVisibility() {
         this.showPassword = !this.showPassword;
@@ -101,6 +97,7 @@ export class LoginComponent implements OnInit {
         });
     }
     //#endregion
+
     //#region Server Side Operations
     login(): void {
         if (this.loginForm.invalid) {
@@ -108,41 +105,25 @@ export class LoginComponent implements OnInit {
             return;
         } else {
             this.isLoading = true;
-            this.authSvcs
-                .login(this.user)
-                .pipe(takeUntil(this.destroy$))
-                .subscribe({
-                    next: (response) => {
-                        this.isLoading = false;
-                        this.msg = this.authSvcs.handleLoginResponse(
-                            response,
-                            this.user.email
-                        );
-                        if (this.msg !== '') {
-                            this.messageService.add({
-                                severity: 'warn',
-                                summary: 'warn',
-                                detail: this.msg,
-                            });
-                        }
-                    },
-                    error: (response) => {
-                        this.isLoading = false;
-                        this.msg = this.authSvcs.handleLoginError(response);
-                        this.messageService.add({
-                            severity: 'error',
-                            summary: 'Error',
-                            detail: this.msg,
-                        });
-                    },
-                    complete: () => {
-                        this.resetForm();
-                        this.isLoading = false;
-                    },
-                });
+            this.authSvcs.login(this.user).pipe(takeUntil(this.destroy$)).subscribe({
+                next: (response) => {
+                    this.isLoading = false;
+                    this.msg = this.authSvcs.handleLoginResponse(response, this.user.email);
+                    if (this.msg !== '') {
+                        this.messageService.warning(this.msg);
+                    }
+                    this.resetForm();
+                },
+                error: (response) => {
+                    this.isLoading = false;
+                    this.msg = this.authSvcs.handleLoginError(response);
+                    this.messageService.error(this.msg);
+                },
+            });
         }
     }
     //#endregion
+
     //#region Test form
     get formJson(): string {
         return JSON.stringify(this.loginForm.value, null, 2);

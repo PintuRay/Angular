@@ -4,7 +4,7 @@ import { Subscription } from 'rxjs';
 import { BranchFinancialYearDto } from 'src/app/api/entity/branchFinancialYear';
 import { PaginationParams } from 'src/app/api/model/paginationParams';
 import { AuthenticationService } from 'src/app/api/service/account/authentication/authentication.service';
-import { BranchFinancialYearService } from 'src/app/api/service/devloper/branch-financial-year.service';
+import { BranchFinancialYearService } from 'src/app/api/service/devloper/branch-financial-year/branch-financial-year.service';
 
 @Component({
   selector: 'app-list-recover-branch-financial-year',

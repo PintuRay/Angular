@@ -11,7 +11,7 @@ import { PrimeNgModule } from '../shared/prime-ng/prime-ng.module';
 import { FieldsRestrictionModule } from 'src/app/utility/directives/fields-restriction/fields-restriction.module';
 import { FieldsValidationModule } from 'src/app/utility/directives/fields-validation/fields-validation.module';
 import { BranchService } from 'src/app/api/service/devloper/branch/branch.service';
-import { BranchMessageService } from '../../api/service/devloper/branch/branch-message.Service ';
+import { BranchMessageService } from '../../api/service/devloper/branch/branch-message.service';
 
 @NgModule({
   declarations: [
