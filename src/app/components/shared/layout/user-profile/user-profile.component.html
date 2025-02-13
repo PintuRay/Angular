@@ -1,3 +1,31 @@
+<p-dialog header="Dialog" [(visible)]="display" [modal]="true" showEffect="fade" [style]="{width: '60vw'}"
+    [breakpoints]="{'960px': '75vw'}">
+    <p-accordion>
+        <p-accordionTab header="User Dto" class="line-height-3 m-0">
+            <pre class="p-2 border rounded bg-gray-100" style="white-space: pre-wrap;">{{ userDtoJson }}</pre>
+        </p-accordionTab>
+        <p-accordionTab header="User Update Model" class="line-height-3 m-0">
+            <pre class="p-2 border rounded bg-gray-100" style="white-space: pre-wrap;">{{ userUpdateModelJson }}</pre>
+        </p-accordionTab>
+        <p-accordionTab header="Form Values" class="line-height-3 m-0">
+            <pre class="p-2 border rounded bg-gray-100" style="white-space: pre-wrap;">{{ formJson }}</pre>
+        </p-accordionTab>
+        <p-accordionTab header="Form Data" class="line-height-3 m-0">
+            <pre class="p-2 border rounded bg-gray-100" style="white-space: pre-wrap;">{{ formDataJson }}</pre>
+        </p-accordionTab>
+       
+        <p-accordionTab header="Form Status" class="line-height-3 m-0">
+            <p><strong>Valid:</strong> {{ userForm.valid }}</p>
+            <p><strong>Touched:</strong> {{ userForm.touched }}</p>
+            <p><strong>Dirty:</strong> {{ userForm.dirty }}</p>
+            <p><strong>Status:</strong> {{ userForm.status }}</p>
+        </p-accordionTab>
+    </p-accordion>
+    <ng-template pTemplate="footer">
+        <button pButton icon="pi pi-check" (click)="display=false" label="Ok" class="p-button-outlined"></button>
+    </ng-template>
+</p-dialog>
+
 <p-toast></p-toast>
 <div class="grid">
     <div class="col-12">
@@ -159,30 +187,4 @@
 </div>
 
 
-<p-dialog header="Dialog" [(visible)]="display" [modal]="true" showEffect="fade" [style]="{width: '60vw'}"
-    [breakpoints]="{'960px': '75vw'}">
-    <p-accordion>
-        <p-accordionTab header="User Dto" class="line-height-3 m-0">
-            <pre class="p-2 border rounded bg-gray-100" style="white-space: pre-wrap;">{{ userDtoJson }}</pre>
-        </p-accordionTab>
-        <p-accordionTab header="User Update Model" class="line-height-3 m-0">
-            <pre class="p-2 border rounded bg-gray-100" style="white-space: pre-wrap;">{{ userUpdateModelJson }}</pre>
-        </p-accordionTab>
-        <p-accordionTab header="Form Values" class="line-height-3 m-0">
-            <pre class="p-2 border rounded bg-gray-100" style="white-space: pre-wrap;">{{ formJson }}</pre>
-        </p-accordionTab>
-        <p-accordionTab header="Form Data" class="line-height-3 m-0">
-            <pre class="p-2 border rounded bg-gray-100" style="white-space: pre-wrap;">{{ formDataJson }}</pre>
-        </p-accordionTab>
-       
-        <p-accordionTab header="Form Status" class="line-height-3 m-0">
-            <p><strong>Valid:</strong> {{ userForm.valid }}</p>
-            <p><strong>Touched:</strong> {{ userForm.touched }}</p>
-            <p><strong>Dirty:</strong> {{ userForm.dirty }}</p>
-            <p><strong>Status:</strong> {{ userForm.status }}</p>
-        </p-accordionTab>
-    </p-accordion>
-    <ng-template pTemplate="footer">
-        <button pButton icon="pi pi-check" (click)="display=false" label="Ok" class="p-button-outlined"></button>
-    </ng-template>
-</p-dialog>
+

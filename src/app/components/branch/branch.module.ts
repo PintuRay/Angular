@@ -10,8 +10,8 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { PrimeNgModule } from '../shared/prime-ng/prime-ng.module';
 import { FieldsRestrictionModule } from 'src/app/utility/directives/fields-restriction/fields-restriction.module';
 import { FieldsValidationModule } from 'src/app/utility/directives/fields-validation/fields-validation.module';
-import { LayoutService } from '../shared/service/app.layout.service';
-import { BranchService } from 'src/app/api/service/devloper/branch.service';
+import { BranchService } from 'src/app/api/service/devloper/branch/branch.service';
+import { BranchMessageService } from '../../api/service/devloper/branch/branch-message.Service ';
 
 @NgModule({
   declarations: [
@@ -30,6 +30,6 @@ import { BranchService } from 'src/app/api/service/devloper/branch.service';
     FieldsRestrictionModule,
     FieldsValidationModule
   ],
-    providers: [BranchService]
+    providers: [BranchService, BranchMessageService]
 })
 export class BranchModule { }

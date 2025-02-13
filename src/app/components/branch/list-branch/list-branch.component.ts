@@ -4,7 +4,7 @@ import { Subscription } from 'rxjs';
 import { BranchDto, BranchModel } from 'src/app/api/entity/branch';
 import { PaginationParams } from 'src/app/api/model/paginationParams';
 import { AuthenticationService } from 'src/app/api/service/account/authentication/authentication.service';
-import { BranchService } from 'src/app/api/service/devloper/branch.service';
+import { BranchService } from 'src/app/api/service/devloper/branch/branch.service';
 import { ConfirmationService, MessageService, MenuItem } from 'primeng/api';
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
@@ -182,7 +182,7 @@ export class ListBranchComponent {
         branch.branchCode = row['Branch Code'] || '';
         branch.branchName = row['Branch Name'] || '';
         branch.contactNumber = row['Contact Number']?.toString() || '';
-        branch.branchAddress = row['Branch Address'] || '';
+        // branch.branchAddress = row['Branch Address'] || '';
         return branch;
       });
       this.branchSvcs.bulkCreate(branches).subscribe({
@@ -213,7 +213,7 @@ export class ListBranchComponent {
       'Branch Code': branch.branchCode,
       'Branch Name': branch.branchName,
       'Contact Number': branch.contactNumber,
-      'Address': branch.branchAddress
+      //'Address': branch.branchAddress
     }));
   }
   private exportExcel(data: BranchDto[], fileName: string = 'branches') {
@@ -256,7 +256,7 @@ export class ListBranchComponent {
       item['Branch Code'],
       item['Branch Name'],
       item['Contact Number'],
-      item['Address']
+      // item['Address']
     ]);
     // Add table to PDF
     autoTable(doc, {
@@ -296,12 +296,12 @@ export class ListBranchComponent {
   //#region Client Side Operations
   public addBranch() {
     this.branchSvcs.setOperationType("add");
-    this.branchSvcs.showAddUpdatedDialog();
+    this.router.navigate(['branch/add-update']);
   }
   public editBranch(branch: BranchDto) {
     this.branchSvcs.setOperationType("edit");
     this.branchSvcs.setBranch({ branch, isSuccess: false });
-    this.branchSvcs.showAddUpdatedDialog();
+    this.router.navigate(['branch/add-update']);
   }
   public bulkAddBranch() {
     this.branchSvcs.setBulkOperationType("add");
@@ -313,40 +313,25 @@ export class ListBranchComponent {
     this.router.navigate(['branch/bulk-add-update']);
   }
   public recoverBranch() {
-    this.router.navigate(['branch/list-recover-branch']);
+    this.router.navigate(['branch/list-recover']);
   }
   //#endregion
 
   //#region Server Side Operation
   private getBranches(pagination: PaginationParams): void {
     this.loading = true;
-    try {
-      this.branchSvcs.get(pagination).subscribe({
-        next: async (response) => {
-          this.loading = false;
-          if (response.responseCode === 200) {
-            this.branches = response.data.collectionObjData as BranchDto[];
-            this.totalRecords = response.data.count;
-          }
-        },
-        error: (err) => {
-          this.loading = false;
-          if (err.error.responseCode === 404) {
-            this.messageService.add({ severity: 'info', summary: 'Info', detail: err.error.message });
-          }
-          else if (err.error.responseCode === 400) {
-            this.messageService.add({ severity: 'error', summary: 'error', detail: `Server Side Eroor: ${err.error.message}` });
-          }
-          else {
-            this.messageService.add({ severity: 'error', summary: 'error', detail: 'An unknown error occurred.' });
-          }
-        },
-      })
-    }
-    catch (err) {
-      this.loading = false;
-      this.messageService.add({ severity: 'error', summary: 'error', detail: 'An unknown error occurred.' });
-    }
+    this.branchSvcs.get(pagination).subscribe({
+      next: async (response) => {
+        this.loading = false;
+        if (response.responseCode === 200) {
+          this.branches = response.data.records as BranchDto[];
+          this.totalRecords = response.data.count;
+        }
+      },
+      error: (err) => {
+        this.loading = false;
+      },
+    })
   }
   public removeBranch(id: string, event: Event): void {
     this.confirmationService.confirm({
@@ -364,20 +349,9 @@ export class ListBranchComponent {
                 this.pagination = new PaginationParams();
                 this.getBranches(this.pagination);
               }
-              this.messageService.add({ severity: 'success', summary: 'Success', detail: response.message });
             }
           },
-          error: (err) => {
-            if (err.error.responseCode === 404) {
-              this.messageService.add({ severity: 'info', summary: 'Info', detail: err.error.message });
-            }
-            else if (err.error.responseCode === 400) {
-              this.messageService.add({ severity: 'error', summary: 'error', detail: `Server Side Eroor: ${err.error.message}` });
-            }
-            else {
-              this.messageService.add({ severity: 'error', summary: 'error', detail: 'An unknown error occurred.' });
-            }
-          }
+          error: (err) => {}
         })
       },
       reject: () => {
@@ -401,18 +375,14 @@ export class ListBranchComponent {
                 this.pagination = new PaginationParams();
                 this.getBranches(this.pagination);
               }
-              this.messageService.add({ severity: 'success', summary: 'Success', detail: response.message });
+              
             }
           },
-          error: (err) => {
-           if (err.error.responseCode === 400) {
-              this.messageService.add({ severity: 'error', summary: 'error', detail: `Server Side Eroor: ${err.error.message}` });
-            }
-            else {
-              this.messageService.add({ severity: 'error', summary: 'error', detail: 'An unknown error occurred.' });
-            }
-          }
+          error: (err) => { }
         })
+      },
+      reject: () => {
+        this.messageService.add({ severity: 'error', summary: 'Rejected', detail: 'You have rejected' });
       }
     });
   }

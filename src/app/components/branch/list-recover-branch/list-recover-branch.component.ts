@@ -5,7 +5,7 @@ import { Subscription } from 'rxjs';
 import { BranchDto } from 'src/app/api/entity/branch';
 import { PaginationParams } from 'src/app/api/model/paginationParams';
 import { AuthenticationService } from 'src/app/api/service/account/authentication/authentication.service';
-import { BranchService } from 'src/app/api/service/devloper/branch.service';
+import { BranchService } from 'src/app/api/service/devloper/branch/branch.service';
 
 @Component({
   selector: 'app-list-recover-branch',

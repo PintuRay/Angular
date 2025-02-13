@@ -6,7 +6,7 @@ import { AuthenticationService } from 'src/app/api/service/account/authenticatio
 import { LayoutService } from '../../shared/service/app.layout.service';
 import { BranchFinancialYearService } from 'src/app/api/service/devloper/branch-financial-year.service';
 import { Component } from '@angular/core';
-import { BranchService } from 'src/app/api/service/devloper/branch.service';
+import { BranchService } from 'src/app/api/service/devloper/branch/branch.service';
 import { FinancialYearService } from 'src/app/api/service/devloper/financial-year.service';
 import { BranchFinancialYearDto, BranchFinancialYearModel, BranchFinancialYearUpdateModel } from 'src/app/api/entity/branchFinancialYear';
 import { Subscription } from 'rxjs';

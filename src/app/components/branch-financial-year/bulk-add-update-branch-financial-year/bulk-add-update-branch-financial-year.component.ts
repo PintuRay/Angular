@@ -5,7 +5,7 @@ import { filter, Subscription } from 'rxjs';
 import { BranchFinancialYearDto, BranchFinancialYearModel, BranchFinancialYearUpdateModel } from 'src/app/api/entity/branchFinancialYear';
 import { AuthenticationService } from 'src/app/api/service/account/authentication/authentication.service';
 import { BranchFinancialYearService } from 'src/app/api/service/devloper/branch-financial-year.service';
-import { BranchService } from 'src/app/api/service/devloper/branch.service';
+import { BranchService } from 'src/app/api/service/devloper/branch/branch.service';
 import { FinancialYearService } from 'src/app/api/service/devloper/financial-year.service';
 import { LayoutService } from '../../shared/service/app.layout.service';
 import { BranchDto } from 'src/app/api/entity/branch';

@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { filter, Subscription } from 'rxjs';
-import { BranchService } from 'src/app/api/service/devloper/branch.service';
+import { BranchService } from 'src/app/api/service/devloper/branch/branch.service';
 import { LayoutService } from '../../shared/service/app.layout.service';
 import { BranchDto, BranchModel, BranchUpdateModel } from 'src/app/api/entity/branch';
 import { Router } from '@angular/router';
@@ -70,7 +70,7 @@ export class BulkAddUpdateBranchComponent {
               branchId: branch.branchId,
               branchCode: branch.branchCode,
               branchName: branch.branchName,
-              branchAddress: branch.branchAddress,
+              //branchAddress: branch.branchAddress,
               contactNumber: branch.contactNumber
             });
             this.branches.push(branchGroup);

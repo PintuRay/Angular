@@ -1,74 +1,142 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { BranchDto, BranchModel, BranchUpdateModel } from 'src/app/api/entity/branch';
-import { BranchService } from 'src/app/api/service/devloper/branch.service';
+import { CountryDto } from 'src/app/api/entity/country';
+import { DistDto } from 'src/app/api/entity/dist';
+import { StateDto } from 'src/app/api/entity/state';
+import { BranchService } from 'src/app/api/service/devloper/branch/branch.service';
 import { LayoutService } from '../../shared/service/app.layout.service';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { AuthenticationService } from 'src/app/api/service/account/authentication/authentication.service';
+import { CommonService } from 'src/app/api/service/common/common.services';
+import { MessageService } from 'primeng/api';
+import { GenericMessageService } from 'src/app/api/service/generic-message.Service';
 
 @Component({
-  selector: 'app-add-update-branch',
+  selector: 'add-update-branch',
   templateUrl: './add-update-branch.component.html',
 })
-export class AddUpdateBranchComponent {
+export class AddUpdateBranchComponent implements OnInit, OnDestroy {
 
   //#region Property Declaration
-  public display: boolean = false;
-  public visible: boolean = false;
-  public isLoading: boolean = false;
-  public operationType: string = '';
-  private dialogSub!: Subscription;
-  private branchDataSub!: Subscription;
-  private operationTypeSub!: Subscription;
+  public display: boolean;
+  public isLoading: boolean;
+  public operationType: string;
+  private branchDataSub: Subscription;
+  private operationTypeSub: Subscription;
   private branch: BranchDto;
   private addbranch: BranchModel;
   private updatebranch: BranchUpdateModel;
+  private countries: CountryDto[];
+  private states: StateDto[];
+  private dists: DistDto[];
+  public filteredCountries: CountryDto[];
+  public filteredStates: StateDto[];
+  public filteredDists: DistDto[];
   public branchForm: FormGroup;
   //#endregion
 
   //#region constructor
-  constructor(private fb: FormBuilder, private branchSvcs: BranchService, public layoutSvcs: LayoutService) {
-    this.branchForm = this.initializeBranchForm();
+  constructor(
+    private fb: FormBuilder,
+    private branchSvcs: BranchService,
+    public layoutSvcs: LayoutService,
+    private authSvcs: AuthenticationService,
+    private commonSvcs: CommonService,
+    private messageService: GenericMessageService) {
+    this.display = false;
+    this.isLoading = false;
+    this.operationType = '';
+    this.branchDataSub = new Subscription;
+    this.operationTypeSub = new Subscription;
     this.branch = new BranchDto();
     this.addbranch = new BranchModel();
-    this.updatebranch = new BranchUpdateModel()
+    this.updatebranch = new BranchUpdateModel();
+    this.countries = [];
+    this.states = [];
+    this.dists = [];
+    this.filteredCountries = [];
+    this.filteredStates = [];
+    this.filteredDists = [];
+    this.branchForm = this.initializeBranchForm();
   }
   //#endregion
 
   //#region Lifecycle Hooks
   ngOnInit() {
-    this.dialogSub = this.branchSvcs.changeAddUpdateBranchDialogVisibility$.subscribe(
-      isVisible => {
-        this.visible = isVisible;
-      }
-    );
-    this.branchDataSub = this.branchSvcs.getBranch().subscribe((operation) => {
-      if (operation?.branch != null) {
-        this.branch = operation.branch;
-        this.updatebranch.branchId = operation.branch.branchId;
-        this.branchForm.patchValue({
-          branchCode: operation.branch.branchCode,
-          branchName: operation.branch.branchName,
-          branchAddress: operation.branch.branchAddress,
-          contactNumber: operation.branch.contactNumber
-        });
-      }
-    });
+    this.getCountries().then(() => {
+      this.branchDataSub = this.branchSvcs.getBranch().subscribe((operation) => {
+        if (operation?.branch != null) {
+          this.branch = operation.branch;
+          this.updatebranch.branchId = operation.branch.branchId;
+          this.getStates(operation.branch.address.fk_CountryId).then(() => {
+            const selectedState = this.states.find(s => s.stateId === operation.branch?.address.fk_StateId);
+            if (selectedState) {
+              this.getDists(selectedState.stateId).then(() => {
+                const selectedDist = this.dists.find(d => d.distId === operation.branch?.address.fk_DistId);
+                this.branchForm.patchValue({
+                  branchCode: operation.branch?.branchCode,
+                  branchName: operation.branch?.branchName,
+                  contactNumber: operation.branch?.contactNumber,
+                  address: {
+                    country: this.countries.find(c => c.countryId === operation.branch?.address.fk_CountryId),
+                    state: selectedState,
+                    dist: selectedDist,
+                    at: operation.branch?.address.at,
+                    post: operation.branch?.address.post,
+                    city: operation.branch?.address.city,
+                    pinCode: operation.branch?.address.pinCode
+                  }
+                });
+              })
+            }
+          })
+        }
+      });
+    })
     this.operationTypeSub = this.branchSvcs.getOperationType().subscribe((data) => {
       this.operationType = data;
-      if (this.operationType === 'add') {
+      if (this.operationType === 'edit') {
         this.branchForm.valueChanges.subscribe((values) => {
-          this.addbranch = { ...this.addbranch, ...values };
+          this.updatebranch = {
+            branchId: this.updatebranch.branchId,
+            branchName: values.branchName,
+            contactNumber: values.contactNumber,
+            branchCode: values.branchCode,
+            address: {
+              addressId: this.updatebranch.address?.addressId,
+              fk_CountryId: values.address.country?.countryId,
+              fk_StateId: values.address.state?.stateId,
+              fk_DistId: values.address.dist?.distId,
+              at: values.address.at,
+              post: values.address.post,
+              city: values.address.city,
+              pinCode: values.address.pinCode,
+            }
+          }
         });
       }
       else {
         this.branchForm.valueChanges.subscribe((values) => {
-          this.updatebranch = { ...this.updatebranch, ...values };
+          this.addbranch = {
+            branchName: values.branchName,
+            contactNumber: values.contactNumber,
+            branchCode: values.branchCode,
+            address: {
+              fk_CountryId: values.address.country?.countryId,
+              fk_StateId: values.address.state?.stateId,
+              fk_DistId: values.address.dist?.distId,
+              at: values.address.at,
+              post: values.address.post,
+              city: values.address.city,
+              pinCode: values.address.pinCode,
+            }
+          };
         });
       }
     });
   }
   ngOnDestroy() {
-    this.dialogSub?.unsubscribe();
     this.operationTypeSub?.unsubscribe();
     this.branchDataSub?.unsubscribe();
   }
@@ -83,10 +151,18 @@ export class AddUpdateBranchComponent {
   //#region Form Initialization
   private initializeBranchForm(): FormGroup {
     return this.fb.group({
-      branchCode: ['', [Validators.required, Validators.pattern(/^[A-Z][A-Za-z0-9]*$/)]],
       branchName: ['', [Validators.required, Validators.pattern(/^[A-Z\s]+$/)]],
-      branchAddress: ['', [Validators.required]],
+      branchCode: ['', [Validators.required, Validators.pattern(/^[A-Z][A-Za-z0-9]*$/)]],
       contactNumber: ['', [Validators.required, Validators.pattern(/^\d{10}$/)]],
+      address: this.fb.group({
+        country: ['', Validators.required],
+        state: ['', Validators.required],
+        dist: ['', Validators.required],
+        at: ['', Validators.required],
+        post: ['', Validators.required],
+        city: ['', Validators.required],
+        pinCode: ['', [Validators.pattern(/^\d{6}$/)]]
+      })
     })
   }
   //#endregion
@@ -96,20 +172,31 @@ export class AddUpdateBranchComponent {
     const labels: { [key: string]: string } = {
       branchName: 'Branch Name',
       branchCode: 'Branch Code',
-      branchAddress: 'Branch Address',
-      contactNumber: 'Contact Number'
+      contactNumber: 'Contact Number',
+      country: 'Country',
+      state: 'State',
+      dist: 'District',
+      at: 'At',
+      post: 'Post',
+      city: 'City',
+      pinCode: 'Pin Code'
     };
     return labels[controlName] || controlName;
   }
-  private getBranchFormControl(controlName: string) {
-    return this.branchForm.get(controlName);
+  private getFormControl(controlName: string, groupName?: string) {
+    if (groupName) {
+      return this.branchForm.get([groupName, controlName]);
+    }
+    else {
+      return this.branchForm.get(controlName);
+    }
   }
-  public isFieldInvalid(controlName: string): boolean {
-    const control = this.getBranchFormControl(controlName);
+  public isFieldInvalid(controlName: string, groupName?: string): boolean {
+    const control = this.getFormControl(controlName, groupName);
     return !!control && control.invalid && (control.dirty || control.touched);
   }
-  public getErrorMessage(controlName: string): string {
-    const control = this.getBranchFormControl(controlName);
+  public getErrorMessage(controlName: string, groupName?: string): string {
+    const control = this.getFormControl(controlName, groupName);
     if (!control) return '';
     if (control.hasError('required')) {
       return `${this.getFieldLabel(controlName)} is required.`;
@@ -128,9 +215,48 @@ export class AddUpdateBranchComponent {
   //#endregion
 
   //#region Client Side Operations
-  public hideDialog() {
-    this.branchSvcs.hideAddUpdateDialog();
-    this.resetComponent();
+  filterCountries(event: any) {
+    const query = event.query.toLowerCase();
+    this.filteredCountries = this.countries.filter(country =>
+      country.countryName.toLowerCase().includes(query)
+    );
+  }
+  filterStates(event: any) {
+    const query = event.query.toLowerCase();
+    this.filteredStates = this.states.filter(status =>
+      status.stateName.toLowerCase().includes(query)
+    );
+  }
+  filterDists(event: any) {
+    const query = event.query.toLowerCase();
+    this.filteredDists = this.dists.filter(status =>
+      status.distName.toLowerCase().includes(query)
+    );
+  }
+  onCountrySelect(event: any) {
+    const addressGroup = this.branchForm.get('address');
+    addressGroup?.patchValue({
+      state: null,
+      dist: null
+    });
+    this.states = [];
+    this.dists = [];
+    this.filteredStates = [];
+    this.filteredDists = [];
+    if (event.value.countryId) {
+      this.getStates(event.value.countryId);
+    }
+  }
+  onStateSelect(event: any) {
+    const addressGroup = this.branchForm.get('address');
+    addressGroup?.patchValue({
+      dist: null
+    });
+    this.dists = [];
+    this.filteredDists = [];
+    if (event.value.stateId) {
+      this.getDists(event.value.stateId);
+    }
   }
   private resetComponent() {
     this.branchForm.reset();
@@ -141,81 +267,81 @@ export class AddUpdateBranchComponent {
   //#endregion
 
   //#region Server Side Operation
-  public submit(): void {
-    try {
-      if (this.branchForm.dirty && this.branchForm.touched) {
-        if (this.branchForm.valid) {
-          this.isLoading = true;
-          if (this.operationType === 'add') {
-            this.branchSvcs.create(this.addbranch).subscribe({
-              next: async (response) => {
-                if (response.responseCode === 201) {
-                  this.branch = response.data.records as BranchDto ;
-                  this.branchSvcs.setBranch({ branch: this.branch, isSuccess: true, message: response.message });
-                  this.hideDialog();
-                }
-                this.isLoading = false;
-              },
-              error: (err) => { 
-                this.isLoading = false;
-                if (err.error.responseCode === 400) {
-                  if (err.error?.data) {
-                    const errorMessages = err.error.data.map((error: any) => {
-                      return `${error.formattedMessagePlaceholderValues.PropertyName}: ${error.errorMessage}`;
-                    }).join(', ');
-                    this.branchSvcs.setBranch({ branch: null, isSuccess: true, message: errorMessages });
-                  }
-                  else {
-                    this.branchSvcs.setBranch({ branch: null, isSuccess: true, message: err.error.message });
-                  }
-                }
-                else {
-                  this.branchSvcs.setBranch({ branch: this.branch, isSuccess: true, message: 'Some Error Occoured' });
-                }
-              }
-            })
-          } else {
-            this.branchSvcs.update(this.updatebranch).subscribe({
-              next: async (response) => {
-                if (response.responseCode == 200) {
-                  this.branch = {
-                    ...this.updatebranch,
-                    branchId: response.data.id
-                  };
-                  this.branchSvcs.setBranch({ branch: this.branch, isSuccess: true, message: response.message });
-                  this.hideDialog();
-                }
-                this.isLoading = false;
-              },
-              error: (err) => {
-                this.isLoading = false;
-                if (err.error.responseCode === 400) {
-                  if (err.error?.data) {
-                    const errorMessages = err.error.data.map((error: any) => {
-                      return `${error.formattedMessagePlaceholderValues.PropertyName}: ${error.errorMessage}`;
-                    }).join(', ');
-                    this.branchSvcs.setBranch({ branch: null, isSuccess: true, message: errorMessages });
-                  }
-                  else {
-                    this.branchSvcs.setBranch({ branch: null, isSuccess: true, message: err.error.message });
-                  }
-                }
-                else {
-                  this.branchSvcs.setBranch({ branch: this.branch, isSuccess: true, message: 'Some Error Occoured' });
-                }
-                this.hideDialog();
-              }
-            })
+  private getCountries(): Promise<void> {
+    return new Promise((resolve) => {
+      this.commonSvcs.getCountries().subscribe({
+        next: (response) => {
+          if (response.responseCode === 200) {
+            this.countries = response.data.collectionObjData as CountryDto[];
           }
+          resolve();
+        },
+        error: () => resolve()
+      });
+    });
+  }
+  private getStates(countryId: any): Promise<void> {
+    return new Promise((resolve) => {
+      this.commonSvcs.getStates(countryId).subscribe({
+        next: (response) => {
+          if (response.responseCode === 200) {
+            this.states = response.data.collectionObjData as StateDto[];
+          }
+          resolve();
+        },
+        error: () => resolve()
+      });
+    });
+  }
+  private getDists(stateId: any): Promise<void> {
+    return new Promise((resolve) => {
+      this.commonSvcs.getDists(stateId).subscribe({
+        next: (response) => {
+          if (response.responseCode === 200) {
+            this.dists = response.data.collectionObjData as DistDto[];
+          }
+          resolve();
+        },
+        error: () => resolve()
+      });
+    });
+  }
+  public submit(): void {
+    if (this.branchForm.dirty && this.branchForm.touched) {
+      if (this.branchForm.valid) {
+        this.isLoading = true;
+        if (this.operationType === 'edit') {
+          this.branchSvcs.update(this.updatebranch).subscribe({
+            next: async (response) => {
+              if (response.responseCode == 200) {
+                this.messageService.success(response.message);
+                this.resetComponent();
+              }
+              this.isLoading = false;
+            },
+            error: (err) => {
+              this.isLoading = false;
+            }
+          })
+
+        } else {
+          this.branchSvcs.create(this.addbranch).subscribe({
+            next: async (response) => {
+              if (response.responseCode === 201) {
+                this.messageService.success(response.message);
+                this.resetComponent();
+              }
+              this.isLoading = false;
+            },
+            error: (err) => {
+              this.isLoading = false;
+            }
+          })
         }
       }
-      else{
-       // this.messageService.add({ severity: 'warn', summary: 'warn', detail: 'No Change Detected' });
-      }
-     
     }
-    catch (error) {
-
+    else {
+      this.messageService.warning('No Change Detected');
     }
   }
   //#endregion
