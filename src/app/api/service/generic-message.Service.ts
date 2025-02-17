@@ -8,6 +8,19 @@ import { ValidationError } from '../model/ValidationError';
 })
 export class GenericMessageService {
   constructor(protected  messageService: MessageService) { }
+  public success(msg: any) {
+    this.messageService.add({ severity: 'success', summary: 'Success', detail: msg });
+  }
+  public warning(msg: any) {
+    this.messageService.add({ severity: 'warn', summary: 'warn', detail: msg });
+  }
+  public error(msg: string) {
+    this.messageService.add({ severity: 'error', summary: 'Error', detail: msg });
+  }
+  public info(msg: string) {
+    this.messageService.add({ severity: 'info', summary: 'Info', detail: msg });
+  }
+ 
   public handleApiError(error: any) {
     const errorResponse: ApiResponse = error.error;
     this.messageService.clear();
@@ -35,15 +48,7 @@ export class GenericMessageService {
         break;
     }
   }
-  public success(msg: any) {
-    this.messageService.add({ severity: 'success', summary: 'Success', detail: msg });
-  }
-  public warning(msg: any) {
-    this.messageService.add({ severity: 'warn', summary: 'warn', detail: msg });
-  }
-  public error(msg: string) {
-    this.messageService.add({ severity: 'error', summary: 'Error', detail: msg });
-  }
+
   protected handleFound(response: ApiResponse) {
       this.messageService.add({ severity: 'warn', summary: 'Warning', detail: response.message || 'Resource already exists' }); 
   }

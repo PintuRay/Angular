@@ -64,7 +64,7 @@ export class ListBranchFinancialYearComponent {
     //Get financial Year records
     this.getBranchFinancialYears(this.pagination);
     //Single Insert or Update Subscription
-    this.branchFinancialYearSubscription = this.branchFinancialYearSvcs.getBranchFinanancialYear().subscribe(operation => {
+    this.branchFinancialYearSubscription = this.branchFinancialYearSvcs.getBranchFinancialYear().subscribe(operation => {
         if (operation?.isSuccess) {
           if (operation?.branchFinancialYear) {
             const index = this.branchFinancialYears.findIndex(b => b.branchFinancialYearId === operation.branchFinancialYear?.branchFinancialYearId);
@@ -79,7 +79,7 @@ export class ListBranchFinancialYearComponent {
         }
       });
     //Bulk Insert or Update Subscription
-    this.bulkBranchFinancialYearSubscription = this.branchFinancialYearSvcs.getBulkBranchFinanancialYear().subscribe(operation => {
+    this.bulkBranchFinancialYearSubscription = this.branchFinancialYearSvcs.getBulkBranchFinancialYear().subscribe(operation => {
         if (operation?.isSuccess) {
           if (operation?.branchFinancialYears && operation?.branchFinancialYears.length > 0) {
             const updatedBranchFinancialYears = [...this.branchFinancialYears];
@@ -96,7 +96,7 @@ export class ListBranchFinancialYearComponent {
         }
       });
     //Single Recover Subscription
-    this.recoverSubscription = this.branchFinancialYearSvcs.getRecoverBranchFinanancialYear().subscribe(operation => {
+    this.recoverSubscription = this.branchFinancialYearSvcs.getRecoverBranchFinancialYear().subscribe(operation => {
         if (operation?.isSuccess) {
           if (operation.branchFinancialYear) {
             this.branchFinancialYears = [...this.branchFinancialYears, operation.branchFinancialYear];
@@ -109,7 +109,7 @@ export class ListBranchFinancialYearComponent {
         }
       });
     //Bulk Recover Subscription
-    this.bulkRecoverSubscription = this.branchFinancialYearSvcs.getBulkRecoverBranchFinanancialYear().subscribe(operation =>{
+    this.bulkRecoverSubscription = this.branchFinancialYearSvcs.getBulkBranchFinancialYear().subscribe(operation =>{
       if (operation?.isSuccess) {
         if (operation.branchFinancialYears) {
           operation?.branchFinancialYears.forEach(branchFinancialYear => {
@@ -150,7 +150,7 @@ export class ListBranchFinancialYearComponent {
   }
   public editBranchFinancialYear(branchFinancialYear: BranchFinancialYearDto) {
     this.branchFinancialYearSvcs.setOperationType("edit");
-    this.branchFinancialYearSvcs.setBranchFinanancialYear({ branchFinancialYear, isSuccess: false });
+    this.branchFinancialYearSvcs.setBranchFinancialYear({ branchFinancialYear, isSuccess: false });
     this.branchFinancialYearSvcs.showAddUpdatedDialog();
   }
   public bulkAddBranchFinancialYear() {
@@ -159,7 +159,7 @@ export class ListBranchFinancialYearComponent {
   }
   public bulkEditBranchFinancialYear() {
     this.branchFinancialYearSvcs.setBulkOperationType("edit");
-    this.branchFinancialYearSvcs.setBulkBranchFinanancialYear({ branchFinancialYears: this.selectedBranchFinancialYears, isSuccess: false });
+    this.branchFinancialYearSvcs.setBulkBranchFinancialYear({ branchFinancialYears: this.selectedBranchFinancialYears, isSuccess: false });
   }
   public recoverBranchFinancialYear() {
     this.branchFinancialYearSvcs.showRecoverDialog();

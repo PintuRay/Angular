@@ -124,19 +124,19 @@ export class ListRecoverBranchFinancialYearComponent {
       next: async (response) => {
         if (response.responseCode === 200) {
           this.branchFinancialYears = this.branchFinancialYears.filter(fy => fy.branchFinancialYearId !== data.branchFinancialYearId);
-          this.branchFinancialYearSvcs.setRecoverBranchFinanancialYear({ branchFinancialYear: data, isSuccess: true, message: response.message });
+          this.branchFinancialYearSvcs.setRecoverBranchFinancialYear({ branchFinancialYear: data, isSuccess: true, message: response.message });
           this.totalRecords -= 1;
         }
       },
       error: (err) => {
         if (err.error.responseCode === 404) {
-          this.branchFinancialYearSvcs.setRecoverBranchFinanancialYear({ branchFinancialYear: null, isSuccess: true, message: err.error.message });
+          this.branchFinancialYearSvcs.setRecoverBranchFinancialYear({ branchFinancialYear: null, isSuccess: true, message: err.error.message });
         }
         else if (err.error.responseCode === 400) {
-          this.branchFinancialYearSvcs.setRecoverBranchFinanancialYear({ branchFinancialYear: null, isSuccess: true, message: `Server Side Eroor: ${err.error.message}` });
+          this.branchFinancialYearSvcs.setRecoverBranchFinancialYear({ branchFinancialYear: null, isSuccess: true, message: `Server Side Eroor: ${err.error.message}` });
         }
         else {
-          this.branchFinancialYearSvcs.setRecoverBranchFinanancialYear({ branchFinancialYear: null, isSuccess: true, message: 'An unknown error occurred.' });
+          this.branchFinancialYearSvcs.setRecoverBranchFinancialYear({ branchFinancialYear: null, isSuccess: true, message: 'An unknown error occurred.' });
         }
       },
     })
@@ -157,13 +157,13 @@ export class ListRecoverBranchFinancialYearComponent {
           },
           error: (err) => {
             if (err.error.responseCode === 404) {
-              this.branchFinancialYearSvcs.setRecoverBranchFinanancialYear({ branchFinancialYear: null, isSuccess: true, message: err.error.message });
+              this.branchFinancialYearSvcs.setRecoverBranchFinancialYear({ branchFinancialYear: null, isSuccess: true, message: err.error.message });
             }
             else if (err.error.responseCode === 400) {
-              this.branchFinancialYearSvcs.setRecoverBranchFinanancialYear({ branchFinancialYear: null, isSuccess: true, message: `Server Side Eroor: ${err.error.message}` });
+              this.branchFinancialYearSvcs.setRecoverBranchFinancialYear({ branchFinancialYear: null, isSuccess: true, message: `Server Side Eroor: ${err.error.message}` });
             }
             else {
-              this.branchFinancialYearSvcs.setRecoverBranchFinanancialYear({ branchFinancialYear: null, isSuccess: true, message: 'An unknown error occurred.' });
+              this.branchFinancialYearSvcs.setRecoverBranchFinancialYear({ branchFinancialYear: null, isSuccess: true, message: 'An unknown error occurred.' });
             }
           },
         })

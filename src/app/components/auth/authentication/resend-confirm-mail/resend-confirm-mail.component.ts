@@ -1,47 +1,51 @@
 import { Component } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { MessageService } from 'primeng/api';
 import { AuthenticationService } from 'src/app/api/service/account/authentication/authentication.service';
 import { environment } from 'src/app/utility/environment/environment';
 import { LayoutService } from '../../../shared/service/app.layout.service';
+import { Subject, takeUntil } from 'rxjs';
+import { GenericMessageService } from 'src/app/api/service/generic-message.Service';
 @Component({
   selector: 'app-resend-confirm-mail',
   templateUrl: './resend-confirm-mail.component.html',
 })
 export class ResendConfirmMailComponent {
+  
+  //#region Property Declaration
+  private readonly destroy$ = new Subject<void>();
   isLoading = false;
   RouteUrl: string = environment.EmailConfirmation;
-  message:string ='';
+  message: string = '';
   mail: string = '';
+  //#endregion
+
+  //#region Constructor
   constructor(
     private authSvcs: AuthenticationService,
-    private messageService: MessageService,
+    private messageService: GenericMessageService,
     public layoutSvcs: LayoutService,
   ) { }
-  submit() {
-    this.isLoading = true;
-    this.authSvcs
-      .resendConfirmEmail(this.mail, this.RouteUrl)
-      .subscribe({
-        next: (response) => {
-          this.messageService.add({
-            severity: 'success',
-            summary: 'success',
-            detail: response.message,
-          });
-          this.isLoading = false;
-        },
-        error: (response) => {
-          this.isLoading = false;  
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Error',
-            detail: response.error.message,
-          });
-        },
-        complete: () => { 
-          console.log('resend confirm mail Request completed');
-        },
-      });
+  //#endregion
+
+  //#region Lifecycle Hooks
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
+  //#endregion
+
+  //#region Server Side Operations
+  public submit() {
+    this.isLoading = true;
+    this.authSvcs.resendConfirmEmail(this.mail, this.RouteUrl).pipe(takeUntil(this.destroy$)).subscribe({
+      next: async (response) => {
+        if (response.responseCode === 200)
+          this.messageService.success(response.message);
+        this.isLoading = false;
+      },
+      error: (err) => {
+        this.isLoading = false;
+      }
+    });
+  }
+  //#endregion
 }

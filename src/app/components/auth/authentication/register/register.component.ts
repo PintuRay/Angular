@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MessageService } from 'primeng/api';
 import { AuthenticationService } from 'src/app/api/service/account/authentication/authentication.service';
 import { CommonService } from 'src/app/api/service/common/common.service';
 import { LayoutService } from '../../../shared/service/app.layout.service';
@@ -9,6 +8,8 @@ import { MenuItem } from 'primeng/api';
 import { CountryDto } from 'src/app/api/entity/country';
 import { StateDto } from 'src/app/api/entity/state';
 import { DistDto } from 'src/app/api/entity/dist';
+import { Subject, takeUntil } from 'rxjs';
+import { GenericMessageService } from 'src/app/api/service/generic-message.Service';
 
 @Component({
 	selector: 'app-register',
@@ -17,7 +18,8 @@ import { DistDto } from 'src/app/api/entity/dist';
 export class RegisterComponent implements OnInit {
 
 	//#region Property Declaration
-	public registerForm!: FormGroup;
+	private readonly destroy$ = new Subject<void>();
+	public registerForm: FormGroup = this.initializeRegisterForm();
 	private formData: FormData = new FormData();
 	readonly returnUrl: string = environment.EmailConfirmation;
 	private countries: CountryDto[] = [];
@@ -58,20 +60,23 @@ export class RegisterComponent implements OnInit {
 		public layoutSvcs: LayoutService,
 		private authSvcs: AuthenticationService,
 		private commonSvcs: CommonService,
-		private messageService: MessageService) { }
+		private messageService: GenericMessageService) { }
 	//#endregion
 
 	//#region Lifecycle Hooks
 	ngOnInit(): void {
-		this.initializeRegisterForm();
 		this.initializeSteps();
 		this.registerForm.disable();
+	}
+	ngOnDestroy(): void {
+		this.destroy$.next();
+		this.destroy$.complete();
 	}
 	//#endregion
 
 	//#region Form Initialization
-	private initializeRegisterForm(): void {
-		this.registerForm = this.fb.group({
+	private initializeRegisterForm() {
+		return this.fb.group({
 			// Account Information
 			accountInfo: this.fb.group({
 				email: ['', [Validators.required, Validators.email, Validators.pattern(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)]],
@@ -172,7 +177,7 @@ export class RegisterComponent implements OnInit {
 		};
 		return labels[controlName] || controlName;
 	}
-	private getFormControl(groupName: string ,controlName: string): AbstractControl | null {
+	private getFormControl(groupName: string, controlName: string): AbstractControl | null {
 		return this.registerForm.get([groupName, controlName]);
 	}
 	public isFieldInvalid(groupName: string, controlName: string): boolean {
@@ -192,143 +197,109 @@ export class RegisterComponent implements OnInit {
 		if (controlName === 'phoneNumber' && control.hasError('pattern')) {
 			return `${this.getFieldLabel(controlName)} must be 10  digit.`;
 		}
-		if(controlName === 'password'){
-			if(control.hasError('minlength')){
+		if (controlName === 'password') {
+			if (control.hasError('minlength')) {
 				return `${this.getFieldLabel(controlName)} must be at least 8 characters long.`;
 			}
-			if(control.hasError('pattern')){
+			if (control.hasError('pattern')) {
 				return `${this.getFieldLabel(controlName)} must contain at least one uppercase letter, one lowercase letter, one digit, and one special character.`;
 			}
 		}
-		if(controlName === 'confirmPassword'){
-           const password = this.getFormControl('accountInfo', 'password')?.value;
-		   if(password !== control.value){
-			return 'Password and conform password not Matched';
-		   }
+		if (controlName === 'confirmPassword') {
+			const password = this.getFormControl('accountInfo', 'password')?.value;
+			if (password !== control.value) {
+				return 'Password and conform password not Matched';
+			}
 		}
-		if(controlName === 'name'){
-			if(control.hasError('minlength')){
+		if (controlName === 'name') {
+			if (control.hasError('minlength')) {
 				return `${this.getFieldLabel(controlName)} minimum length should be greater than 5`;
 			}
-			if(control.hasError('pattern')){
+			if (control.hasError('pattern')) {
 				return `${this.getFieldLabel(controlName)} field only allow small , capital Letter  and spaces.`;
 			}
 		}
-		if(controlName === 'pinCode' && control.hasError('pattern')){
-				return `${this.getFieldLabel(controlName)} must be six digit long.`;
+		if (controlName === 'pinCode' && control.hasError('pattern')) {
+			return `${this.getFieldLabel(controlName)} must be six digit long.`;
 		}
 		return '';
 	}
 	//#endregion
 
 	//#region Server Side Vaildation
-	public async isEmailInUse(): Promise<void> {
+	public isEmailInUse() {
 		const email = this.registerForm.value.accountInfo.email;
 		const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-		try {
-			if (emailRegex.test(email)) {
-				this.emailLoading = true;
-				this.authSvcs.isEmailInUse(email).subscribe({
-					next: (response) => {
-						if (response.responseCode === 200) {
-							this.isvalidMail = true;
-						}
-						else {
-							this.isvalidMail = false;
-						}
-						this.emailLoading = false;
-					},
-					error: (response) => {
-						this.emailLoading = false;
-						this.isvalidMail = false;
-						this.messageService.add({ severity: 'error', summary: 'error', detail: response.error.message });
+		if (emailRegex.test(email)) {
+			this.emailLoading = true;
+			this.authSvcs.isEmailInUse(email).pipe(takeUntil(this.destroy$)).subscribe({
+				next: async (response) => {
+					if (response.responseCode === 200) {
+						this.isvalidMail = true;
 					}
-				});
-			}
-			else {
-				this.isvalidMail = false;
-			}
-		}
-		catch (error) {
-			this.emailLoading = false;
-			this.messageService.add({
-				severity: 'error',
-				summary: 'Error',
-				detail: 'An error occurred'
+					else {
+						this.isvalidMail = false;
+					}
+					this.emailLoading = false;
+				},
+				error: (err) => {
+					this.emailLoading = false;
+					this.isvalidMail = false;
+				}
 			});
 		}
+		else {
+			this.isvalidMail = false;
+		}
 	}
-	public async isPhoneNumberInUse(): Promise<void> {
+	public isPhoneNumberInUse() {
 		const phoneNumber = this.registerForm.value.accountInfo.phoneNumber;
 		const phNoRegex = /^\d{10}$/;
-		try {
-			if (phNoRegex.test(phoneNumber)) {
-				this.phoneNoLoading = true;
-				this.authSvcs.isPhoneNumberInUse(phoneNumber).subscribe({
-					next: (response) => {
-						if (response.responseCode === 200) {
-							this.isPhoneNumberValid = true;
-						}
-						else {
-							this.isPhoneNumberValid = false;
-						}
-						this.phoneNoLoading = false;
-					},
-					error: (response) => {
-						this.phoneNoLoading = false;
-						this.isPhoneNumberValid = false;
-						this.messageService.add({ severity: 'error', summary: 'error', detail: response.error.message });
+		if (phNoRegex.test(phoneNumber)) {
+			this.phoneNoLoading = true;
+			this.authSvcs.isPhoneNumberInUse(phoneNumber).pipe(takeUntil(this.destroy$)).subscribe({
+				next: async (response) => {
+					if (response.responseCode === 200) {
+						this.isPhoneNumberValid = true;
 					}
-				});
-			}
-			else {
-				this.isPhoneNumberValid = false;
-			}
-		}
-		catch (error) {
-			console.error('Error in signup:', error);
-			this.phoneNoLoading = false;
-			this.messageService.add({
-				severity: 'error',
-				summary: 'Error',
-				detail: 'An error occurred'
+					else {
+						this.isPhoneNumberValid = false;
+					}
+					this.phoneNoLoading = false;
+				},
+				error: (err) => {
+					this.phoneNoLoading = false;
+					this.isPhoneNumberValid = false;
+				}
 			});
+		}
+		else {
+			this.isPhoneNumberValid = false;
 		}
 	}
-	public async isUserExist(): Promise<void> {
-		try {
-			const userName = this.registerForm.value.personalInfo.name;
-			const userNameRegex = /^[A-Za-z\s]+$/;
-			if (userNameRegex.test(userName) && userName.length > 5) {
-				this.userNameLoading = true;
-				this.authSvcs.isUserNameExist(userName).subscribe({
-					next: (response) => {
-						if (response.responseCode === 200) {
-							this.isUserValid = true;
-						}
-						else {
-							this.isUserValid = false;
-						}
-						this.userNameLoading = false;
-					},
-					error: (response) => {
-						this.userNameLoading = false;
-						this.userNameLoading = false;
-						this.messageService.add({ severity: 'error', summary: 'error', detail: response.error.message });
+	public isUserExist() {
+		const userName = this.registerForm.value.personalInfo.name;
+		const userNameRegex = /^[A-Za-z\s]+$/;
+		if (userNameRegex.test(userName) && userName.length > 5) {
+			this.userNameLoading = true;
+			this.authSvcs.isUserNameExist(userName).pipe(takeUntil(this.destroy$)).subscribe({
+				next: async (response) => {
+					if (response.responseCode === 200) {
+						this.isUserValid = true;
 					}
-				});
-			}
-			else {
-				this.isUserValid = false;
-			}
-
-		} catch (error) {
-			this.userNameLoading = false;
-			this.messageService.add({
-				severity: 'error',
-				summary: 'Error',
-				detail: 'An error occurred'
+					else {
+						this.isUserValid = false;
+					}
+					this.userNameLoading = false;
+				},
+				error: (err) => {
+					this.userNameLoading = false;
+					this.userNameLoading = false;
+				}
 			});
+		}
+		else {
+			this.isUserValid = false;
 		}
 	}
 	//#endregion      
@@ -461,114 +432,79 @@ export class RegisterComponent implements OnInit {
 	//#endregion
 
 	//#region Server Side Operations
-	public async vaildateToken(): Promise<void> {
+	public vaildateToken() {
 		if (this.tokenValue) {
-			this.authSvcs.validateToken(this.tokenValue).subscribe({
+			this.authSvcs.validateToken(this.tokenValue).pipe(takeUntil(this.destroy$)).subscribe({
 				next: async (response) => {
-					this.tokenId = response.data.singleObjData.tokenId;
-					if (response.responseCode == 200) {
-						this.messageService.add({ severity: 'success', summary: 'success', detail: response.message });
+					this.tokenId = response.data.records.tokenId;
+					if (response.responseCode === 200) {
+						this.messageService.success(response.message);
 						if (this.registerForm.disabled) {
 							this.registerForm.enable();
-							await this.getCountries();
+							this.getCountries();
 						}
 					}
 				},
-				error: (response) => {
-					this.messageService.add({
-						severity: 'error',
-						summary: 'error',
-						detail: response.error.message,
-					});
-				}
+				error: (err) => { }
 			});
 		} else {
-			this.messageService.add({
-				severity: 'warn',
-				summary: 'warn',
-				detail: 'Please Enter Token',
-			});
+			this.messageService.info('Please Enter Token');
 		}
 	}
-	private async getCountries(): Promise<void> {
-		this.commonSvcs.getCountries().subscribe({
-			next: (response) => {
-				if (response.responseCode == 200) {
-					this.countries = response.data.collectionObjData as CountryDto[]
+	private getCountries() {
+		this.commonSvcs.getCountries().pipe(takeUntil(this.destroy$)).subscribe({
+			next: async (response) => {
+				if (response.responseCode === 200) {
+					this.countries = response.data.records as CountryDto[]
 				}
 			},
 			error: (err) => { }
 		});
 	}
-	private async getStates(counryId: any): Promise<void> {
-		this.commonSvcs.getStates(counryId).subscribe({
-			next: (response) => {
-				if (response.responseCode == 200) {
-					this.states = response.data.collectionObjData as StateDto[]
+	private getStates(countryId: any) {
+		this.commonSvcs.getStates(countryId).pipe(takeUntil(this.destroy$)).subscribe({
+			next: async (response) => {
+				if (response.responseCode === 200) {
+					this.states = response.data.records as StateDto[]
 				}
 			},
 			error: (err) => { }
 		});
 	}
-	private async getDists(stateId: any): Promise<void> {
-		this.commonSvcs.getDists(stateId).subscribe({
-			next: (response) => {
-				if (response.responseCode == 200) {
-					this.dists = response.data.collectionObjData as DistDto[]
+	private getDists(stateId: any) {
+		this.commonSvcs.getDists(stateId).pipe(takeUntil(this.destroy$)).subscribe({
+			next: async (response) => {
+				if (response.responseCode === 200) {
+					this.dists = response.data.records as DistDto[]
 				}
 			},
 			error: (err) => { }
 		});
 	}
 	public async signUp(): Promise<void> {
-		try {
-			if (this.registerForm.invalid) {
-				Object.keys(this.registerForm.controls).forEach(key => {
-					const control = this.registerForm.get(key);
-					control?.markAsTouched();
-				});
-				this.messageService.add({
-					severity: 'error',
-					summary: 'Validation Error',
-					detail: 'Please fill all required fields correctly'
-				});
-				return;
-			}
-			else {
-				this.isLoading = true;
-				const formData = await this.convertFormToFormData(this.registerForm.value);
-				this.authSvcs.signUp(formData).subscribe({
-					next: (response) => {
-						if (response.responseCode === 201) {
-							this.messageService.add({
-								severity: 'success',
-								summary: 'Success',
-								detail: 'Registration successful'
-							});
-						}
-						this.isLoading = false;
-					},
-					error: (error) => {
-						this.isLoading = false;
-						this.messageService.add({
-							severity: 'error',
-							summary: 'Error',
-							detail: error.error?.message || 'Registration failed'
-						});
-					},
-					complete: () => {
-						this.isLoading = false;
-						this.resetForm();
-					},
-				});
-			}
+
+		if (this.registerForm.invalid) {
+			Object.keys(this.registerForm.controls).forEach(key => {
+				const control = this.registerForm.get(key);
+				control?.markAsTouched();
+			});
+			this.messageService.error('Please fill all required fields correctly');
+			return;
 		}
-		catch (error) {
-			this.isLoading = false;
-			this.messageService.add({
-				severity: 'error',
-				summary: 'Error',
-				detail: 'An error occurred during registration'
+		else {
+			this.isLoading = true;
+			const formData = await this.convertFormToFormData(this.registerForm.value);
+			this.authSvcs.signUp(formData).pipe(takeUntil(this.destroy$)).subscribe({
+				next: async (response) => {
+					if (response.responseCode === 201) {
+						this.messageService.success('Registration successful');
+					}
+					this.isLoading = false;
+					this.resetForm();
+				},
+				error: (error) => {
+					this.isLoading = false;
+				}
 			});
 		}
 	}

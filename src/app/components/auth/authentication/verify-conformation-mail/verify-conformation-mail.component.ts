@@ -7,34 +7,33 @@ import { LayoutService } from '../../../shared/service/app.layout.service';
   templateUrl: './verify-conformation-mail.component.html',
 })
 export class VerifyConformationMailComponent {
+  //#region Property Declaration
   uid: any;
   token: any;
   message: string = '';
+  //#endregion
+
+  //#region Constructor
   constructor(
     private route: ActivatedRoute,
-   private authSvcs: AuthenticationService,
-   public layoutSvcs: LayoutService,
-  ) {}
+    private authSvcs: AuthenticationService,
+    public layoutSvcs: LayoutService,
+  ) { }
+  //#endregion
+
+  //#region Lifecycle Hooks
   ngOnInit(): void {
     this.uid = this.route.snapshot.paramMap.get('uid');
     this.token = this.route.snapshot.paramMap.get('token');
     if (this.uid && this.token) {
-      this.authSvcs.verifyConfirmEmail(
-        this.uid,
-        this.token
-      ).subscribe({
-        next: (response) => {
+      this.authSvcs.verifyConfirmEmail(this.uid, this.token).subscribe({
+        next: async (response) => {
           if (response.responseCode === 200) {
             this.message = response.message
           }
-        },
-        error: (error) => {
-           this.message = error.error.message
-        },
-        complete: () => {
-          console.log('Request completed');
-        },
+        }
       });
     }
   }
+  //#endregion
 }

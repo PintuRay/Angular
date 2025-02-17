@@ -71,7 +71,7 @@ export class AddUpdateBranchFinancialYearComponent {
         this.visible = isVisible;
       }
     );
-    this.branchFinanancialYearDataSub = this.branchFinancialYearsSvcs.getBranchFinanancialYear().subscribe((operation) => {
+    this.branchFinanancialYearDataSub = this.branchFinancialYearsSvcs.getBranchFinancialYear().subscribe((operation) => {
       if (operation?.branchFinancialYear != null) {
         this.branchFinancialyear = operation.branchFinancialYear;
         this.updateBranchFinancialYear.branchFinancialYearId = operation.branchFinancialYear.branchFinancialYearId;
@@ -214,7 +214,7 @@ export class AddUpdateBranchFinancialYearComponent {
     });
   }
   private async getAllFinancialYears(): Promise<void> {
-    this.financialYearSvcs.getAllFinancialYears().subscribe({
+    this.financialYearSvcs.getAll().subscribe({
       next: (response) => {
         if (response.responseCode == 200) {
           this.financialYears = response.data.collectionObjData as FinancialYearDto[]
@@ -234,7 +234,7 @@ export class AddUpdateBranchFinancialYearComponent {
             next: async (response) => {
               if (response.responseCode === 201) {
                 this.branchFinancialyear = response.data.records as BranchFinancialYearDto;
-                this.branchFinancialYearsSvcs.setBranchFinanancialYear({ branchFinancialYear: this.branchFinancialyear, isSuccess: true, message: response.message });
+                this.branchFinancialYearsSvcs.setBranchFinancialYear({ branchFinancialYear: this.branchFinancialyear, isSuccess: true, message: response.message });
                 this.hideDialog();
               }
               this.isLoading = false;
@@ -250,7 +250,7 @@ export class AddUpdateBranchFinancialYearComponent {
             next: async (response) => {
               if (response.responseCode === 200) {
                 this.branchFinancialyear = response.data.records as BranchFinancialYearDto;
-                this.branchFinancialYearsSvcs.setBranchFinanancialYear({ branchFinancialYear: this.branchFinancialyear, isSuccess: true, message: response.message });
+                this.branchFinancialYearsSvcs.setBranchFinancialYear({ branchFinancialYear: this.branchFinancialyear, isSuccess: true, message: response.message });
                 this.hideDialog();
               }
               this.isLoading = false;

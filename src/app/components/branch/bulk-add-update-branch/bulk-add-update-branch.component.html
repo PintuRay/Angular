@@ -18,7 +18,6 @@
                 <form [formGroup]="branchForm" class="pt-4">
                     <div formArrayName="branches">
                         <div *ngFor="let branch of branches.controls; let i=index" [formGroupName]="i" class="mb-1">
-                            <input type="hidden" formControlName="branchId">
                             <div class="p-fluid p-formgrid grid">
                                 <div class="field col-12">
                                     <h3>#{{i + 1}}
@@ -28,7 +27,7 @@
                                 </div>
 
                                 <!-- Branch Name -->
-                                <div class="field col-12 md:col-6">
+                                <div class="field col-12 md:col-4">
                                     <p-inputGroup>
                                         <p-inputGroupAddon>
                                             <i class="fa-solid fa-city"></i>
@@ -46,7 +45,7 @@
                                 </div>
 
                                 <!-- Branch Code -->
-                                <div class="field col-12 md:col-6">
+                                <div class="field col-12 md:col-4">
                                     <p-inputGroup>
                                         <p-inputGroupAddon>
                                             <i class="fa-solid fa-barcode"></i>
@@ -64,7 +63,7 @@
                                 </div>
 
                                 <!-- Contact Number -->
-                                <div class="field col-12 md:col-6">
+                                <div class="field col-12 md:col-4">
                                     <p-inputGroup>
                                         <p-inputGroupAddon>
                                             <i class="fa-solid fa-phone"></i>
@@ -83,27 +82,92 @@
                                 </div>
 
                                 <!-- Branch Address -->
-                                <div class="field col-12 md:col-6">
-                                    <p-inputGroup>
-                                        <p-inputGroupAddon>
-                                            <i class="fa-solid fa-location-dot"></i>
-                                        </p-inputGroupAddon>
+                                <ng-container formGroupName="address">
+                                    <div class="field col-12 md:col-4">
                                         <span class="p-float-label">
-                                            <input type="text" pInputText [id]="'branchAddress_' + i"
-                                                formControlName="branchAddress" autocomplete="off"
-                                                [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid(i, 'branchAddress')}">
-                                            <label [for]="'branchAddress_' + i">Address</label>
+                                            <p-autoComplete formControlName="country" [suggestions]="filteredCountries"
+                                                (completeMethod)="filterCountries($event, i)" dataKey="countryId"
+                                                field="countryName" [dropdown]="true"
+                                                (onSelect)="onCountrySelect($event, i)" [id]="'country' + i"
+                                                [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid(i,'country','address')}">
+                                            </p-autoComplete>
+                                            <label for="country">Country</label>
                                         </span>
-                                    </p-inputGroup>
-                                    <small class="p-error block" *ngIf="isFieldInvalid(i, 'branchAddress')">
-                                        {{ getErrorMessage(i, 'branchAddress') }}
-                                    </small>
-                                </div>
+                                        <small class="p-error block" *ngIf="isFieldInvalid(i,'country','address')">{{
+                                            getErrorMessage(i,'country','address') }}</small>
+                                    </div>
+                                    <div class="field col-12 md:col-4">
+                                        <span class="p-float-label">
+                                            <p-autoComplete formControlName="state" [suggestions]="filteredStates"
+                                                (completeMethod)="filterStates($event, i)" dataKey="stateId"
+                                                field="stateName" [dropdown]="true" (onSelect)="onStateSelect($event, i)"
+                                                [id]="'state' + i"
+                                                [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid(i,'state','address')}">
+                                            </p-autoComplete>
+                                            <label for="state">State</label>
+                                        </span>
+                                        <small class="p-error block" *ngIf="isFieldInvalid(i,'state','address')">{{
+                                            getErrorMessage(i,'state','address') }}</small>
+                                    </div>
+                                    <div class="field col-12 md:col-4">
+                                        <span class="p-float-label">
+                                            <p-autoComplete formControlName="dist" [suggestions]="filteredDists"
+                                                (completeMethod)="filterDists($event, i)" dataKey="distId" field="distName"
+                                                [dropdown]="true" [id]="'dist' + i"
+                                                [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid(i,'dist','address')}">
+                                            </p-autoComplete>
+                                            <label for="dist">Dist</label>
+                                        </span>
+                                        <small class="p-error block" *ngIf="isFieldInvalid(i,'dist','address')">{{
+                                            getErrorMessage(i,'dist','address') }}</small>
+                                    </div>
+                                    <div class="field col-12 md:col-4">
+                                        <span class="p-float-label">
+                                            <input type="text" pInputText [id]="'at' + i" formControlName="at"
+                                                transformToUppercase autocomplete="off"
+                                                [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid(i,'at','address')}">
+                                            <label htmlFor="at">At</label>
+                                        </span>
+                                        <small class="p-error block" *ngIf="isFieldInvalid(i,'at','address')">{{
+                                            getErrorMessage(i,'at','address') }}</small>
+                                    </div>
+                                    <div class="field col-12 md:col-4">
+                                        <span class="p-float-label">
+                                            <input type="text" pInputText [id]="'post' + i" formControlName="post"
+                                                class="w-full" transformToUppercase autocomplete="off"
+                                                [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid(i,'post','address')}">
+                                            <label htmlFor="post">Post</label>
+                                        </span>
+                                        <small class="p-error block" *ngIf="isFieldInvalid(i,'post','address')">{{
+                                            getErrorMessage(i,'post','address') }}</small>
+                                    </div>
+                                    <div class="field col-12 md:col-4">
+                                        <span class="p-float-label">
+                                            <input type="text" pInputText [id]="'city' + i" formControlName="city"
+                                                class="w-full" transformToUppercase autocomplete="off"
+                                                [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid(i,'city','address')}">
+                                            <label htmlFor="city">City</label>
+                                        </span>
+                                        <small class="p-error block" *ngIf="isFieldInvalid(i,'city','address')">{{
+                                            getErrorMessage(i,'city','address') }}</small>
+                                    </div>
+                                    <div class="field col-12 md:col-4">
+                                        <span class="p-float-label">
+                                            <input type="text" pInputText [id]="'pinCode' + i" formControlName="pinCode"
+                                                class="w-full" onlyNumbers [maxLength]="6" autocomplete="off"
+                                                [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid(i,'pinCode','address')}">
+                                            <label htmlFor="pinCode">Pin Code</label>
+                                        </span>
+                                        <small class="p-error block" *ngIf="isFieldInvalid(i,'pinCode','address')">{{
+                                            getErrorMessage(i,'pinCode','address') }}</small>
+                                    </div>
+                                </ng-container>
                             </div>
                         </div>
                     </div>
                     <div class="flex justify-content-end mb-3">
-                        <button *ngIf="operationType === 'add'" pButton type="button" label="Add" icon="fa-solid fa-circle-plus" (click)="addBranch()"
+                        <button *ngIf="operationType === 'add'" pButton type="button" label="Add"
+                            icon="fa-solid fa-circle-plus" (click)="addBranch()"
                             class="p-button-success mr-2 "></button>
                         <button pButton type="submit" [disabled]="!branchForm.valid" (click)="submit()">
                             <ng-container *ngIf="isLoading; else branchLabel">
@@ -132,7 +196,7 @@
             <pre class="p-2 border rounded bg-gray-100" style="white-space: pre-wrap;">{{ branchModelJson }}</pre>
         </p-accordionTab>
         <p-accordionTab header=" Update Model" class="line-height-3 m-0">
-            <pre class="p-2 border rounded bg-gray-100" style="white-space: pre-wrap;">{{BranchUpdatemodelJson}}</pre>
+            <pre class="p-2 border rounded bg-gray-100" style="white-space: pre-wrap;">{{BranchUpdateModelJson}}</pre>
         </p-accordionTab>
         <p-accordionTab header="Form Status" class="line-height-3 m-0">
             <p><strong>Valid:</strong> {{ branchForm.valid }}</p>

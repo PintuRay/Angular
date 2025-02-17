@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { Subject } from 'rxjs';
+import { ActivatedRoute } from '@angular/router';
+import { Subject, takeUntil } from 'rxjs';
 import { SignIn2faModel } from 'src/app/api/model/account/authentication/signin-2fa-model';
 import { StorageModel } from 'src/app/api/model/storage-model';
 import { AuthenticationService } from 'src/app/api/service/account/authentication/authentication.service';
 import { LayoutService } from '../../../shared/service/app.layout.service';
-import { MessageService } from 'primeng/api';
+import { GenericMessageService } from 'src/app/api/service/generic-message.Service';
 @Component({
     selector: 'app-twostep-login',
     templateUrl: './twostep-login.component.html',
@@ -63,7 +63,7 @@ export class TwostepLoginComponent implements OnInit {
         public layoutService: LayoutService,
         private route: ActivatedRoute,
         private authSvcs: AuthenticationService,
-        private messageService: MessageService
+        private messageService: GenericMessageService
     ) { }
     /*-----------------------------------------Lifecycle Hooks------------------------------------------------*/
     ngOnInit(): void {
@@ -80,45 +80,31 @@ export class TwostepLoginComponent implements OnInit {
     verifyOtp(): void {
         this.isLoading = true;
         if (this.TwoFactorLogin.OTP.length === 6) {
-            this.authSvcs.loginWithOTP(this.TwoFactorLogin).subscribe({
+            this.authSvcs.loginWithOTP(this.TwoFactorLogin).pipe(takeUntil(this.destroy$)).subscribe({
                 next: (response) => {
                     this.isLoading = false;
-                    this.msg = this.authSvcs.handleLoginWithOTPResponse(response);
-                    if (this.msg !== '') {
-                        this.messageService.add({ severity: 'warn', summary: 'warn', detail: this.msg });
-                    }
-                },
-                error: (response) => {
-                    this.isLoading = false;
-                    this.msg = this.authSvcs.handleLoginWithOTPError(response);
-                    this.messageService.add({ severity: 'error', summary: 'Error', detail: this.msg });
-                },
-                complete: () => {
-                    this.isLoading = false;
+                    this.authSvcs.handleLoginWithOTPResponse(response);
                     this.reset();
+                },
+                error: (err) => {
+                    this.isLoading = false;
                 },
             });
         }
         else {
-            this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Invalid OTP' });
+            this.messageService.error('Invalid OTP');
             this.isLoading = false;
             this.TwoFactorLogin.OTP = '';
         }
     }
     resendOtp(): void {
-        this.authSvcs.resendTwoFactorToken(this.TwoFactorLogin.Email).subscribe({
+        this.authSvcs.resendTwoFactorToken(this.TwoFactorLogin.Email).pipe(takeUntil(this.destroy$)).subscribe({
             next: (response) => {
-                this.msg = this.authSvcs.handResendOTPResponse(response);
-                if (this.msg !== '') {
-                    this.messageService.add({ severity: 'success', summary: 'success', detail: response.message });
+                if (response.responseCode === 200) {
+                    this.messageService.success(response.message);
                 }
             },
-            error: (response) => {
-                this.msg = this.authSvcs.handleResendOTPError(response);
-                this.messageService.add({ severity: 'error', summary: 'Error', detail: this.msg, });
-            },
-            complete: () => {
-            },
+            error: (err) => { }
         })
     }
     reset(): void {

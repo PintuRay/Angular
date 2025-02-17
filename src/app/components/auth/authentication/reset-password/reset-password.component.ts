@@ -1,8 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { MessageService } from 'primeng/api';
+import { Subject, takeUntil } from 'rxjs';
 import { ResetPasswordModel } from 'src/app/api/model/account/authentication/reset-password-model';
 import { AuthenticationService } from 'src/app/api/service/account/authentication/authentication.service';
+import { GenericMessageService } from 'src/app/api/service/generic-message.Service';
 import { LayoutService } from 'src/app/components/shared/service/app.layout.service';
 
 @Component({
@@ -11,6 +13,7 @@ import { LayoutService } from 'src/app/components/shared/service/app.layout.serv
 })
 export class ResetPasswordComponent implements OnInit {
   //#region Property Declaration
+  private readonly destroy$ = new Subject<void>();
   message: string = '';
   isLoading = false;
   resetPass: ResetPasswordModel = new ResetPasswordModel();
@@ -23,7 +26,7 @@ export class ResetPasswordComponent implements OnInit {
     private route: ActivatedRoute,
     private authSvcs: AuthenticationService,
     public layoutSvcs: LayoutService,
-    private messageService: MessageService
+    private messageService: GenericMessageService
   ) { }
   //#endregion
 
@@ -32,87 +35,78 @@ export class ResetPasswordComponent implements OnInit {
     this.resetPass.uid = this.route.snapshot.paramMap.get('uid') ?? '';
     this.resetPass.token = this.route.snapshot.paramMap.get('token') ?? '';
   }
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
   //#endregion
-   //#region Client side Vaildation
-   checkPasswordMatch() {
+
+  //#region Client side Vaildation
+  checkPasswordMatch() {
     if (!this.resetPass.newPassword || !this.resetPass.confirmNewPassword) {
-        this.showPasswordMismatch = false;
+      this.showPasswordMismatch = false;
     } else {
-        this.showPasswordMismatch = !this.resetPass.passwordsMatch();
+      this.showPasswordMismatch = !this.resetPass.passwordsMatch();
     }
     this.validatePassword();
-}
+  }
   validatePassword() {
     this.passwordErrors = [];
     const password = this.resetPass.newPassword;
-    
+
     // Reset errors if password is empty
     if (!password || password.trim() === '') {
-        this.showPasswordError = false;
-        return;
+      this.showPasswordError = false;
+      return;
     }
 
     if (password.length < 8) {
       this.passwordErrors.push('Password must be at least 8 characters long');
-  }
-  if (!/[a-z]/.test(password)) {
+    }
+    if (!/[a-z]/.test(password)) {
       this.passwordErrors.push('Password must contain at least one lowercase letter');
-  }
-  if (!/[A-Z]/.test(password)) {
+    }
+    if (!/[A-Z]/.test(password)) {
       this.passwordErrors.push('Password must contain at least one uppercase letter');
-  }
-  if (!/[0-9]/.test(password)) {
+    }
+    if (!/[0-9]/.test(password)) {
       this.passwordErrors.push('Password must contain at least one number');
-  }
-  // Modified this condition to specifically check for special characters
-  if (!/[@#$%^&*!]/.test(password)) {
+    }
+    // Modified this condition to specifically check for special characters
+    if (!/[@#$%^&*!]/.test(password)) {
       this.passwordErrors.push('Password must contain at least one special character');
-  }
+    }
     this.showPasswordError = this.passwordErrors.length > 0;
-}
-   //#endregion
-  //#region Client Side Operations
+  }
+  //#endregion
 
+  //#region Client Side Operations
   isFormValid(): boolean {
     return this.resetPass.isValid() && !this.isLoading;
   }
   //#endregion
+
   //#region Server Side Operations
-  async submit(): Promise<void> {
-    try {
-      if (!this.resetPass.passwordsMatch()) {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: 'Passwords do not match'
+  public submit() {
+    if (!this.resetPass.passwordsMatch()) {
+      this.messageService.info('Passwords do not match');
+      return;
+    }
+    else {
+      this.isLoading = true;
+      this.authSvcs.resetPassword(this.resetPass).pipe(takeUntil(this.destroy$)).subscribe({
+          next: async (response) => {
+            if (response.responseCode === 200) {
+              this.messageService.success(response.message);
+            }
+            this.isLoading = false;
+          },
+          error: (err) => {
+            this.isLoading = false;
+          }
         });
-        return;
-      }
-      else {
-        this.isLoading = true;
-        this.authSvcs.resetPassword(this.resetPass)
-          .subscribe({
-            next: (response) => {
-              if (response.responseCode == 200) {
-                this.messageService.add({ severity: 'success', summary: 'success', detail: response.message, });
-              }
-              this.isLoading = false;
-            },
-            error: (response) => {
-              this.messageService.add({ severity: 'error', summary: 'error', detail: response.error.message });
-              this.isLoading = false;
-            },
-            complete: () => {
-              this.isLoading = false;
-              console.log('reset password Request completed');
-            },
-          });
-      }
     }
-    catch (error) {
-      this.isLoading = false;
-      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'An error occurred' });
-    }
+
   }
   //#endregion
 }

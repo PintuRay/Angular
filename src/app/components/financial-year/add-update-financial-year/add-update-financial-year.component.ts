@@ -39,7 +39,7 @@ export class AddUpdateFinancialYearComponent {
 
   //#region Lifecycle Hooks
   ngOnInit() {
-    this.finanancialYearDataSub = this.financialYearSvcs.getFinanancialYear().subscribe((operation) => {
+    this.finanancialYearDataSub = this.financialYearSvcs.getFinancialYear().subscribe((operation) => {
       if (operation?.financialYear != null) {
         this.financialyear = operation.financialYear;
         this.updateFinancialYear.financialYearId = operation.financialYear.financialYearId;
@@ -129,13 +129,13 @@ export class AddUpdateFinancialYearComponent {
         if (this.financialYearForm.valid) {
           this.isLoading = true;
           if (this.operationType === 'edit') {
-            this.financialYearSvcs.updateFinancialYear(this.updateFinancialYear).subscribe({
+            this.financialYearSvcs.update(this.updateFinancialYear).subscribe({
               next: async (response) => {
                 if (response.responseCode === 200) {
                   this.financialyear = {
                     ...this.updateFinancialYear,
                   };
-                  this.financialYearSvcs.setfinancialYear({ financialYear: this.financialyear, isSuccess: true });
+                  this.financialYearSvcs.setFinancialYear({ financialYear: this.financialyear, isSuccess: true });
                   this.resetComponent();
                   this.messageService.add({ severity: 'success', summary: 'Success', detail: response.message });
                 }
@@ -159,14 +159,14 @@ export class AddUpdateFinancialYearComponent {
               }
             })
           } else {
-            this.financialYearSvcs.createFinancialYear(this.addFinancialYear).subscribe({
+            this.financialYearSvcs.create(this.addFinancialYear).subscribe({
               next: async (response) => {
                 if (response.responseCode === 201) {
                   this.financialyear = {
                     ...this.addFinancialYear,
                     financialYearId: response.data.id
                   };
-                  this.financialYearSvcs.setfinancialYear({ financialYear: this.financialyear, isSuccess: true });
+                  this.financialYearSvcs.setFinancialYear({ financialYear: this.financialyear, isSuccess: true });
                   this.resetComponent();
                   this.messageService.add({ severity: 'success', summary: 'Success', detail: response.message });
                 }

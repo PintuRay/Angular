@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Subscription } from 'rxjs';
+import { Subject, Subscription } from 'rxjs';
 import { BranchDto, BranchModel, BranchUpdateModel } from 'src/app/api/entity/branch';
 import { CountryDto } from 'src/app/api/entity/country';
 import { DistDto } from 'src/app/api/entity/dist';
@@ -9,8 +9,6 @@ import { BranchService } from 'src/app/api/service/devloper/branch/branch.servic
 import { LayoutService } from '../../shared/service/app.layout.service';
 import { AuthenticationService } from 'src/app/api/service/account/authentication/authentication.service';
 import { CommonService } from 'src/app/api/service/common/common.service';
-import { MessageService } from 'primeng/api';
-import { GenericMessageService } from 'src/app/api/service/generic-message.Service';
 import { BranchMessageService } from 'src/app/api/service/devloper/branch/branch-message.service';
 
 @Component({
@@ -23,6 +21,7 @@ export class AddUpdateBranchComponent implements OnInit, OnDestroy {
   public display = false;
   public isLoading = false;
   public operationType = '';
+  private readonly destroy$ = new Subject<void>();
   private branchDataSub: Subscription = new Subscription();
   private operationTypeSub: Subscription = new Subscription();
   private branch: BranchDto = new BranchDto();
@@ -35,16 +34,19 @@ export class AddUpdateBranchComponent implements OnInit, OnDestroy {
   public filteredStates: StateDto[] = [];
   public filteredDists: DistDto[] = [];
   public branchForm: FormGroup = this.initializeBranchForm();
+  get dark(): boolean {
+    return this.layoutSvcs.config().colorScheme !== 'light';
+  }
   //#endregion
 
   //#region constructor
   constructor(
     private fb: FormBuilder,
-    private readonly branchSvcs: BranchService,
-    public readonly layoutSvcs: LayoutService,
-    private readonly authSvcs: AuthenticationService,
-    private readonly commonSvcs: CommonService,
-    private readonly messageService: BranchMessageService) {
+    private branchSvcs: BranchService,
+    public layoutSvcs: LayoutService,
+    private authSvcs: AuthenticationService,
+    private commonSvcs: CommonService,
+    private messageService: BranchMessageService) {
   }
   //#endregion
 
@@ -53,8 +55,7 @@ export class AddUpdateBranchComponent implements OnInit, OnDestroy {
     this.getCountries().then(() => {
       this.branchDataSub = this.branchSvcs.getBranch().subscribe((operation) => {
         if (operation?.branch != null) {
-          this.branch = operation.branch;
-          this.updatebranch.branchId = operation.branch.branchId;
+          this.updatebranch = operation.branch;
           this.getStates(operation.branch.address.fk_CountryId).then(() => {
             const selectedState = this.states.find(s => s.stateId === operation.branch?.address.fk_StateId);
             if (selectedState) {
@@ -125,12 +126,8 @@ export class AddUpdateBranchComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.operationTypeSub?.unsubscribe();
     this.branchDataSub?.unsubscribe();
-  }
-  //#endregion
-
-  //#region Themme
-  get dark(): boolean {
-    return this.layoutSvcs.config().colorScheme !== 'light';
+    this.destroy$.next();
+    this.destroy$.complete();
   }
   //#endregion
 
@@ -209,14 +206,14 @@ export class AddUpdateBranchComponent implements OnInit, OnDestroy {
   }
   filterStates(event: any) {
     const query = event.query.toLowerCase();
-    this.filteredStates = this.states.filter(status =>
-      status.stateName.toLowerCase().includes(query)
+    this.filteredStates = this.states.filter(state =>
+      state.stateName.toLowerCase().includes(query)
     );
   }
   filterDists(event: any) {
     const query = event.query.toLowerCase();
-    this.filteredDists = this.dists.filter(status =>
-      status.distName.toLowerCase().includes(query)
+    this.filteredDists = this.dists.filter(dist =>
+      dist.distName.toLowerCase().includes(query)
     );
   }
   onCountrySelect(event: any) {
@@ -258,7 +255,7 @@ export class AddUpdateBranchComponent implements OnInit, OnDestroy {
       this.commonSvcs.getCountries().subscribe({
         next: (response) => {
           if (response.responseCode === 200) {
-            this.countries = response.data.collectionObjData as CountryDto[];
+            this.countries = response.data.records as CountryDto[];
           }
           resolve();
         },
@@ -271,7 +268,7 @@ export class AddUpdateBranchComponent implements OnInit, OnDestroy {
       this.commonSvcs.getStates(countryId).subscribe({
         next: (response) => {
           if (response.responseCode === 200) {
-            this.states = response.data.collectionObjData as StateDto[];
+            this.states = response.data.records as StateDto[];
           }
           resolve();
         },
@@ -284,7 +281,7 @@ export class AddUpdateBranchComponent implements OnInit, OnDestroy {
       this.commonSvcs.getDists(stateId).subscribe({
         next: (response) => {
           if (response.responseCode === 200) {
-            this.dists = response.data.collectionObjData as DistDto[];
+            this.dists = response.data.records as DistDto[];
           }
           resolve();
         },
@@ -293,8 +290,12 @@ export class AddUpdateBranchComponent implements OnInit, OnDestroy {
     });
   }
   public submit(): void {
-    if (this.branchForm.dirty && this.branchForm.touched) {
-      if (this.branchForm.valid) {
+    if (this.branchForm.invalid) {
+      this.branchForm.markAllAsTouched();
+      return;
+    }
+    else{
+      if (this.branchForm.dirty && this.branchForm.touched) {
         this.isLoading = true;
         if (this.operationType === 'edit') {
           this.branchSvcs.update(this.updatebranch).subscribe({
@@ -309,7 +310,6 @@ export class AddUpdateBranchComponent implements OnInit, OnDestroy {
               this.isLoading = false;
             }
           })
-
         } else {
           this.branchSvcs.create(this.addbranch).subscribe({
             next: async (response) => {
@@ -324,11 +324,12 @@ export class AddUpdateBranchComponent implements OnInit, OnDestroy {
             }
           })
         }
-      }
     }
     else {
-      this.messageService.warning('No Change Detected');
+      this.messageService.info('No Change Detected');
     }
+    }
+  
   }
   //#endregion
 

@@ -77,7 +77,7 @@ export class ListFinancialYearComponent {
     //Get financial Year records
     this.getFinancialYears(this.pagination);
     //Single Insert or Update Subscription
-    this.financialYearSubscription = this.financialYearSvcs.getFinanancialYear()
+    this.financialYearSubscription = this.financialYearSvcs.getFinancialYear()
       .subscribe(operation => {
         if (operation?.isSuccess) {
           if (operation?.financialYear) {
@@ -93,7 +93,7 @@ export class ListFinancialYearComponent {
         }
       });
     //Single Recover Subscription
-    this.recoverSubscription = this.financialYearSvcs.getRecoverFinanancialYear()
+    this.recoverSubscription = this.financialYearSvcs.getRecoverFinancialYear()
       .subscribe(operation => {
         if (operation?.isSuccess) {
           if (operation.financialYear) {
@@ -133,7 +133,7 @@ export class ListFinancialYearComponent {
   //#region Client Side Operations
   public editFinancialYear(financialYear: FinancialYearDto) {
     this.financialYearSvcs.setOperationType("edit");
-    this.financialYearSvcs.setfinancialYear({ financialYear, isSuccess: false });
+    this.financialYearSvcs.setFinancialYear({ financialYear, isSuccess: false });
   }
   public recoverBranch() {
     this.financialYearSvcs.showRecoverDialog();
@@ -148,7 +148,7 @@ export class ListFinancialYearComponent {
   private getFinancialYears(pagination: PaginationParams): void {
     this.loading = true;
     try {
-      this.financialYearSvcs.getFinancialYears(pagination).subscribe({
+      this.financialYearSvcs.get(pagination).subscribe({
         next: async (response) => {
           this.loading = false;
           if (response.responseCode === 200) {
@@ -182,7 +182,7 @@ export class ListFinancialYearComponent {
       message: 'Are you sure that you want to Delete?',
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
-        this.financialYearSvcs.removeFinancialYear(id).subscribe({
+        this.financialYearSvcs.remove(id).subscribe({
           next: async (response) => {
             if (response.responseCode === 200) {
               this.financialYears = this.financialYears.filter(fy => fy.financialYearId !== id);

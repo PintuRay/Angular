@@ -2,7 +2,8 @@ import { Component } from '@angular/core';
 import { LayoutService } from '../../../shared/service/app.layout.service';
 import { environment } from 'src/app/utility/environment/environment';
 import { AuthenticationService } from 'src/app/api/service/account/authentication/authentication.service';
-import { MessageService } from 'primeng/api';
+import { Subject, takeUntil } from 'rxjs';
+import { GenericMessageService } from 'src/app/api/service/generic-message.Service';
 
 @Component({
 	selector: 'app-forgot-password',
@@ -10,64 +11,47 @@ import { MessageService } from 'primeng/api';
 })
 export class ForgotPasswordComponent {
 	//#region Property Declaration
+	private readonly destroy$ = new Subject<void>();
 	restPasswordUrl: string = environment.ResetPassword;
 	message: string = '';
 	isLoading = false;
 	//#endregion
+
 	//#region constructor
 	constructor(
 		public layoutSvcs: LayoutService,
 		private authSvcs: AuthenticationService,
-		private messageService: MessageService
+		private messageService: GenericMessageService
 	) { }
 	//#endregion
+
+	//#region Lifecycle Hooks
+	ngOnDestroy(): void {
+		this.destroy$.next();
+		this.destroy$.complete();
+	}
+	//#endregion
+
 	//#region Server Side Operations
-	async submit(emailInput: HTMLInputElement): Promise<void> {
+	public submit(emailInput: HTMLInputElement) {
 		const email = emailInput.value;
 		const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-		try {
-			if (emailRegex.test(email)) {
-				this.isLoading = true;
-				this.authSvcs.forgetPassword(emailInput.value, this.restPasswordUrl)
-				.subscribe({
-				  next: (response) => {
-					this.messageService.add({
-					  severity: 'success',
-					  summary: 'success',
-					  detail: response.message,
-					});
-					this.isLoading = false;
-				  },
-				  error: (response) => {
-					this.messageService.add({
-					  severity: 'error',
-					  summary: 'error',
-					  detail:  response.error.message,
-					});
-					this.isLoading = false;
-				  },
-				  complete: () => { 
-					this.isLoading = false;
-					console.log('forgot password Request completed');
-				  },
+		if (emailRegex.test(email)) {
+			this.isLoading = true;
+			this.authSvcs.forgetPassword(emailInput.value, this.restPasswordUrl).pipe(takeUntil(this.destroy$)).subscribe({
+					next: async (response) => {
+						if (response.responseCode === 200) {
+							this.messageService.success(response.message);
+						}
+						this.isLoading = false;
+					},
+					error: (err) => {
+						this.isLoading = false;
+					}
 				});
-			}
-			else {
-				this.messageService.add({
-					severity: 'warn',
-					summary: 'warn',
-					detail: 'Please Enter Valid Email',
-				});
-			}
 		}
-		catch (error) {
-			console.error('Error in signup:', error);
-			this.isLoading = false;
-			this.messageService.add({
-				severity: 'error',
-				summary: 'Error',
-				detail: 'An error occurred'
-			});
+		else {
+			this.messageService.warning('Please Enter Valid Email');
 		}
 	}
 	//#endregion

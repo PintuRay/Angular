@@ -1,52 +1,48 @@
 import { Injectable } from '@angular/core';
-import { Observable, switchMap } from 'rxjs';
+import { catchError, Observable, switchMap, throwError } from 'rxjs';
 import { Base } from '../../model/base';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { ConfigService } from '../config.Service';
+import { GenericMessageService } from '../generic-message.Service';
 @Injectable({
     providedIn: 'root',
 })
 export class CommonService {
     /*-------------------------------Constructor----------------------------------*/
-    constructor(
-        private http: HttpClient,
-        private configService: ConfigService
-    ) { }
+    constructor(private http: HttpClient, private configService: ConfigService, private errorHandler: GenericMessageService) { }
     /*-------------------------------Methods----------------------------------*/
-    getCountries(): Observable<Base> {
-        return this.configService
-            .getEndpoint('common', 'getCountries')
-            .pipe(
-                switchMap((endpoint) =>
-                    this.http.get<Base>(endpoint)
-                )
-            );
+    private handleApiError(error: HttpErrorResponse): Observable<never> {
+        this.errorHandler.handleApiError(error);
+        return throwError(() => error);
     }
-    getStates(countryId: string): Observable<Base> {
-        return this.configService
-            .getEndpoint('common', 'getStates')
-            .pipe(
-                switchMap((endpoint) =>
-                    this.http.get<Base>(`${endpoint}/${countryId}`)
-                )
-            );
+    private createHttpRequest<T>(methodType: string, endpointKey: string, data?: any, params?: HttpParams, id?: string): Observable<Base> {
+        return this.configService.getEndpoint('common', endpointKey).pipe(
+            switchMap(endpoint => {
+                let url = endpoint;
+                if (id) {
+                    url = `${endpoint}/${id}`;
+                }
+                switch (methodType) {
+                    case 'GET':
+                        return this.http.get<Base>(url, { params });
+                    case 'POST':
+                        return this.http.post<Base>(url, data);
+                    case 'PUT':
+                        return this.http.put<Base>(url, data || {});
+                    case 'PATCH':
+                        return this.http.patch<Base>(url, data);
+                    case 'DELETE':
+                        return this.http.delete<Base>(url, { body: data });
+                    default:
+                        throw new Error('Invalid HTTP method');
+                }
+            }),
+            catchError(this.handleApiError.bind(this))
+        );
     }
-    getDists(stateId: string): Observable<Base> {
-        return this.configService
-            .getEndpoint('common', 'getDists')
-            .pipe(
-                switchMap((endpoint) =>
-                    this.http.get<Base>(`${endpoint}/${stateId}`)
-                )
-            );
-    }
-    getBranchFinancialYears(branchId: string) {
-        return this.configService
-            .getEndpoint('common', 'getBranchFinancialYears')
-            .pipe(
-                switchMap((endpoint) =>
-                    this.http.get<Base>(`${endpoint}/${branchId}`)
-                )
-            );
-    }
+
+    public getCountries = (): Observable<Base> => this.createHttpRequest('GET', 'getCountries');
+    public getStates = (countryId: string): Observable<Base> => this.createHttpRequest('GET', 'getStates', {}, undefined, countryId);
+    public getDists = (stateId: string): Observable<Base> => this.createHttpRequest('GET', 'getDists', {}, undefined, stateId);
+    public getBranchFinancialYears = (branchId: string) => this.createHttpRequest('GET', 'getBranchFinancialYears', {}, undefined, branchId);
 }

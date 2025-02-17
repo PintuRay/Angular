@@ -71,7 +71,7 @@ export class BulkAddUpdateBranchFinancialYearComponent {
         this.visible = isVisible;
       }
     );
-    this.branchFinancialYearDataSub = this.branchFinancialYearsSvcs.getBulkBranchFinanancialYear().subscribe((operation) => {
+    this.branchFinancialYearDataSub = this.branchFinancialYearsSvcs.getBulkBranchFinancialYear().subscribe((operation) => {
       if (operation?.branchFinancialYears != null && operation?.branchFinancialYears.length > 0) {
         this.branchFinancialYears = operation?.branchFinancialYears;
         while (this.branchFinancialYearArray.length) {
@@ -185,7 +185,7 @@ export class BulkAddUpdateBranchFinancialYearComponent {
     );
   }
   public hideDialog() {
-    this.branchFinancialYearsSvcs.hidBulkeAddUpdateDialog();
+    this.branchFinancialYearsSvcs.hideBulkAddUpdateDialog();
     this.resetComponent();
   }
   private resetComponent() {
@@ -258,7 +258,7 @@ export class BulkAddUpdateBranchFinancialYearComponent {
     });
   }
   private async getAllFinancialYears(): Promise<void> {
-    this.financialYearSvcs.getAllFinancialYears().subscribe({
+    this.financialYearSvcs.getAll().subscribe({
       next: (response) => {
         if (response.responseCode == 200) {
           this.financialYears = response.data.collectionObjData as FinancialYearDto[]
@@ -278,7 +278,7 @@ export class BulkAddUpdateBranchFinancialYearComponent {
             this.branchFinancialYearsSvcs.bulkCreate(this.addBranchFinancialYears).subscribe({
               next: (response) => {
                 if (response.responseCode === 201) {
-                  this.branchFinancialYearsSvcs.setBulkBranchFinanancialYear({ branchFinancialYears: response.data.records as BranchFinancialYearDto[], isSuccess: true , message : response.message});
+                  this.branchFinancialYearsSvcs.setBulkBranchFinancialYear({ branchFinancialYears: response.data.records as BranchFinancialYearDto[], isSuccess: true , message : response.message});
                   this.hideDialog();
                   //this.addBranchFinancialYear();
                 }
@@ -294,7 +294,7 @@ export class BulkAddUpdateBranchFinancialYearComponent {
             this.branchFinancialYearsSvcs.bulkUpdate(this.updateBranchFinancialYears).subscribe({
               next: (response) => {
                 if (response.responseCode === 200) {
-                  this.branchFinancialYearsSvcs.setBulkBranchFinanancialYear({ branchFinancialYears: response.data.records as BranchFinancialYearDto[], isSuccess: true , message : response.message});
+                  this.branchFinancialYearsSvcs.setBulkBranchFinancialYear({ branchFinancialYears: response.data.records as BranchFinancialYearDto[], isSuccess: true , message : response.message});
                   this.messageService.add({ severity: 'success', summary: 'Success', detail: response.message });
                   this.hideDialog();
                   //this.addBranchFinancialYear();

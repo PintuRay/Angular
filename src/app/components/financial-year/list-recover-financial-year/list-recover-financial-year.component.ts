@@ -87,7 +87,7 @@ export class ListRecoverFinancialYearComponent {
   private getRemovedFinancialYears(pagination: PaginationParams) {
     this.loading = true;
     try {
-      this.financialYearSvcs.getRemovedFinancialYears(pagination).subscribe({
+      this.financialYearSvcs.getRemoved(pagination).subscribe({
         next: async (response) => {
           this.loading = false;
           if (response.responseCode === 200) {
@@ -115,23 +115,23 @@ export class ListRecoverFinancialYearComponent {
     }
   }
   public recoverFinancialYear(data: FinancialYearDto) {
-    this.financialYearSvcs.recoverFinancialYear(data.financialYearId).subscribe({
+    this.financialYearSvcs.recover(data.financialYearId).subscribe({
       next: async (response) => {
         if (response.responseCode === 200) {
           this.financialYears = this.financialYears.filter(fy => fy.financialYearId !== data.financialYearId);
-          this.financialYearSvcs.setRecoverfinancialYear({ financialYear: data, isSuccess: true, message: response.message });
+          this.financialYearSvcs.setRecoverFinancialYear({ financialYear: data, isSuccess: true, message: response.message });
           this.totalRecords -= 1;
         }
       },
       error: (err) => {
         if (err.error.responseCode === 404) {
-          this.financialYearSvcs.setRecoverfinancialYear({ financialYear: null, isSuccess: true, message: err.error.message });
+          this.financialYearSvcs.setRecoverFinancialYear({ financialYear: null, isSuccess: true, message: err.error.message });
         }
         else if (err.error.responseCode === 400) {
-          this.financialYearSvcs.setRecoverfinancialYear({ financialYear: null, isSuccess: true, message: `Server Side Eroor: ${err.error.message}` });
+          this.financialYearSvcs.setRecoverFinancialYear({ financialYear: null, isSuccess: true, message: `Server Side Eroor: ${err.error.message}` });
         }
         else {
-          this.financialYearSvcs.setRecoverfinancialYear({ financialYear: null, isSuccess: true, message: 'An unknown error occurred.' });
+          this.financialYearSvcs.setRecoverFinancialYear({ financialYear: null, isSuccess: true, message: 'An unknown error occurred.' });
         }
       },
     })
@@ -143,7 +143,7 @@ export class ListRecoverFinancialYearComponent {
       message: 'Are you sure that you want to Delete?',
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
-        this.financialYearSvcs.deleteFinancialYear(id).subscribe({
+        this.financialYearSvcs.delete(id).subscribe({
           next: async (response) => {
             if (response.responseCode === 200) {
               this.financialYears = this.financialYears.filter(fy => fy.financialYearId !== id);
@@ -152,13 +152,13 @@ export class ListRecoverFinancialYearComponent {
           },
           error: (err) => {
             if (err.error.responseCode === 404) {
-              this.financialYearSvcs.setRecoverfinancialYear({ financialYear: null, isSuccess: true, message: err.error.message });
+              this.financialYearSvcs.setRecoverFinancialYear({ financialYear: null, isSuccess: true, message: err.error.message });
             }
             else if (err.error.responseCode === 400) {
-              this.financialYearSvcs.setRecoverfinancialYear({ financialYear: null, isSuccess: true, message: `Server Side Eroor: ${err.error.message}` });
+              this.financialYearSvcs.setRecoverFinancialYear({ financialYear: null, isSuccess: true, message: `Server Side Eroor: ${err.error.message}` });
             }
             else {
-              this.financialYearSvcs.setRecoverfinancialYear({ financialYear: null, isSuccess: true, message: 'An unknown error occurred.' });
+              this.financialYearSvcs.setRecoverFinancialYear({ financialYear: null, isSuccess: true, message: 'An unknown error occurred.' });
             }
           },
         })

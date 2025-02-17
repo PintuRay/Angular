@@ -26,7 +26,7 @@ export class AuthenticationService {
         private errorHandler: GenericMessageService
     ) { }
     //#endregion
-   
+
     //#region local storage
     getJwtToken = (): string | null => localStorage.getItem('jwtToken');
     isTwoFactorEnabled = (): boolean => {
@@ -113,8 +113,8 @@ export class AuthenticationService {
     private verifyConfirmEmailParams = (uid: string, token: string): HttpParams => new HttpParams().set('uid', uid).set('token', token);
     private resendConfirmEmailParams = (email: string, routeUrl: string): HttpParams => new HttpParams().set('email', email).set('routeUrl', routeUrl);
     private resendTwoFactorTokenParams = (mail: string): HttpParams => new HttpParams().set('mail', mail);
-    private sendTwoFactorTokenParams  = (uid: string): HttpParams => new HttpParams().set('uid', uid);
-    private forgetPasswordParams  = (email: string, routeUrl: string): HttpParams => new HttpParams().set('mail', email).set('routeUrl', routeUrl);
+    private sendTwoFactorTokenParams = (uid: string): HttpParams => new HttpParams().set('uid', uid);
+    private forgetPasswordParams = (email: string, routeUrl: string): HttpParams => new HttpParams().set('mail', email).set('routeUrl', routeUrl);
 
     private handleApiError(error: HttpErrorResponse): Observable<never> {
         this.errorHandler.handleApiError(error);
@@ -155,7 +155,7 @@ export class AuthenticationService {
     resendConfirmEmail = (email: string, routeUrl: string): Observable<Base> => this.createHttpRequest('GET', 'resendConfirmEmail', {}, this.resendConfirmEmailParams(email, routeUrl));
     login = (user: SignInModel): Observable<Base> => this.createHttpRequest('POST', 'login', user);
     loginWithOTP = (data: SignIn2faModel): Observable<Base> => this.createHttpRequest('POST', 'loginWithOTP', data);
-    resendTwoFactorToken = (mail: string): Observable<Base> =>  this.createHttpRequest('GET', 'reSendTwoFactorToken', {}, this.resendTwoFactorTokenParams(mail));
+    resendTwoFactorToken = (mail: string): Observable<Base> => this.createHttpRequest('GET', 'reSendTwoFactorToken', {}, this.resendTwoFactorTokenParams(mail));
     sendTwoFactorToken = (uid: string): Observable<Base> => this.createHttpRequest('GET', 'sendTwoFactorToken', {}, this.sendTwoFactorTokenParams(uid));
     verifyTwoFactorToken = (data: SignIn2faModel): Observable<Base> => this.createHttpRequest('POST', 'verifyTwoFactorToken', data);
     forgetPassword = (email: string, routeUrl: string): Observable<Base> => this.createHttpRequest('GET', 'forgotPassword', {}, this.forgetPasswordParams(email, routeUrl));
@@ -164,97 +164,36 @@ export class AuthenticationService {
     //#endregion
 
     //#region Component Service
-    handleLoginResponse(response: Base, email: string): string {
-        let msg: string = '';
+    handleLoginResponse(response: Base, email: string): void {
         switch (response.responseCode) {
             case 200:
-                this.handleSuccessfulLogin(
-                    response.data as StorageModel,
-                    email
-                );
+                let storageData = response.data as StorageModel;
+                localStorage.setItem('2fa', storageData.twoFactorEnable.toString());
+                if (storageData.twoFactorEnable) {
+                    localStorage.setItem('otpExpiredIn', storageData.otpExpiredIn.toString());
+                    this.router.navigate(['auth/twostep-login', email]);
+                } else {
+                    localStorage.setItem('jwtToken', storageData.jwtToken);
+                    this.router.navigate(['dashboard']);
+                }
                 break;
             case 405:
                 this.router.navigate(['auth/confirm-mail', response.message]);
                 break;
             default:
-                msg = `Unhandled response code: ${response.responseCode}`;
-        }
-        return msg;
-    }
-    private handleSuccessfulLogin(storageData: StorageModel, email: string): void {
-        localStorage.setItem('2fa', storageData.twoFactorEnable.toString());
-        if (storageData.twoFactorEnable) {
-            localStorage.setItem(
-                'otpExpiredIn',
-                storageData.otpExpiredIn.toString()
-            );
-            this.router.navigate(['auth/twostep-login', email]);
-        } else {
-            localStorage.setItem('jwtToken', storageData.jwtToken);
-            this.router.navigate(['dashboard']);
-        }
-    }
-    handleLoginError(response: any): string {
-        let msg: string = '';
-        switch (response.error.responseCode) {
-            case 400:
-                msg = response.error.message;
                 break;
-            default:
-                msg = response.message;
         }
-        return msg;
     }
-    handleLoginWithOTPResponse(response: Base): string {
-        let msg: string = '';
+    handleLoginWithOTPResponse(response: Base): void {
         switch (response.responseCode) {
             case 200:
-                this.handleSuccessfulLoginWithOTP(
-                    response.data as StorageModel
-                );
+                let storageData = response.data as StorageModel
+                localStorage.setItem('jwtToken', storageData.jwtToken);
+                this.router.navigate(['dashboard']);
                 break;
             default:
-                msg = `Unhandled response code: ${response.responseCode}`;
-        }
-        return msg;
-    }
-    private handleSuccessfulLoginWithOTP(storageData: StorageModel): void {
-        localStorage.setItem('jwtToken', storageData.jwtToken);
-        this.router.navigate(['dashboard']);
-    }
-    handleLoginWithOTPError(response: any): string {
-        let msg: string = '';
-        switch (response.error.responseCode) {
-            case 400:
-                msg = response.error.message;
                 break;
-            default:
-                msg = response.message;
         }
-        return msg;
-    }
-    handResendOTPResponse(response: any): string {
-        let msg: string = '';
-        switch (response.responseCode) {
-            case 200:
-                msg = response.message;
-                break;
-            default:
-                msg = `Unhandled response code: ${response.responseCode}`
-        }
-        return msg;
-    }
-    handleResendOTPError(response: any): string {
-        let msg: string = '';
-        switch (response.error.responseCode) {
-            case 400:
-                msg = response.error.message;
-                break;
-            default:
-                msg = response.message;
-        }
-        return msg;
     }
     //#endregion
-   
 }

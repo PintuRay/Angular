@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
-import { MessageService } from 'primeng/api';
 import { Subject, takeUntil } from 'rxjs';
 import { SignInModel } from 'src/app/api/model/account/authentication/signIn-model';
 import { AuthenticationService } from 'src/app/api/service/account/authentication/authentication.service';
@@ -108,16 +107,11 @@ export class LoginComponent implements OnInit {
             this.authSvcs.login(this.user).pipe(takeUntil(this.destroy$)).subscribe({
                 next: (response) => {
                     this.isLoading = false;
-                    this.msg = this.authSvcs.handleLoginResponse(response, this.user.email);
-                    if (this.msg !== '') {
-                        this.messageService.warning(this.msg);
-                    }
+                    this.authSvcs.handleLoginResponse(response, this.user.email);
                     this.resetForm();
                 },
-                error: (response) => {
+                error: (err) => {
                     this.isLoading = false;
-                    this.msg = this.authSvcs.handleLoginError(response);
-                    this.messageService.error(this.msg);
                 },
             });
         }
