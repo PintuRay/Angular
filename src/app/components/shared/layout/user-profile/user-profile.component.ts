@@ -2,33 +2,50 @@ import { Component } from '@angular/core';
 import { AbstractControl, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { LayoutService } from '../../service/app.layout.service';
 import { CommonService } from 'src/app/api/service/common/common.service';
-import { MessageService } from 'primeng/api';
 import { AuthorizationService } from 'src/app/api/service/account/authorization/authorization.service';
 import { CountryDto } from 'src/app/api/entity/country';
 import { StateDto } from 'src/app/api/entity/state';
 import { DistDto } from 'src/app/api/entity/dist';
 import { AuthenticationService } from 'src/app/api/service/account/authentication/authentication.service';
 import { UserDto, UserMapper, UserUpdateModel } from 'src/app/api/entity/user-model';
-import { AddressUpdateModel } from 'src/app/api/entity/address';
+import { GenericMessageService } from 'src/app/api/service/generic-message.Service';
+import { catchError, finalize, map, Observable, of, Subject, switchMap, takeUntil, tap } from 'rxjs';
+import { CanComponentDeactivate } from 'src/app/utility/guards/deactivate.guard';
+import { ConfirmationService } from 'primeng/api';
 @Component({
   selector: 'user-profile',
   templateUrl: './user-profile.component.html',
+  styles: `
+    .loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}  `
 })
-export class UserProfileComponent {
+export class UserProfileComponent implements CanComponentDeactivate {
 
   //#region Property Declaration
   display: boolean = false;
-  userForm!: FormGroup;
+  public loading: boolean = false;
+  userForm: FormGroup;
+  private readonly destroy$ = new Subject<void>();
   formData: FormData = new FormData();
   isLoading = false;
   private user: UserDto = new UserDto();
   private updateUser: UserUpdateModel = new UserUpdateModel();
-  private countries: CountryDto[] = [];
-  private states: StateDto[] = [];
-  private dists: DistDto[] = [];
   filteredCountries: CountryDto[] = [];
   filteredStates: StateDto[] = [];
   filteredDists: DistDto[] = [];
+  countries: CountryDto[] = [];
+  states: StateDto[] = [];
+  dists: DistDto[] = [];
   readonly marriedStatus = [
     { key: 'married', value: 'Married' },
     { key: 'unmarred', value: 'UnMarried' },
@@ -51,8 +68,9 @@ export class UserProfileComponent {
     private authorizeSvcs: AuthorizationService,
     private authSvcs: AuthenticationService,
     private commonSvcs: CommonService,
-    private messageService: MessageService) {
-
+    private messageService: GenericMessageService,
+    private confirmationService: ConfirmationService) {
+    this.userForm = this.initializeUserForm();
   }
   //#endregion
 
@@ -64,7 +82,6 @@ export class UserProfileComponent {
 
   //#region Lifecycle Hooks
   ngOnInit(): void {
-    this.initializeUserForm();
     const Id = this.authSvcs.getUserDetails().id;
     this.getUserById(Id);
   }
@@ -72,12 +89,38 @@ export class UserProfileComponent {
     if (this.profileUrl) {
       URL.revokeObjectURL(this.profileUrl);
     }
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+  //#endregion
+
+  //#region Guard
+  canDeactivate(): Observable<boolean> {
+    if (this.userForm.dirty) {
+      return new Observable<boolean>((observer) => {
+        this.confirmationService.confirm({
+          message: 'You have unsaved changes. Do you want to leave?',
+          header: 'Confirm Navigation',
+          icon: 'pi pi-exclamation-triangle',
+          accept: () => {
+            observer.next(true);
+            observer.complete();
+          },
+          reject: () => {
+            observer.next(false);
+            observer.complete();
+          }
+        });
+      });
+    } else {
+      return of(true);
+    }
   }
   //#endregion
 
   //#region Form Initialization
-  private initializeUserForm(user?: UserUpdateModel): void {
-    this.userForm = this.fb.group({
+  private initializeUserForm(user?: UserUpdateModel) {
+    return this.fb.group({
       id: [user?.id || ''],
       name: [user?.name || '', [Validators.required, Validators.minLength(5), Validators.pattern(/^[A-Za-z\s]+$/)]],
       birthDate: [user?.birthDate ? new Date(user.birthDate) : null, Validators.required],
@@ -87,9 +130,9 @@ export class UserProfileComponent {
       phoneNumber: [user?.phoneNumber || '', [Validators.required, Validators.maxLength(10), Validators.pattern(/^[0-9]{10}$/)]],
       profilePhoto: [user?.profilePhoto || null],
       address: this.fb.group({
-        country: [user?.address?.fk_CountryId ? this.countries.find(c => c.countryId === user.address.fk_CountryId) : '', Validators.required],
-        state: [user?.address?.fk_StateId ? this.states.find(s => s.stateId === user.address.fk_StateId) : '', Validators.required],
-        dist: [user?.address?.fk_DistId ? this.dists.find(d => d.distId === user.address.fk_DistId) : '', Validators.required],
+        country: [user?.address?.fk_CountryId && this.countries?.length ? this.countries.find(c => c.countryId === user.address.fk_CountryId) : null, Validators.required],
+        state: [user?.address?.fk_StateId && this.states?.length ? this.states.find(s => s.stateId === user.address.fk_StateId) : null, Validators.required],
+        dist: [user?.address?.fk_DistId && this.dists?.length ? this.dists.find(d => d.distId === user.address.fk_DistId) : null, Validators.required],
         at: [user?.address?.at || '', Validators.required],
         post: [user?.address?.post || '', Validators.required],
         city: [user?.address?.city || '', Validators.required],
@@ -162,12 +205,9 @@ export class UserProfileComponent {
       const file = event.files[0];
       this.profileUrl = URL.createObjectURL(file);
       this.selectedProfilePhoto = file;
-      const profilePhotoControl = this.userForm.get('profilePhoto') as FormControl;
-      if (profilePhotoControl) {
-        profilePhotoControl.setValue(file);
-        profilePhotoControl.markAsDirty();
-        profilePhotoControl.markAsTouched();
-      }
+      this.userForm.get('profilePhoto')?.setValue(file);
+      this.userForm.get('profilePhoto')?.markAsDirty();
+      this.userForm.get('profilePhoto')?.markAsTouched();
     }
   }
   onProfilePhotoRemove() {
@@ -175,12 +215,9 @@ export class UserProfileComponent {
       this.profileUrl = URL.createObjectURL(this.updateUser.profilePhoto);
     }
     this.selectedProfilePhoto = null;
-    const profilePhotoControl = this.userForm.get('profilePhoto') as FormControl;
-    if (profilePhotoControl) {
-      profilePhotoControl.setValue(null);
-      profilePhotoControl.markAsDirty();
-      profilePhotoControl.markAsTouched();
-    }
+    this.userForm.get('profilePhoto')?.setValue(null);
+    this.userForm.get('profilePhoto')?.markAsDirty();
+    this.userForm.get('profilePhoto')?.markAsTouched();
   }
   public filterMaritalStatus(event: any) {
     const query = event.query.toLowerCase();
@@ -202,30 +239,49 @@ export class UserProfileComponent {
   }
   public filterStates(event: any) {
     const query = event.query.toLowerCase();
-    this.filteredStates = this.states.filter(status =>
-      status.stateName.toLowerCase().includes(query)
+    this.filteredStates = this.states.filter(state =>
+      state.stateName.toLowerCase().includes(query)
     );
   }
   public filterDists(event: any) {
     const query = event.query.toLowerCase();
-    this.filteredDists = this.dists.filter(status =>
-      status.distName.toLowerCase().includes(query)
+    this.filteredDists = this.dists.filter(dist =>
+      dist.distName.toLowerCase().includes(query)
     );
   }
-  public onCountrySelect(event: any) {
-    this.states = [];
-    this.dists = [];
-    this.filteredStates = [];
-    this.filteredDists = [];
-    if (event.value.countryId) {
-      this.getStates(event.value.countryId);
+  onCountrySelect(event: any) {
+    if (event?.value?.countryId) {
+      this.getStates(event.value.countryId).pipe(
+        tap(states => {
+          this.states = states;
+          this.filteredStates = states;
+          this.dists = [];
+          this.filteredDists = [];
+        })
+      ).subscribe(() => {
+        this.userForm.patchValue({
+          address: {
+            state: null,
+            dist: null
+          }
+        });
+      });
     }
   }
-  public onStateSelect(event: any) {
-    this.dists = [];
-    this.filteredDists = [];
-    if (event.value.stateId) {
-      this.getDists(event.value.stateId);
+  onStateSelect(event: any) {
+    if (event?.value?.stateId) {
+      this.getDists(event.value.stateId).pipe(
+        tap(dists => {
+          this.dists = dists;
+          this.filteredDists = dists;
+        })
+      ).subscribe(() => {
+        this.userForm.patchValue({
+          address: {
+            dist: null
+          }
+        });
+      });
     }
   }
   private convertFormToFormData(formValue: any): FormData {
@@ -253,115 +309,128 @@ export class UserProfileComponent {
     this.formData.append('Address.PinCode', formValue.address.pinCode);
     return this.formData;
   }
+  private initializeFilters() {
+    this.filteredCountries = this.countries;
+    this.filteredStates = this.states;
+    this.filteredDists = this.dists;
+    this.filteredMaritalStatus = this.marriedStatus;
+    this.filteredGender = this.gender;
+  }
   //#endregion
 
   //#region Server Side Operations
   private getUserById(Id: string) {
-    this.authorizeSvcs.getUserById(Id).subscribe({
-      next: async (response) => {
+    this.loading = true;
+    this.authorizeSvcs.getUserById(Id).pipe(
+      switchMap((response) => {
         if (response.responseCode === 200) {
-          this.user = response.data.singleObjData as UserDto;
-          await this.getCountries();
-          await this.getStates(this.user.address?.fk_CountryId);
-          await this.getDists(this.user.address?.fk_StateId);
-          this.updateUser = UserMapper.dtoToUpdateModel(this.user);
-          this.authorizeSvcs.GetImage(this.user.photoPath).subscribe(profilePhoto => {
-            this.profileUrl = URL.createObjectURL(profilePhoto),
-              this.updateUser.profilePhoto = profilePhoto;
-          });
-          this.initializeUserForm(this.updateUser);
-          this.filteredMaritalStatus = this.marriedStatus.filter(status => status.key === this.user.maratialStatus);
-          this.filteredGender = this.gender.filter(gender => gender.key === this.user.gender);
-          this.filteredCountries = this.countries.filter(country => country.countryId === this.user.address?.fk_CountryId);
-          this.filteredStates = this.states.filter(state => state.stateId === this.user.address?.fk_StateId);
-          this.filteredDists = this.dists.filter(dist => dist.distId === this.user.address?.fk_DistId);
+          this.user = response.data.records as UserDto;
+          return this.getCountries();
+        } else {
+          return of([]);
         }
+      }),
+      switchMap((countries) => {
+        this.countries = countries;
+        if (this.user.address?.fk_CountryId) {
+          return this.getStates(this.user.address.fk_CountryId);
+        }
+        return of([]);
+      }),
+      switchMap((states) => {
+        this.states = states;
+        if (this.user.address?.fk_StateId) {
+          return this.getDists(this.user.address.fk_StateId);
+        }
+        return of([]);
+      }),
+      finalize(() => {
+        this.loading = false;
+      })
+    ).subscribe({
+      next: (dists) => {
+        this.dists = dists;
+        this.loadProfileImage();
+        this.updateUser = UserMapper.dtoToUpdateModel(this.user);
+        this.userForm = this.initializeUserForm(this.updateUser);
+        this.initializeFilters();
       },
-      error: (err) => {
-        console.error('Error fetching user', err);
+      error: (error) => {
+        this.loading = false;
       }
     });
   }
-  private getCountries(): Promise<void> {
-    return new Promise((resolve) => {
-      this.commonSvcs.getCountries().subscribe({
-        next: (response) => {
-          if (response.responseCode === 200) {
-            this.countries = response.data.collectionObjData as CountryDto[];
-          }
-          resolve();
+  private loadProfileImage() {
+    if (this.user.photoPath) {
+      this.authorizeSvcs.GetImage(this.user.photoPath).subscribe({
+        next: (profilePhoto) => {
+          this.profileUrl = URL.createObjectURL(profilePhoto);
+          this.updateUser.profilePhoto = profilePhoto;
         },
-        error: () => resolve()
+        error: (error) => {
+          console.error('Error loading profile image:', error);
+        }
       });
-    });
+    }
   }
-  private getStates(countryId: any): Promise<void> {
-    return new Promise((resolve) => {
-      this.commonSvcs.getStates(countryId).subscribe({
-        next: (response) => {
-          if (response.responseCode === 200) {
-            this.states = response.data.collectionObjData as StateDto[];
-          }
-          resolve();
-        },
-        error: () => resolve()
-      });
-    });
+  private getCountries(): Observable<CountryDto[]> {
+    return this.commonSvcs.getCountries().pipe(
+      takeUntil(this.destroy$),
+      // tap(response => console.log('API Response:', response)),
+      map(response => response.data.records as CountryDto[]),
+      catchError(err => {
+        this.countries = [];
+        return of(this.countries);
+      })
+    );
   }
-  private getDists(stateId: any): Promise<void> {
-    return new Promise((resolve) => {
-      this.commonSvcs.getDists(stateId).subscribe({
-        next: (response) => {
-          if (response.responseCode === 200) {
-            this.dists = response.data.collectionObjData as DistDto[];
-          }
-          resolve();
-        },
-        error: () => resolve()
-      });
-    });
+  private getStates(countryId: any): Observable<StateDto[]> {
+    return this.commonSvcs.getStates(countryId).pipe(
+      takeUntil(this.destroy$),
+      //tap(response => console.log('API Response:', response)),
+      map(response => response.data.records as StateDto[]),
+      catchError(() => {
+        this.states = [];
+        return of(this.states);
+      })
+    );
+  }
+  private getDists(stateId: any): Observable<DistDto[]> {
+    return this.commonSvcs.getDists(stateId).pipe(
+      takeUntil(this.destroy$),
+      //tap(response => console.log('API Response:', response)),
+      map((response) => response.data.records as DistDto[]),
+      catchError(() => {
+        this.dists = [];
+        return of(this.dists);
+      })
+    );
   }
   public onSubmit(): void {
-    try {
-      if (this.userForm.dirty && this.userForm.touched) {
-        if (this.userForm.valid) {
-          this.isLoading = true;
-          const formData = this.convertFormToFormData(this.userForm.value);
-          this.authorizeSvcs.updateUser(formData).subscribe({
-            next: (response) => {
-              if (response.responseCode === 200) {
-                this.messageService.add({
-                  severity: 'success',
-                  summary: 'Success',
-                  detail: 'Record Updatated successful'
-                });
-              }
-            },
-            error: (error) => {
-              this.isLoading = false;
-              this.messageService.add({
-                severity: 'error',
-                summary: 'Error',
-                detail: error.error?.message || 'Some Error Occoured'
-              });
-            },
-          });
-        }
-      } else {
-        this.messageService.add({
-          severity: 'warn',
-          summary: 'warn',
-          detail: 'No Change Detected'
-        });
-      }
+    if (this.userForm.invalid) {
+      this.userForm.markAllAsTouched();
+      return;
     }
-    catch (error) {
-      this.isLoading = false;
-      this.messageService.add({
-        severity: 'warning',
-        summary: 'warning',
-        detail: 'Some Error Occoured'
-      });
+    else {
+      if (this.userForm.dirty && this.userForm.touched) {
+        this.isLoading = true;
+        const formData = this.convertFormToFormData(this.userForm.value);
+        this.authorizeSvcs.updateUser(formData).subscribe({
+          next: (response) => {
+            if (response.responseCode === 200) {
+              this.messageService.success(response.message);
+              this.isLoading = false;
+              this.userForm.markAsPristine();  
+              this.userForm.markAsUntouched(); 
+            }
+          },
+          error: (error) => {
+            this.isLoading = false;
+          },
+        });
+      } else {
+        this.messageService.warning('No Change Detected');
+      }
     }
   }
   //#endregion

@@ -2,12 +2,13 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { AppLayoutComponent } from './app.layout.component';
 import { UserProfileComponent } from './user-profile/user-profile.component';
+import { deactivateGuard } from 'src/app/utility/guards/deactivate.guard';
 const routes: Routes = [
     {
         path: '',
         component: AppLayoutComponent,
         children: [
-            { path: 'user-profile', component: UserProfileComponent },
+            { path: 'user-profile', component: UserProfileComponent , canDeactivate: [deactivateGuard]},
             {
                 path: 'dashboard', data: { breadcrumb: 'Dashboard' },
                 loadChildren: () =>

@@ -29,7 +29,29 @@ export class BranchModel {
       this.address = new AddressDto();
     }
   }
-/*-------------------------opertion Model----------------*/
+   /*===========================================Auto Mapping======================================================*/
+   export class BranchMapper {
+    static dtoToUpdateModel(dto: BranchDto): BranchUpdateModel {
+      const updateModel = new BranchUpdateModel();
+      Object.assign(updateModel, {
+        branchId: dto.branchId,
+        branchName: dto.branchName,
+        contactNumber: dto.contactNumber,
+        branchCode: dto.branchCode,
+        address:{
+          fk_CountryId: dto.address.fk_CountryId,
+          fk_StateId: dto.address.fk_StateId,
+          fk_DistId: dto.address.fk_DistId,
+          at: dto.address.at,
+          post: dto.address.post,
+          city: dto.address.city,
+          pinCode: dto.address.pinCode
+        }
+      });
+      return updateModel;
+    }
+  }
+/*=========================================== Opertion Model===========================================*/
   export interface BranchOperation {
     branch: BranchDto | null;
     isSuccess?: boolean;
@@ -40,3 +62,4 @@ export class BranchModel {
     branches: BranchDto[] | null;
     isSuccess?: boolean;
   }
+ 

@@ -8,7 +8,7 @@ import { MenuItem } from 'primeng/api';
 import { CountryDto } from 'src/app/api/entity/country';
 import { StateDto } from 'src/app/api/entity/state';
 import { DistDto } from 'src/app/api/entity/dist';
-import { Subject, takeUntil } from 'rxjs';
+import { catchError, map, Observable, of, Subject, takeUntil } from 'rxjs';
 import { GenericMessageService } from 'src/app/api/service/generic-message.Service';
 
 @Component({
@@ -305,6 +305,17 @@ export class RegisterComponent implements OnInit {
 	//#endregion      
 
 	//#region Client Side Operations
+	onProfilePhotoSelect(event: any) {
+		if (event.files && event.files.length > 0) {
+			const file = event.files[0];
+			this.selectedProfilePhoto = file;
+			this.registerForm.get('personalInfo.profilePhoto')?.setValue(file);
+		}
+	}
+	onProfilePhotoRemove() {
+		this.selectedProfilePhoto = null;
+		this.registerForm.get('personalInfo.profilePhoto')?.setValue(null);
+	}
 	filterMaritalStatus(event: any) {
 		const query = event.query.toLowerCase();
 		this.filteredMaritalStatus = this.marriedStatus.filter(status =>
@@ -316,17 +327,6 @@ export class RegisterComponent implements OnInit {
 		this.filteredGender = this.gender.filter(status =>
 			status.value.toLowerCase().includes(query)
 		);
-	}
-	onProfilePhotoSelect(event: any) {
-		if (event.files && event.files.length > 0) {
-			const file = event.files[0];
-			this.selectedProfilePhoto = file;
-			this.registerForm.get('personalInfo.profilePhoto')?.setValue(file);
-		}
-	}
-	onProfilePhotoRemove() {
-		this.selectedProfilePhoto = null;
-		this.registerForm.get('personalInfo.profilePhoto')?.setValue(null);
 	}
 	filterCountries(event: any) {
 		const query = event.query.toLowerCase();
@@ -347,28 +347,29 @@ export class RegisterComponent implements OnInit {
 		);
 	}
 	onCountrySelect(event: any) {
-		const addressGroup = this.registerForm.get('address');
-		addressGroup?.patchValue({
-			state: null,
-			dist: null
-		});
-		this.states = [];
-		this.dists = [];
-		this.filteredStates = [];
-		this.filteredDists = [];
-		if (event.value.countryId) {
-			this.getStates(event.value.countryId);
+		if (event) {
+			this.getStates(event.value.countryId).subscribe((states) => {
+				this.states = states;
+				this.filteredStates = states;
+				this.filteredDists = [];
+				const addressGroup = this.registerForm.get('address');
+				addressGroup?.patchValue({
+					state: null,
+					dist: null
+				});
+			});
 		}
 	}
 	onStateSelect(event: any) {
-		const addressGroup = this.registerForm.get('address');
-		addressGroup?.patchValue({
-			dist: null
-		});
-		this.dists = [];
-		this.filteredDists = [];
-		if (event.value.stateId) {
-			this.getDists(event.value.stateId);
+		if (event) {
+			this.getDists(event.value.stateId).subscribe((dists) => {
+				this.filteredDists = dists;
+				this.dists = dists;
+				const addressGroup = this.registerForm.get('address');
+				addressGroup?.patchValue({
+					dist: null
+				});
+			});
 		}
 	}
 	private async convertFormToFormData(formValue: any): Promise<FormData> {
@@ -419,9 +420,9 @@ export class RegisterComponent implements OnInit {
 				gender: ''
 			},
 			address: {
-				fk_CountryId: '',
-				fk_StateId: '',
-				fk_DistId: '',
+				country: null,
+				state: null,
+				dist: null,
 				at: '',
 				post: '',
 				city: '',
@@ -432,6 +433,40 @@ export class RegisterComponent implements OnInit {
 	//#endregion
 
 	//#region Server Side Operations
+
+	private getCountries(): Observable<CountryDto[]> {
+		return this.commonSvcs.getCountries().pipe(
+			takeUntil(this.destroy$),
+			// tap(response => console.log('API Response:', response)),
+			map(response => response.data.records as CountryDto[]),
+			catchError(err => {
+				this.countries = [];
+				return of(this.countries);
+			})
+		);
+	}
+	private getStates(countryId: any): Observable<StateDto[]> {
+		return this.commonSvcs.getStates(countryId).pipe(
+			takeUntil(this.destroy$),
+			//tap(response => console.log('API Response:', response)),
+			map(response => response.data.records as StateDto[]),
+			catchError(() => {
+				this.states = [];
+				return of(this.states);
+			})
+		);
+	}
+	private getDists(stateId: any): Observable<DistDto[]> {
+		return this.commonSvcs.getDists(stateId).pipe(
+			takeUntil(this.destroy$),
+			//tap(response => console.log('API Response:', response)),
+			map((response) => response.data.records as DistDto[]),
+			catchError(() => {
+				this.dists = [];
+				return of(this.dists);
+			})
+		);
+	}
 	public vaildateToken() {
 		if (this.tokenValue) {
 			this.authSvcs.validateToken(this.tokenValue).pipe(takeUntil(this.destroy$)).subscribe({
@@ -441,7 +476,9 @@ export class RegisterComponent implements OnInit {
 						this.messageService.success(response.message);
 						if (this.registerForm.disabled) {
 							this.registerForm.enable();
-							this.getCountries();
+							this.getCountries().subscribe(response => {
+								this.countries = response
+							});
 						}
 					}
 				},
@@ -450,36 +487,6 @@ export class RegisterComponent implements OnInit {
 		} else {
 			this.messageService.info('Please Enter Token');
 		}
-	}
-	private getCountries() {
-		this.commonSvcs.getCountries().pipe(takeUntil(this.destroy$)).subscribe({
-			next: async (response) => {
-				if (response.responseCode === 200) {
-					this.countries = response.data.records as CountryDto[]
-				}
-			},
-			error: (err) => { }
-		});
-	}
-	private getStates(countryId: any) {
-		this.commonSvcs.getStates(countryId).pipe(takeUntil(this.destroy$)).subscribe({
-			next: async (response) => {
-				if (response.responseCode === 200) {
-					this.states = response.data.records as StateDto[]
-				}
-			},
-			error: (err) => { }
-		});
-	}
-	private getDists(stateId: any) {
-		this.commonSvcs.getDists(stateId).pipe(takeUntil(this.destroy$)).subscribe({
-			next: async (response) => {
-				if (response.responseCode === 200) {
-					this.dists = response.data.records as DistDto[]
-				}
-			},
-			error: (err) => { }
-		});
 	}
 	public async signUp(): Promise<void> {
 

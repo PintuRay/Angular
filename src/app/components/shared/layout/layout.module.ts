@@ -21,7 +21,7 @@ import { FieldsValidationModule } from 'src/app/utility/directives/fields-valida
 import { LayoutService } from '../service/app.layout.service';
 import { MenuService } from '../service/app.menu.service';
 import { TopBarService } from '../service/topbar.service';
-
+import { GenericMessageService } from 'src/app/api/service/generic-message.Service';
 
 @NgModule({
     declarations: [
@@ -46,6 +46,6 @@ import { TopBarService } from '../service/topbar.service';
         FieldsRestrictionModule,
         FieldsValidationModule
     ],
-    providers:[LayoutService, MenuService, TopBarService]
+    providers:[LayoutService, MenuService, TopBarService,  GenericMessageService]
 })
 export class AppLayoutModule { }

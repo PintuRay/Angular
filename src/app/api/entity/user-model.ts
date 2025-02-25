@@ -1,5 +1,6 @@
 import { AddressDto, AddressModel, AddressUpdateModel } from "src/app/api/entity/address";
-export class UserBase{
+
+export class UserBase {
   name: string;
   birthDate: Date;
   maratialStatus: string;
@@ -17,7 +18,8 @@ export class UserBase{
     this.photoPath = '';
   }
 }
-export class UserModel extends UserBase{
+
+export class UserModel extends UserBase {
   fk_TokenId: string;
   password: string;
   confirmPassword: string;
@@ -33,7 +35,6 @@ export class UserModel extends UserBase{
     this.routeUls = '';
     this.address = new AddressModel();
   }
-
 }
 
 export class UserUpdateModel extends UserBase {
@@ -49,7 +50,7 @@ export class UserUpdateModel extends UserBase {
 }
 export class UserDto extends UserBase {
   id: string;
- address: AddressDto;
+  address: AddressDto;
   constructor() {
     super();
     this.id = '';
@@ -69,11 +70,17 @@ export class UserMapper {
       email: dto.email,
       phoneNumber: dto.phoneNumber,
       photoPath: dto.photoPath,
-      profilePhoto: null
+      profilePhoto: null,
+      address: {
+        fk_CountryId: dto.address.fk_CountryId,
+        fk_StateId: dto.address.fk_StateId,
+        fk_DistId: dto.address.fk_DistId,
+        at: dto.address.at,
+        post: dto.address.post,
+        city: dto.address.city,
+        pinCode: dto.address.pinCode
+      }
     });
-    if (dto.address) {
-      Object.assign(updateModel.address, dto.address);
-    }
     return updateModel;
   }
 }

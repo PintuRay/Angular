@@ -1,3 +1,4 @@
+<!---------------------------------------- Messages & Loader  -------------------------------------------------->
 <p-dialog header="Dialog" [(visible)]="display" [modal]="true" showEffect="fade" [style]="{width: '60vw'}"
     [breakpoints]="{'960px': '75vw'}">
     <p-accordion>
@@ -13,7 +14,6 @@
         <p-accordionTab header="Form Data" class="line-height-3 m-0">
             <pre class="p-2 border rounded bg-gray-100" style="white-space: pre-wrap;">{{ formDataJson }}</pre>
         </p-accordionTab>
-       
         <p-accordionTab header="Form Status" class="line-height-3 m-0">
             <p><strong>Valid:</strong> {{ userForm.valid }}</p>
             <p><strong>Touched:</strong> {{ userForm.touched }}</p>
@@ -25,9 +25,14 @@
         <button pButton icon="pi pi-check" (click)="display=false" label="Ok" class="p-button-outlined"></button>
     </ng-template>
 </p-dialog>
-
 <p-toast></p-toast>
-<div class="grid">
+<p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
+<div *ngIf="loading" class="loading-overlay">
+    <p-progressSpinner styleClass="custom-spinner"
+        [style]="{'width': '50px', 'height': '50px'}"></p-progressSpinner>
+</div>
+<!------------------------------------- form operation ----------------------------------------------------------->
+<div class="grid">  
     <div class="col-12">
         <div class="card">
             <div class="col-12">
@@ -44,7 +49,7 @@
                     <div class="p-fluid p-formgrid grid">
                         <div class="field col-12">
                             <div class="d-flex justify-content-center">
-                                <p-fileUpload name="profilePhoto" accept="image/*" maxFileSize="1000000" formControlName="profilePhoto"
+                                <p-fileUpload name="profilePhoto" accept="image/*" maxFileSize="1000000" 
                                     [customUpload]="true" [showUploadButton]="false" [showCancelButton]="false"
                                     (onSelect)="onProfilePhotoSelect($event)" (onRemove)="onProfilePhotoRemove()">
                                     <ng-template pTemplate="content">
@@ -52,6 +57,7 @@
                                             [style.border-radius]="'50%'" class="text-center mb-5"></p-image>
                                     </ng-template>
                                 </p-fileUpload>
+                                <small class="p-error block" *ngIf="isFieldInvalid('profilePhoto')">{{ getErrorMessage('profilePhoto') }}</small>
                             </div>
                         </div>
                         <div class="field col-12 md:col-6">
@@ -109,31 +115,56 @@
                         <ng-container formGroupName="address">
                             <div class="field col-12 md:col-6">
                                 <span class="p-float-label">
-                                    <p-autoComplete formControlName="country" [suggestions]="filteredCountries"
-                                        (completeMethod)="filterCountries($event)" dataKey="countryId"
-                                        field="countryName" [dropdown]="true" (onSelect)="onCountrySelect($event)"
-                                        name="country" [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid('country','address')}">
-                                    </p-autoComplete>
+                                    <p-autoComplete 
+                                    formControlName="country" 
+                                    [suggestions]="filteredCountries"
+                                    (completeMethod)="filterCountries($event)" 
+                                    [forceSelection]="true"
+                                    [dropdown]="true"
+                                    dataKey="countryId"
+                                    [field]="'countryName'"
+                                    optionLabel="countryName"
+                                    [showClear]="true"
+                                    (onSelect)="onCountrySelect($event)"
+                                    [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid('country','address')}"
+                                ></p-autoComplete>
                                     <label for="country">Country</label>
                                 </span>
                                 <small class="p-error block" *ngIf="isFieldInvalid('country','address')">{{ getErrorMessage('country','address') }}</small>
                             </div>
                             <div class="field col-12 md:col-6">
                                 <span class="p-float-label">
-                                    <p-autoComplete formControlName="state" [suggestions]="filteredStates"
-                                        (completeMethod)="filterStates($event)" dataKey="stateId" field="stateName"
-                                        [dropdown]="true" (onSelect)="onStateSelect($event)" name="state" [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid('state','address')}">
-                                    </p-autoComplete>
+                                    <p-autoComplete 
+                                    formControlName="state" 
+                                    [suggestions]="filteredStates"
+                                    (completeMethod)="filterStates($event)" 
+                                    [forceSelection]="true"
+                                    [dropdown]="true"
+                                    dataKey="stateId"
+                                    [field]="'stateName'"
+                                    optionLabel="stateName"
+                                    [showClear]="true"
+                                    (onSelect)="onStateSelect($event)"
+                                    [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid('state','address')}"
+                                ></p-autoComplete>
                                     <label for="state">State</label>
                                 </span>
                                 <small class="p-error block" *ngIf="isFieldInvalid('state','address')">{{ getErrorMessage('state','address') }}</small>
                             </div>
                             <div class="field col-12 md:col-6">
                                 <span class="p-float-label">
-                                    <p-autoComplete formControlName="dist" [suggestions]="filteredDists"
-                                        (completeMethod)="filterDists($event)" dataKey="distId" field="distName"
-                                        [dropdown]="true" name="dist" [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid('dist','address')}">
-                                    </p-autoComplete>
+                                    <p-autoComplete 
+                                    formControlName="dist" 
+                                    [suggestions]="filteredDists"
+                                    (completeMethod)="filterDists($event)" 
+                                    [forceSelection]="true"
+                                    [dropdown]="true"
+                                    dataKey="distId"
+                                    [field]="'distName'"
+                                    optionLabel="distName"
+                                    [showClear]="true"
+                                    [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid('dist','address')}"
+                                ></p-autoComplete>
                                     <label for="dist">Dist</label>
                                 </span>
                                 <small class="p-error block" *ngIf="isFieldInvalid('dist','address')">{{ getErrorMessage('dist','address') }}</small>

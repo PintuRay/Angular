@@ -18,7 +18,6 @@ import {PrimeNgModule} from '../shared/prime-ng/prime-ng.module'
 import {FieldsRestrictionModule} from '../../utility/directives/fields-restriction/fields-restriction.module';
 import {FieldsValidationModule} from '../../utility/directives/fields-validation/fields-validation.module'
 //import Services
-import { LayoutService } from '../shared/service/app.layout.service';
 import { AuthenticationService } from '../../api/service/account/authentication/authentication.service';
 import { GenericMessageService } from 'src/app/api/service/generic-message.Service';
 
@@ -43,6 +42,6 @@ import { GenericMessageService } from 'src/app/api/service/generic-message.Servi
     FieldsRestrictionModule,
     FieldsValidationModule
   ],
-  providers: [AuthenticationService]
+  providers: [AuthenticationService, GenericMessageService]
 })
 export class AuthModule { }

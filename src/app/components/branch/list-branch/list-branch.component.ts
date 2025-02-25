@@ -10,6 +10,7 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { FileUpload } from 'primeng/fileupload';
 import { BranchMessageService } from 'src/app/api/service/devloper/branch/branch-message.service';
+import { Subject, takeUntil } from 'rxjs';
 @Component({
   selector: 'app-list-branch',
   templateUrl: './list-branch.component.html',
@@ -58,6 +59,7 @@ export class ListBranchComponent {
   public exportOptionsVisible: boolean = false;
   public totalRecords: number = 0;
   @ViewChild('fileUpload') public readonly fileUpload!: FileUpload;
+    private readonly destroy$ = new Subject<void>();
   //#endregion 
 
   //#region constructor
@@ -264,8 +266,8 @@ export class ListBranchComponent {
   //#region Server Side Operation
   private getBranches(pagination: PaginationParams): void {
     this.loading = true;
-    this.branchSvcs.get(pagination).subscribe({
-      next: async (response) => {
+    this.branchSvcs.get(pagination).pipe(takeUntil(this.destroy$)).subscribe({
+      next: (response) => {
         this.loading = false;
         if (response.responseCode === 200) {
           this.branches = response.data.records as BranchDto[];
@@ -277,7 +279,6 @@ export class ListBranchComponent {
       },
     })
   }
-
   public removeBranch(id: string, event: Event): void {
     this.confirmationService.confirm({
       key: 'removeBranch',
@@ -285,8 +286,8 @@ export class ListBranchComponent {
       message: 'Are you sure that you want to Delete?',
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
-        this.branchSvcs.remove(id).subscribe({
-          next: async (response) => {
+        this.branchSvcs.remove(id).pipe(takeUntil(this.destroy$)).subscribe({
+          next: (response) => {
             if (response.responseCode === 200) {
               this.branches = this.branches.filter(branch => branch.branchId !== id);
               this.totalRecords -= 1;
@@ -308,8 +309,8 @@ export class ListBranchComponent {
     this.confirmationService.confirm({
       key: 'bulkRemoveBranch',
       accept: () => {
-        this.branchSvcs.bulkRemove(this.selectedBranches).subscribe({
-          next: async (response) => {
+        this.branchSvcs.bulkRemove(this.selectedBranches).pipe(takeUntil(this.destroy$)).subscribe({
+          next:(response) => {
             if (response.responseCode === 200) {
               const removedBranches = response.data.records as BranchDto[];
               const branchIds = removedBranches.map(branch => branch.branchId);

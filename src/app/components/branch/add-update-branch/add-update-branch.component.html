@@ -1,17 +1,14 @@
 <p-dialog header="Dialog" [(visible)]="display" [modal]="true" showEffect="fade" [style]="{width: '60vw'}"
     [breakpoints]="{'960px': '75vw'}">
     <p-accordion>
-        <p-accordionTab header="Branch Dto" class="line-height-3 m-0">
-            <pre class="p-2 border rounded bg-gray-100" style="white-space: pre-wrap;">{{ branchJson }}</pre>
-        </p-accordionTab>
         <p-accordionTab header="Form Values" class="line-height-3 m-0">
             <pre class="p-2 border rounded bg-gray-100" style="white-space: pre-wrap;">{{ formJson }}</pre>
         </p-accordionTab>
         <p-accordionTab header="Add" class="line-height-3 m-0">
-            <pre class="p-2 border rounded bg-gray-100" style="white-space: pre-wrap;">{{ branchModelJson }}</pre>
+            <pre class="p-2 border rounded bg-gray-100" style="white-space: pre-wrap;">{{ AddOperationJson }}</pre>
         </p-accordionTab>
         <p-accordionTab header="Update" class="line-height-3 m-0">
-            <pre class="p-2 border rounded bg-gray-100" style="white-space: pre-wrap;">{{ BranchUpdatemodelJson }}</pre>
+            <pre class="p-2 border rounded bg-gray-100" style="white-space: pre-wrap;">{{ UpdateOperationJson }}</pre>
         </p-accordionTab>
         <p-accordionTab header="Form Data" class="line-height-3 m-0">
             <pre class="p-2 border rounded bg-gray-100" style="white-space: pre-wrap;">{{ formErrors }}</pre>
@@ -32,9 +29,8 @@
         <button pButton icon="pi pi-check" (click)="display=false" label="Ok" class="p-button-outlined"></button>
     </ng-template>
 </p-dialog>
-
 <p-toast></p-toast>
-
+<p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
 <div class="grid">
     <div class="col-12">
         <div class="card">
