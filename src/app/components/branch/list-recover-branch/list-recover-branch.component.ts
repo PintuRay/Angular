@@ -53,7 +53,7 @@ export class ListRecoverBranchComponent {
   public pagination = new PaginationParams();
   public cols: any[] = []
   //#endregion 
- 
+
   //#region constructor
   constructor(
     private readonly branchSvcs: BranchService,
@@ -102,8 +102,8 @@ export class ListRecoverBranchComponent {
       next: async (response) => {
         this.loading = false;
         if (response.responseCode === 200) {
-          this.branches = response.data.records as BranchDto[];
-          this.totalRecords = response.data.count;
+          this.branches = response.data as BranchDto[];
+          this.totalRecords = response.count;
         }
       },
       error: (err) => {
@@ -131,11 +131,11 @@ export class ListRecoverBranchComponent {
     this.branchSvcs.bulkRecover(this.selectedBranches).subscribe({
       next: (response) => {
         if (response.responseCode == 200) {
-          const recoveredbranches = response.data.records as BranchDto[];
+          const recoveredbranches = response.data as BranchDto[];
           const branchIds = recoveredbranches.map(branch => branch.branchId);
           this.branches = this.branches.filter(branch => !branchIds.includes(branch.branchId));
           this.selectedBranches = [];
-          this.totalRecords -= response.data.count;
+          this.totalRecords -= recoveredbranches.length;
           if (this.branches.length === 0) {
             this.pagination = new PaginationParams();
             this.getRemovedBranches(this.pagination);
@@ -167,8 +167,9 @@ export class ListRecoverBranchComponent {
     this.branchSvcs.bulkDelete(branchIds).subscribe({
       next: (response) => {
         if (response.responseCode === 200) {
-          this.branches = this.branches.filter(branch => !branchIds.includes(branch.branchId));
-          this.totalRecords -= branchIds.length;
+          const ids = response.data as string[];
+          this.branches = this.branches.filter(branch => !ids.includes(branch.branchId));
+          this.totalRecords -= ids.length;
           this.selectedBranches = [];
           if (this.branches.length === 0) {
             this.pagination = new PaginationParams();

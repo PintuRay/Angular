@@ -14,11 +14,13 @@ export class BranchModel {
     }
   }
   export class BranchUpdateModel extends BranchModel{
-    branchId:string ;
+    branchId: string ;
+    fk_AdressId: string;
     override address: AddressUpdateModel;
     constructor() {
       super();
       this.branchId = '';
+      this.fk_AdressId = '';
       this.address = new AddressUpdateModel();
     }
   }
@@ -38,7 +40,9 @@ export class BranchModel {
         branchName: dto.branchName,
         contactNumber: dto.contactNumber,
         branchCode: dto.branchCode,
+        fk_AdressId : dto.fk_AdressId,
         address:{
+          addressId: dto.address.addressId,
           fk_CountryId: dto.address.fk_CountryId,
           fk_StateId: dto.address.fk_StateId,
           fk_DistId: dto.address.fk_DistId,

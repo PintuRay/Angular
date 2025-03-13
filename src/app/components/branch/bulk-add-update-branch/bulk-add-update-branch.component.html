@@ -17,7 +17,7 @@
             <div class="col-12">
                 <form [formGroup]="branchForm" class="pt-4">
                     <div formArrayName="branches">
-                        <div *ngFor="let branch of branches.controls; let i=index" [formGroupName]="i" class="mb-1">
+                        <div *ngFor="let branch of branchesArray.controls; let i=index" [formGroupName]="i" class="mb-1">
                             <div class="p-fluid p-formgrid grid">
                                 <div class="field col-12">
                                     <h3>#{{i + 1}}
@@ -166,7 +166,7 @@
                         </div>
                     </div>
                     <div class="flex justify-content-end mb-3">
-                        <button *ngIf="operationType === 'add'" pButton type="button" label="Add"
+                        <button *ngIf="operationType === 'add'" pButton type="button" label="Add More"
                             icon="fa-solid fa-circle-plus" (click)="addBranch()"
                             class="p-button-success mr-2 "></button>
                         <button pButton type="submit" [disabled]="!branchForm.valid" (click)="submit()">

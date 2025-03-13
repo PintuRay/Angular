@@ -25,8 +25,6 @@ export class BulkAddUpdateBranchComponent implements OnInit, OnDestroy, CanCompo
   public isLoading = false;
   public operationType = '';
   private readonly destroy$ = new Subject<void>();
-  private branchDataSub: Subscription = new Subscription();
-  private operationTypeSub: Subscription = new Subscription();
   private countries: CountryDto[] = [];
   private states: StateDto[] = [];
   private dists: DistDto[] = [];
@@ -58,13 +56,9 @@ export class BulkAddUpdateBranchComponent implements OnInit, OnDestroy, CanCompo
 
   //#region Lifecycle Hooks
   ngOnInit() {
-    this.setupOperationType();
     this.loadInitialData();
   }
-
   ngOnDestroy() {
-    this.operationTypeSub?.unsubscribe();
-    this.branchDataSub?.unsubscribe();
     this.destroy$.next();
     this.destroy$.complete();
   }
@@ -100,10 +94,10 @@ export class BulkAddUpdateBranchComponent implements OnInit, OnDestroy, CanCompo
     });
   }
   public addBranch() {
-    this.branches.push(this.createBranchFormGroup());
+    this.branchesArray.push(this.createBranchFormGroup());
   }
   public removeBranch(index: number) {
-    this.branches.removeAt(index);
+    this.branchesArray.removeAt(index);
     if (this.operationType === 'add') {
       this.addbranch.splice(index, 1);
     } else {
@@ -126,13 +120,17 @@ export class BulkAddUpdateBranchComponent implements OnInit, OnDestroy, CanCompo
       })
     });
   }
-  get branches() {
+  get branchesArray() {
     return this.branchForm.get('branches') as FormArray;
   }
   private loadInitialData() {
     this.getCountries().pipe(
       tap(countries => {
         this.countries = countries;
+      }),
+      switchMap(() => this.branchSvcs.getBulkOperationType().pipe(take(1))),
+      tap(operationType => {
+        this.operationType = operationType;
       }),
       switchMap(() => this.branchSvcs.getBulkBranch().pipe(
         take(1),
@@ -146,14 +144,13 @@ export class BulkAddUpdateBranchComponent implements OnInit, OnDestroy, CanCompo
         return of(null);
       }),
       tap(() => {
-        if (this.branches.length === 0) {
+        if (this.branchesArray.length === 0) {
           this.addBranch();
         }
         this.setupFormValueChanges();
       })
     ).subscribe();
   }
-
   private handleEditMode(branches: BranchDto[]): Observable<void> {
     const operations$ = branches.map(branch =>
       this.getStates(branch.address.fk_CountryId).pipe(
@@ -165,14 +162,13 @@ export class BulkAddUpdateBranchComponent implements OnInit, OnDestroy, CanCompo
           this.dists = dists;
           const branchGroup = this.createBranchFormGroup();
           this.patchBranchForm(branchGroup, branch);
-          this.branches.push(branchGroup);
+          this.branchesArray.push(branchGroup);
           this.updatebranch.push(BranchMapper.dtoToUpdateModel(branch));
         })
       )
     );
     return forkJoin(operations$).pipe(map(() => void 0));
   }
-
   private patchBranchForm(formGroup: FormGroup, branch: BranchDto) {
     formGroup.patchValue({
       branchName: branch.branchName,
@@ -189,15 +185,6 @@ export class BulkAddUpdateBranchComponent implements OnInit, OnDestroy, CanCompo
       }
     });
   }
-
-  private setupOperationType() {
-    this.operationTypeSub = this.branchSvcs.getBulkOperationType()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(operationType => {
-        this.operationType = operationType;
-      });
-  }
-
   private setupFormValueChanges() {
     this.destroy$.next();
     this.branchForm.valueChanges.pipe(
@@ -212,6 +199,46 @@ export class BulkAddUpdateBranchComponent implements OnInit, OnDestroy, CanCompo
         }
       });
     });
+  }
+  private updateBranchModel(branch: any, index: number) {
+    if (index >= this.updatebranch.length) {
+      this.updatebranch[index] = new BranchUpdateModel();
+    }
+    this.updatebranch[index] = {
+      ...this.updatebranch[index],
+      branchName: branch.branchName,
+      contactNumber: branch.contactNumber,
+      branchCode: branch.branchCode,
+      address: {
+        ...this.updatebranch[index].address,
+        fk_CountryId: branch.address.country?.countryId,
+        fk_StateId: branch.address.state?.stateId,
+        fk_DistId: branch.address.dist?.distId,
+        at: branch.address.at,
+        post: branch.address.post,
+        city: branch.address.city,
+        pinCode: branch.address.pinCode,
+      }
+    };
+  }
+  private updateAddBranchModel(branch: any, index: number) {
+    if (index >= this.addbranch.length) {
+      this.addbranch[index] = new BranchModel();
+    }
+    this.addbranch[index] = {
+      branchName: branch.branchName,
+      contactNumber: branch.contactNumber,
+      branchCode: branch.branchCode,
+      address: {
+        fk_CountryId: branch.address.country?.countryId,
+        fk_StateId: branch.address.state?.stateId,
+        fk_DistId: branch.address.dist?.distId,
+        at: branch.address.at,
+        post: branch.address.post,
+        city: branch.address.city,
+        pinCode: branch.address.pinCode,
+      }
+    }
   }
   //#endregion
 
@@ -233,7 +260,7 @@ export class BulkAddUpdateBranchComponent implements OnInit, OnDestroy, CanCompo
   }
 
   private getFormControl(index: number, controlName: string, groupName?: string) {
-    const branchGroup = this.branches.at(index);
+    const branchGroup = this.branchesArray.at(index);
     return groupName ? branchGroup.get([groupName, controlName]) : branchGroup.get(controlName);
   }
 
@@ -293,7 +320,7 @@ export class BulkAddUpdateBranchComponent implements OnInit, OnDestroy, CanCompo
           this.filteredDists = [];
         })
       ).subscribe(() => {
-        const addressGroup = this.branches.at(index).get('address') as FormGroup;
+        const addressGroup = this.branchesArray.at(index).get('address') as FormGroup;
         addressGroup.patchValue({
           state: null,
           dist: null
@@ -310,7 +337,7 @@ export class BulkAddUpdateBranchComponent implements OnInit, OnDestroy, CanCompo
           this.filteredDists = dists;
         })
       ).subscribe(() => {
-        const addressGroup = this.branches.at(index).get('address') as FormGroup;
+        const addressGroup = this.branchesArray.at(index).get('address') as FormGroup;
         addressGroup.patchValue({
           dist: null
         });
@@ -320,7 +347,7 @@ export class BulkAddUpdateBranchComponent implements OnInit, OnDestroy, CanCompo
 
   private resetComponent() {
     this.branchForm.reset();
-    this.branches.clear();
+    this.branchesArray.clear();
     this.addbranch = [];
     this.updatebranch = [];
     this.addBranch();
@@ -328,14 +355,13 @@ export class BulkAddUpdateBranchComponent implements OnInit, OnDestroy, CanCompo
   public BackToList() {
 
   }
-
   //#endregion
 
   //#region Server Side Operation
   private getCountries(): Observable<CountryDto[]> {
     return this.commonSvcs.getCountries().pipe(
       takeUntil(this.destroy$),
-      map(response => response.data.records as CountryDto[]),
+      map(response => response.data as CountryDto[]),
       catchError(() => {
         this.countries = [];
         return of(this.countries);
@@ -346,7 +372,7 @@ export class BulkAddUpdateBranchComponent implements OnInit, OnDestroy, CanCompo
   private getStates(countryId: any): Observable<StateDto[]> {
     return this.commonSvcs.getStates(countryId).pipe(
       takeUntil(this.destroy$),
-      map(response => response.data.records as StateDto[]),
+      map(response => response.data as StateDto[]),
       catchError(() => {
         this.states = [];
         return of(this.states);
@@ -357,7 +383,7 @@ export class BulkAddUpdateBranchComponent implements OnInit, OnDestroy, CanCompo
   private getDists(stateId: any): Observable<DistDto[]> {
     return this.commonSvcs.getDists(stateId).pipe(
       takeUntil(this.destroy$),
-      map(response => response.data.records as DistDto[]),
+      map(response => response.data as DistDto[]),
       catchError(() => {
         this.dists = [];
         return of(this.dists);
@@ -373,10 +399,7 @@ export class BulkAddUpdateBranchComponent implements OnInit, OnDestroy, CanCompo
 
     if (this.branchForm.dirty && this.branchForm.touched) {
       this.isLoading = true;
-      const operation$ = this.operationType === 'edit'
-        ? this.branchSvcs.bulkUpdate(this.updatebranch)
-        : this.branchSvcs.bulkCreate(this.addbranch);
-
+      const operation$ = this.operationType === 'edit' ? this.branchSvcs.bulkUpdate(this.updatebranch) : this.branchSvcs.bulkCreate(this.addbranch);
       operation$.pipe(
         finalize(() => this.isLoading = false)
       ).subscribe({
@@ -394,53 +417,6 @@ export class BulkAddUpdateBranchComponent implements OnInit, OnDestroy, CanCompo
       });
     } else {
       this.messageService.info('No Change Detected');
-    }
-  }
-  //#endregion
-
-  //#region Helper Methods
-  private updateBranchModel(branch: any, index: number) {
-    if (index >= this.updatebranch.length) {
-      this.updatebranch[index] = new BranchUpdateModel();
-    }
-    this.updatebranch[index] = {
-      ...this.updatebranch[index],
-      branchName: branch.branchName,
-      contactNumber: branch.contactNumber,
-      branchCode: branch.branchCode,
-      address: {
-        ...this.updatebranch[index].address,
-        fk_CountryId: branch.address.country?.countryId,
-        fk_StateId: branch.address.state?.stateId,
-        fk_DistId: branch.address.dist?.distId,
-        at: branch.address.at,
-        post: branch.address.post,
-        city: branch.address.city,
-        pinCode: branch.address.pinCode,
-      }
-    };
-  }
-  private updateAddBranchModel(branch: any, index: number) {
-    if (index >= this.addbranch.length) {
-      this.addbranch[index] = new BranchModel();
-    }
-    this.addbranch[index] = {
-      branchName: branch.branchName,
-      contactNumber: branch.contactNumber,
-      branchCode: branch.branchCode,
-      address: {
-        fk_CountryId: branch.address.country?.countryId,
-        fk_StateId: branch.address.state?.stateId,
-        fk_DistId: branch.address.dist?.distId,
-        fk_BranchId: null,
-        fk_LabourId: null,
-        fk_PartyId: null,
-        fk_UserId: null,
-        at: branch.address.at,
-        post: branch.address.post,
-        city: branch.address.city,
-        pinCode: branch.address.pinCode,
-      }
     }
   }
   //#endregion

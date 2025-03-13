@@ -41,12 +41,6 @@ export class AppMenuComponent implements OnInit {
                                 icon: 'fa-solid fa-calendar',
                                 routerLink: ['/financial-year/list-financial-year']
                             },
-                            {
-                               
-                                label: 'Branch Financial Year',
-                                icon: 'fa-solid fa-house-laptop',
-                                routerLink: ['/branch-financial-year']
-                            }
                         ]
                     },
                 ]

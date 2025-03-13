@@ -6,22 +6,42 @@
     [rowsPerPageOptions]="[10,20,30]" [showCurrentPageReport]="true" [lazy]="true"
     currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
     (onPage)="onPageChange($event)" [columns]="cols" responsiveLayout="scroll"
-    [globalFilterFields]="['financial_Year','startDate','endDate']"  [rowHover]="true" dataKey="financialYearId">
+    [(selection)]="selectedfinancialYears" selectionMode="multiple"
+    [globalFilterFields]="['financial_Year','branchName','startDate','endDate']" [rowHover]="true" dataKey="financialYearId">
     <ng-template pTemplate="caption">
-        <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
-            <span class="p-input-icon-right">
+        <p-toolbar styleClass="mb-1 ">
+            <ng-template pTemplate="left">
                 <input pInputText type="text" #search placeholder="Search..."
-                    [(ngModel)]="pagination.searchTerm" class="w-full sm:w-auto" />
-                <button pButton pRipple icon="fa-solid fa-magnifying-glass" label="Search"
-                    class="p-button-success ml-2" (click)="onGlobalFilter(search)">
-                </button>
-            </span>
-        </div>
+                [(ngModel)]="pagination.searchTerm" class="w-full sm:w-auto" />
+            <button pButton pRipple icon="fa-solid fa-magnifying-glass" label="Search"
+                class="p-button-success ml-2" (click)="onGlobalFilter(search)">
+            </button>
+            </ng-template>
+            <ng-template pTemplate="right">
+                <div class="my-2">
+                    <button pButton pRipple label="Bulk Recover" icon="fa-solid fa-pen-to-square"
+                        class="p-button-outlined p-button-info mr-2" (click)="bulkRecoverFinancialYear()"
+                        [disabled]="!selectedfinancialYears || !selectedfinancialYears.length || (!isDevloper && !canUpdate)"></button>
+                    <button pButton pRipple label="Bulk Delete" icon="fa-solid fa-trash"
+                        class="p-button-outlined p-button-danger" (click)="bulkDeleteFinancialYears()"
+                        [disabled]="!selectedfinancialYears || !selectedfinancialYears.length ||(!isDevloper &&  !canDelete)"></button>
+                    <p-confirmDialog key="bulkRemove" icon="pi pi-exclamation-triangle"
+                        header="Confirm Deletion"
+                        message="Are you sure you want to delete the selected branches?"
+                        [style]="{width: '350px'}" acceptButtonStyleClass="p-button-danger"
+                        rejectButtonStyleClass="p-button-text">
+                    </p-confirmDialog>
+                </div>
+            </ng-template>
+        </p-toolbar>
     </ng-template>
     <ng-template pTemplate="header">
         <tr>
-            <th pSortableColumn="financial_Year">Financial Year <p-sortIcon
-                    field="financial_Year"></p-sortIcon></th>
+            <th style="width: 3rem">
+                <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+            </th>
+            <th pSortableColumn="financial_Year">Financial Year <p-sortIcon field="financial_Year"></p-sortIcon></th>
+            <th pSortableColumn="branchName">Branch <p-sortIcon field="branchName"></p-sortIcon></th>
             <th pSortableColumn="startDate"> Start Date<p-sortIcon field="startDate"></p-sortIcon></th>
             <th pSortableColumn="endDate">End Date <p-sortIcon field="endDate"></p-sortIcon></th>
             <th>Action</th>
@@ -29,8 +49,14 @@
     </ng-template>
     <ng-template pTemplate="body" let-financialYear>
         <tr>
+            <td>
+                <p-tableCheckbox [value]="financialYear"></p-tableCheckbox>
+            </td>
             <td style="width:25%; min-width:12rem;">
                 {{financialYear.financial_Year}}
+            </td>
+            <td style="width:25%; min-width:12rem;">
+                {{financialYear.branchName}}
             </td>
             <td style="width:25%; min-width:12rem;">
                 {{financialYear.startDate| date:'dd/MM/yyyy'}}
@@ -46,7 +72,7 @@
                     <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-warning"
                         [disabled]="!canDelete"
                         (click)="deleteFinancialYear(financialYear.financialYearId,  $event)"></button>
-                    <p-confirmPopup key="deleteFinancialYear"></p-confirmPopup>
+                    <p-confirmPopup key="delete"></p-confirmPopup>
                 </div>
             </td>
         </tr>
@@ -54,7 +80,7 @@
          <!-- Loading Spinner Template -->
          <ng-template pTemplate="emptymessage">
             <tr>
-                <td colspan="4" class="text-center">
+                <td colspan="6" class="text-center">
                     <div *ngIf="loading" class="loading-overlay">
                         <p-progressSpinner styleClass="custom-spinner"
                             [style]="{'width': '50px', 'height': '50px'}"></p-progressSpinner>

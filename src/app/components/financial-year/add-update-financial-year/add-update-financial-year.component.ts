@@ -1,94 +1,133 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Subscription } from 'rxjs';
-import { FinancialYearDto, FinancialYearModel, FinancialYearUpdateModel } from 'src/app/api/entity/financialYear';
+import { catchError, distinctUntilChanged, filter, finalize, map, Observable, of, Subject, switchMap, take, takeUntil, tap } from 'rxjs';
+import { FinancialYearDto, FinancialYearMapper, FinancialYearModel, FinancialYearUpdateModel } from 'src/app/api/entity/financialYear';
 import { FinancialYearService } from 'src/app/api/service/devloper/financial-year/financial-year.service';
 import { LayoutService } from '../../shared/service/app.layout.service';
-import { MessageService } from 'primeng/api';
+import { ConfirmationService } from 'primeng/api';
+import { BranchDto } from 'src/app/api/entity/branch';
+import { FinancialYearMessageService } from 'src/app/api/service/devloper/financial-year/financial-year-messsage.service';
+import { CommonService } from 'src/app/api/service/common/common.service';
 @Component({
-  selector: 'app-add-update-financial-year',
+  selector: 'add-update-financial-year',
   templateUrl: './add-update-financial-year.component.html',
 })
 export class AddUpdateFinancialYearComponent {
-  
   //#region Property Declaration
-  public display: boolean;
-  public isLoading: boolean;
-  public operationType: string;
-  private finanancialYearDataSub: Subscription;
-  private operationTypeSub: Subscription;
-  private financialyear: FinancialYearDto;
-  private addFinancialYear: FinancialYearModel;
-  private updateFinancialYear: FinancialYearUpdateModel;
+  public display: boolean = false;
+  public visible: boolean = false;
+  public isLoading = false;
+  public operationType = '';
+  private readonly destroy$ = new Subject<void>();
+  private addFinancialYear: FinancialYearModel = new FinancialYearModel();
+  private updateFinancialYear: FinancialYearUpdateModel = new FinancialYearUpdateModel();
   public financialYearForm: FormGroup;
+  private branches: BranchDto[] = [];
+  public filteredBranches: BranchDto[] = [];
+  public yearRange: string = `1800:${new Date().getFullYear() + 1}`;
+  public maxDate: Date = new Date(new Date().getFullYear() + 1, 11, 31);
   //#endregion
 
   //#region constructor
-  constructor(private fb: FormBuilder, private financialYearSvcs: FinancialYearService, public layoutSvcs: LayoutService, private messageService: MessageService) {
-    this.display = false;
-    this.isLoading = false;
-    this.operationType = '';
-    this.finanancialYearDataSub = new Subscription;
-    this.operationTypeSub = new Subscription;
+  constructor(private fb: FormBuilder,
+    private financialYearSvcs: FinancialYearService,
+    public layoutSvcs: LayoutService,
+    private commonSvcs: CommonService,
+    private messageService: FinancialYearMessageService) {
     this.financialYearForm = this.initializeForm();
-    this.financialyear = new FinancialYearDto();
-    this.addFinancialYear = new FinancialYearModel();
-    this.updateFinancialYear = new FinancialYearUpdateModel()
   }
   //#endregion
 
   //#region Lifecycle Hooks
   ngOnInit() {
-    this.finanancialYearDataSub = this.financialYearSvcs.getFinancialYear().subscribe((operation) => {
-      if (operation?.financialYear != null) {
-        this.financialyear = operation.financialYear;
-        this.updateFinancialYear.financialYearId = operation.financialYear.financialYearId;
-        this.financialYearForm.patchValue({
-          financial_Year: operation.financialYear.financial_Year,
-          startDate: new Date(operation.financialYear.startDate),
-          endDate: new Date(operation.financialYear.endDate),
-        });
-      }
-    });
-    this.operationTypeSub = this.financialYearSvcs.getOperationType().subscribe((data) => {
-      this.operationType = data;
-      if (this.operationType === 'edit') {
-        this.financialYearForm.valueChanges.subscribe((values) => {
-          this.updateFinancialYear = { ...this.updateFinancialYear, ...values };
-        });
-      }
-      else {
-        this.financialYearForm.valueChanges.subscribe((values) => {
-          this.addFinancialYear = { ...this.addFinancialYear, ...values };
-        });
-      }
-    });
+    this.loadInitialData();
   }
   ngOnDestroy() {
-    this.finanancialYearDataSub?.unsubscribe();
-    this.operationTypeSub?.unsubscribe();
-  }
-  //#endregion
-
-  //#region Themme
-  get dark(): boolean {
-    return this.layoutSvcs.config().colorScheme !== 'light';
+    this.destroy$.next();
+    this.destroy$.complete();
   }
   //#endregion
 
   //#region Form Initialization
   private initializeForm(fy?: FinancialYearUpdateModel): FormGroup {
     return this.fb.group({
-      financial_Year: ['', [Validators.required]],
-      startDate: ['', [Validators.required]],
-      endDate: ['', [Validators.required]],
+      branch: [fy?.fk_BranchId && this.branches?.length ? this.branches.find(c => c.branchId === fy.fk_BranchId) : null, Validators.required],
+      financial_Year: [fy?.financial_Year || '', [Validators.required]],
+      startDate: [fy?.startDate ? new Date(fy.startDate) : null, [Validators.required]],
+      endDate: [fy?.endDate ? new Date(fy.endDate) : null, [Validators.required]],
     })
+  }
+  private loadInitialData() {
+    this.getAllBranch().pipe(
+      tap(branches => {
+        this.branches = branches;
+        this.filteredBranches = branches;
+      }),
+      switchMap(() => this.financialYearSvcs.changeAddUpdateDialogVisibility$.pipe(
+        takeUntil(this.destroy$),
+        filter(isVisible => isVisible === true),
+        tap(isVisible => {
+          this.visible = isVisible;
+        }),
+        switchMap(() => this.financialYearSvcs.getOperationType().pipe(take(1))),
+        tap(operationType => {
+          this.operationType = operationType;
+        }),
+        switchMap(() => this.financialYearSvcs.getFinancialYear().pipe(
+          take(1),
+          catchError(() => of({ financialYear: null }))
+        ))
+      )),
+      switchMap(operation => {
+        if (operation?.financialYear) {
+          return this.handleEditMode(operation.financialYear);
+        }
+        return of(null);
+      }),
+      tap(() => {
+        this.setupFormValueChanges();
+      }),
+      takeUntil(this.destroy$)
+    ).subscribe();
+  }
+
+  private handleEditMode(fy: FinancialYearDto): Observable<void> {
+    this.updateFinancialYear = FinancialYearMapper.dtoToUpdateModel(fy);
+    this.financialYearForm = this.initializeForm(this.updateFinancialYear);
+    return of(undefined);
+  }
+  private setupFormValueChanges() {
+    this.destroy$.next();
+    this.financialYearForm.valueChanges.pipe(
+      takeUntil(this.destroy$),
+      distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr))
+    ).subscribe(values => {
+      if (this.operationType === 'edit') {
+        this.updateFinancialYear = {
+          ...this.updateFinancialYear,
+          fk_BranchId: values.branch?.branchId,
+          financial_Year: values.financial_Year,
+          startDate: values.startDate,
+          endDate: values.endDate,
+        };
+      } else {
+        if (this.operationType === 'add') {
+          this.addFinancialYear = {
+            fk_BranchId: values.branch?.branchId,
+            financial_Year: values.financial_Year,
+            startDate: values.startDate,
+            endDate: values.endDate,
+          };
+        }
+      }
+    });
   }
   //#endregion
 
   //#region Client Side Vaildation
   private getFieldLabel(controlName: string): string {
     const labels: { [key: string]: string } = {
+      branch: 'Branch',
       financial_Year: 'Financial Year',
       startDate: 'Start Date',
       endDate: 'End Date'
@@ -113,92 +152,61 @@ export class AddUpdateFinancialYearComponent {
   //#endregion
 
   //#region Client Side Operations
-  public resetComponent() {
+  filterBranches(event: any) {
+    const query = event.query.toLowerCase();
+    this.filteredBranches = this.branches.filter(branch =>
+      branch.branchName.toLowerCase().includes(query)
+    );
+  }
+  private resetComponent() {
     this.financialYearForm.reset();
-    this.operationType = '';
-    this.financialyear = new FinancialYearDto();
     this.addFinancialYear = new FinancialYearModel();
     this.updateFinancialYear = new FinancialYearUpdateModel();
+    this.visible = false;
+  }
+  public hideDialog() {
+    this.financialYearSvcs.hideAddUpdateDialog();
+    this.resetComponent();
   }
   //#endregion
 
   //#region Server Side Operation
-  async submit(): Promise<void> {
-    try {
+  private getAllBranch(): Observable<BranchDto[]> {
+    return this.commonSvcs.getBranches().pipe(
+      takeUntil(this.destroy$),
+      map(response => response.data as BranchDto[]),
+      catchError(err => {
+        this.branches = [];
+        return of(this.branches);
+      })
+    );
+  }
+  public submit(): void {
+    if (this.financialYearForm.invalid) {
+      this.financialYearForm.markAllAsTouched();
+      return;
+    }
+    else {
       if (this.financialYearForm.dirty && this.financialYearForm.touched) {
-        if (this.financialYearForm.valid) {
-          this.isLoading = true;
-          if (this.operationType === 'edit') {
-            this.financialYearSvcs.update(this.updateFinancialYear).subscribe({
-              next: async (response) => {
-                if (response.responseCode === 200) {
-                  this.financialyear = {
-                    ...this.updateFinancialYear,
-                  };
-                  this.financialYearSvcs.setFinancialYear({ financialYear: this.financialyear, isSuccess: true });
-                  this.resetComponent();
-                  this.messageService.add({ severity: 'success', summary: 'Success', detail: response.message });
-                }
-                this.isLoading = false;
-              },
-              error: (err) => {
-                if (err.error.responseCode === 400) {
-                  if (err.error?.data) {
-                    const errorMessages = err.error.data.map((error: any) => {
-                      return `${error.formattedMessagePlaceholderValues.PropertyName}: ${error.errorMessage}`;
-                    }).join(', ');
-                    this.messageService.add({ severity: 'error', summary: 'Error', detail: errorMessages });
-                  }
-                  else {
-                    this.messageService.add({ severity: 'error', summary: 'Error', detail: err.error.message });
-                  }
-                }
-                else {
-                  this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error updating  Financial Year' });
-                }
-              }
-            })
-          } else {
-            this.financialYearSvcs.create(this.addFinancialYear).subscribe({
-              next: async (response) => {
-                if (response.responseCode === 201) {
-                  this.financialyear = {
-                    ...this.addFinancialYear,
-                    financialYearId: response.data.id
-                  };
-                  this.financialYearSvcs.setFinancialYear({ financialYear: this.financialyear, isSuccess: true });
-                  this.resetComponent();
-                  this.messageService.add({ severity: 'success', summary: 'Success', detail: response.message });
-                }
-                this.isLoading = false;
-              },
-              error: (err) => {
-                this.isLoading = false;
-                if (err.error.responseCode === 400) {
-                  if (err.error?.data) {
-                    const errorMessages = err.error.data.map((error: any) => {
-                      return `${error.formattedMessagePlaceholderValues.PropertyName}: ${error.errorMessage}`;
-                    }).join(', ');
-                    this.messageService.add({ severity: 'error', summary: 'Error', detail: errorMessages });
-                  }
-                  else {
-                    this.messageService.add({ severity: 'error', summary: 'Error', detail: err.error.message });
-                  }
-                }
-                else {
-                  this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error adding Financial Year' });
-                }
-              }
-            })
+        this.isLoading = true;
+        const operation$ = this.operationType === 'edit' ? this.financialYearSvcs.update(this.updateFinancialYear) : this.financialYearSvcs.create(this.addFinancialYear);
+        operation$.pipe(
+          finalize(() => this.isLoading = false)
+        ).subscribe({
+          next: (response) => {
+            if (response.responseCode === 200 || response.responseCode === 201) {
+              this.financialYearSvcs.setFinancialYear({ financialYear: response.data, isSuccess: true, message: response.message });
+              this.hideDialog();
+            }
+          },
+          error: (error) => {
+            this.messageService.error('Operation failed');
           }
-        }
+        });
       }
       else {
-        this.messageService.add({ severity: 'warn', summary: 'warn', detail: 'No Change Detected' });
+        this.messageService.info('No Change Detected');
       }
-    }
-    catch (error) {
-      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'An unexpected error occurred' });
     }
   }
   //#endregion
@@ -206,9 +214,6 @@ export class AddUpdateFinancialYearComponent {
   //#region Test form
   get formJson(): string {
     return JSON.stringify(this.financialYearForm.value, null, 2);
-  }
-  get FinancialYearDtoJson(): string {
-    return JSON.stringify(this.financialyear, null, 2);
   }
   get financialYearModelJson(): string {
     return JSON.stringify(this.addFinancialYear, null, 2);

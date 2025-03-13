@@ -40,20 +40,24 @@ export class UserModel extends UserBase {
 export class UserUpdateModel extends UserBase {
   id: string;
   profilePhoto: File | null;
+  fk_AdressId: string;
   address: AddressUpdateModel;
   constructor() {
     super();
     this.id = '';
+    this.fk_AdressId='';
     this.profilePhoto = new File([], '');
     this.address = new AddressUpdateModel();
   }
 }
 export class UserDto extends UserBase {
   id: string;
+  fk_AdressId: string;
   address: AddressDto;
   constructor() {
     super();
     this.id = '';
+    this.fk_AdressId='';
     this.address = new AddressDto();
   }
 }
@@ -71,7 +75,9 @@ export class UserMapper {
       phoneNumber: dto.phoneNumber,
       photoPath: dto.photoPath,
       profilePhoto: null,
+      fk_AdressId: dto.fk_AdressId,
       address: {
+        addressId:dto.address.addressId,
         fk_CountryId: dto.address.fk_CountryId,
         fk_StateId: dto.address.fk_StateId,
         fk_DistId: dto.address.fk_DistId,

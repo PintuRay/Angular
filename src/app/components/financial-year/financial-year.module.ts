@@ -10,11 +10,15 @@ import { FinancialYearComponent } from './financial-year.component';
 import { ListFinancialYearComponent } from './list-financial-year/list-financial-year.component';
 import { AddUpdateFinancialYearComponent } from './add-update-financial-year/add-update-financial-year.component';
 import { ListRecoverFinancialYearComponent } from './list-recover-financial-year/list-recover-financial-year.component';
+import { FinancialYearMessageService } from 'src/app/api/service/devloper/financial-year/financial-year-messsage.service';
+import { BulkAddUpdateFinancialYearComponent } from './bulk-add-update-financial-year/bulk-add-update-financial-year.component';
+import { FieldsMaskModule } from 'src/app/utility/directives/fields-mask/field-mask.module';
 @NgModule({
   declarations: [
     FinancialYearComponent,
     ListFinancialYearComponent,
     AddUpdateFinancialYearComponent,
+    BulkAddUpdateFinancialYearComponent,
     ListRecoverFinancialYearComponent
   ],
   imports: [
@@ -24,8 +28,9 @@ import { ListRecoverFinancialYearComponent } from './list-recover-financial-year
     FinancialYearRoutingModule,
     PrimeNgModule,
     FieldsRestrictionModule,
-    FieldsValidationModule
+    FieldsValidationModule,
+    FieldsMaskModule
   ],
-    providers: [FinancialYearService]
+  providers: [FinancialYearService, FinancialYearMessageService]
 })
 export class FinancialYearModule { }

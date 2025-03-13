@@ -44,5 +44,6 @@ export class CommonService {
     public getCountries = (): Observable<Base> => this.createHttpRequest('GET', 'getCountries');
     public getStates = (countryId: string): Observable<Base> => this.createHttpRequest('GET', 'getStates', {}, undefined, countryId);
     public getDists = (stateId: string): Observable<Base> => this.createHttpRequest('GET', 'getDists', {}, undefined, stateId);
-    public getBranchFinancialYears = (branchId: string) => this.createHttpRequest('GET', 'getBranchFinancialYears', {}, undefined, branchId);
+    public getBranches = () => this.createHttpRequest('GET', 'getBranches');
+    public getFinancialYears = (branchId: string) => this.createHttpRequest('GET', 'getFinancialYears', {}, undefined, branchId);
 }

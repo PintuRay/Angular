@@ -270,8 +270,8 @@ export class ListBranchComponent {
       next: (response) => {
         this.loading = false;
         if (response.responseCode === 200) {
-          this.branches = response.data.records as BranchDto[];
-          this.totalRecords = response.data.count;
+          this.branches = response.data as BranchDto[];
+          this.totalRecords = response.count;
         }
       },
       error: (err) => {
@@ -312,11 +312,11 @@ export class ListBranchComponent {
         this.branchSvcs.bulkRemove(this.selectedBranches).pipe(takeUntil(this.destroy$)).subscribe({
           next:(response) => {
             if (response.responseCode === 200) {
-              const removedBranches = response.data.records as BranchDto[];
+              const removedBranches = response.data as BranchDto[];
               const branchIds = removedBranches.map(branch => branch.branchId);
               this.branches = this.branches.filter(branch => !branchIds.includes(branch.branchId));
               this.selectedBranches = [];
-              this.totalRecords -= response.data.count;
+              this.totalRecords -= removedBranches.length;
               if (this.branches.length === 0) {
                 this.pagination = new PaginationParams();
                 this.getBranches(this.pagination);

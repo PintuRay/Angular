@@ -186,15 +186,10 @@ export class AddUpdateBranchComponent implements OnInit, OnDestroy, CanComponent
             fk_CountryId: values.address.country?.countryId,
             fk_StateId: values.address.state?.stateId,
             fk_DistId: values.address.dist?.distId,
-            fk_BranchId: null,
-            fk_LabourId: null,
-            fk_PartyId: null,
-            fk_UserId: null,
             at: values.address.at,
             post: values.address.post,
             city: values.address.city,
             pinCode: values.address.pinCode,
-
           }
         };
       }
@@ -315,7 +310,7 @@ export class AddUpdateBranchComponent implements OnInit, OnDestroy, CanComponent
     return this.commonSvcs.getCountries().pipe(
       takeUntil(this.destroy$),
       // tap(response => console.log('API Response:', response)),
-      map(response => response.data.records as CountryDto[]),
+      map(response => response.data as CountryDto[]),
       catchError(err => {
         this.countries = [];
         return of(this.countries);
@@ -326,7 +321,7 @@ export class AddUpdateBranchComponent implements OnInit, OnDestroy, CanComponent
     return this.commonSvcs.getStates(countryId).pipe(
       takeUntil(this.destroy$),
       //tap(response => console.log('API Response:', response)),
-      map(response => response.data.records as StateDto[]),
+      map(response => response.data as StateDto[]),
       catchError(() => {
         this.states = [];
         return of(this.states);
@@ -337,7 +332,7 @@ export class AddUpdateBranchComponent implements OnInit, OnDestroy, CanComponent
     return this.commonSvcs.getDists(stateId).pipe(
       takeUntil(this.destroy$),
       //tap(response => console.log('API Response:', response)),
-      map((response) => response.data.records as DistDto[]),
+      map((response) => response.data as DistDto[]),
       catchError(() => {
         this.dists = [];
         return of(this.dists);
@@ -359,7 +354,7 @@ export class AddUpdateBranchComponent implements OnInit, OnDestroy, CanComponent
           next: (response) => {
             if (response.responseCode === 200 || response.responseCode === 201) {
               this.messageService.success(response.message);
-              this.branchForm.markAsPristine(); 
+              this.branchForm.markAsPristine();
               this.branchForm.markAsUntouched();
               this.resetComponent();
             }

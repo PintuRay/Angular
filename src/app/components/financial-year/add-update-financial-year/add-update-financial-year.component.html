@@ -1,43 +1,68 @@
-<div class="card">
-    <div class="col-12">
-        <p-toolbar styleClass="mb-1">
-            <ng-template pTemplate="left"></ng-template>
-            <ng-template pTemplate="right">
-                <button (click)="display=true" pButton icon="pi pi-external-link" label="Show"></button>
-            </ng-template>
-        </p-toolbar>
+<p-dialog header="{{ operationType === 'add' ? 'Add Financial Year' : 'Update Financial Year' }}" [modal]="true"
+    [(visible)]="visible" [style]="{ width: '25rem' }" (onHide)="hideDialog()">
+    <!-- <p-messages /> -->
+    <div class="col-12 flex justify-content-end">
+        <button (click)="display=true" pButton icon="pi pi-external-link" label="Show"></button>
     </div>
-    <div class="col-12">
-        <form [formGroup]="financialYearForm" (ngSubmit)="submit()" class="pt-4">
-            <div class="p-fluid p-formgrid grid">
-                <div class="field col-12 md:col-4">
-                    <span class="p-float-label">
-                        <p-inputMask mask="9999 - 9999" placeholder="xxxx - xxxx"   id="financial_Year" formControlName="financial_Year"
-                        autocomplete="off" [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid('financial_Year')}">
-                      </p-inputMask>
-                        <label for="financial_Year">Financial Year</label>
-                    </span>
-                    <small class="p-error block" *ngIf="isFieldInvalid('financial_Year')">{{ getErrorMessage('financial_Year') }}</small>
-                </div>
-                <div class="field col-12 md:col-4">
-                    <span class="p-float-label">
-                        <p-calendar [showIcon]="true" appDateFormat inputId="icon" formControlName="startDate"
-                            name="startDate" [minYear]="1800" autocomplete="off" [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid('startDate')}"></p-calendar>
-                        <label for="startDate">Start Date</label>
-                    </span>
-                    <small class="p-error block" *ngIf="isFieldInvalid('startDate')">{{ getErrorMessage('startDate') }}</small>
-                </div>
-                <div class="field col-12 md:col-4">
-                    <span class="p-float-label">
-                        <p-calendar [showIcon]="true"  inputId="icon" formControlName="endDate"
-                            name="endDate"  autocomplete="off" [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid('endDate')}"></p-calendar>
-                        <label for="endDate">End Date</label>
-                    </span>
-                    <small class="p-error block" *ngIf="isFieldInvalid('endDate')">{{ getErrorMessage('endDate') }}</small>
+    <form [formGroup]="financialYearForm" (ngSubmit)="submit()" class="pt-4">
+        <div class="grid">
+            <div class="col-12">
+                <div class="p-fluid">
+                    <div class="field mb-5">
+                        <span class="p-float-label">
+                            <p-autoComplete formControlName="branch" [suggestions]="filteredBranches"
+                                (completeMethod)="filterBranches($event)" dataKey="branchId" field="branchName"
+                                [dropdown]="true" name="branch"
+                                [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid('branch')}">
+                            </p-autoComplete>
+                            <label for="branch">Branch</label>
+                        </span>
+                        <small class="p-error block" *ngIf="isFieldInvalid('branch')">{{ getErrorMessage('branch')
+                            }}</small>
+                    </div>
+                    <div class="field mb-5">
+                        <span class="p-float-label">
+                            <p-inputMask mask="9999 - 9999" placeholder="xxxx - xxxx" id="financial_Year"
+                                formControlName="financial_Year" autocomplete="off"
+                                [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid('financial_Year')}">
+                            </p-inputMask>
+                            <label for="financial_Year">Financial Year</label>
+                        </span>
+                        <small class="p-error block" *ngIf="isFieldInvalid('financial_Year')">{{
+                            getErrorMessage('financial_Year') }}</small>
+                    </div>
+                    <div class="field mb-5">
+                        <span class="p-float-label">
+                            <p-calendar [showIcon]="true" appDateFormat dateInputMask inputId="icon" formControlName="startDate"
+                                name="startDate" [minYear]="1800" [maxDate]="maxDate" [yearRange]="yearRange"
+                                dateFormat="dd/mm/yy" [showButtonBar]="true" [yearNavigator]="true"
+                                [monthNavigator]="true" [touchUI]="true" [showOnFocus]="false"  placeholder="dd/mm/yyyy" autocomplete="off"
+                                [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid('startDate')}"></p-calendar>
+                            <label for="startDate">Start Date</label>
+                        </span>
+                        <small class="p-error block" *ngIf="isFieldInvalid('startDate')">{{ getErrorMessage('startDate')
+                            }}</small>
+                    </div>
+                    <div class="field mb-5">
+                        <span class="p-float-label">
+                            <p-calendar [showIcon]="true" appDateFormat dateInputMask inputId="icon" formControlName="endDate"
+                                name="endDate" [minYear]="1800" [maxDate]="maxDate" [yearRange]="yearRange"
+                                dateFormat="dd/mm/yy" [showButtonBar]="true" [yearNavigator]="true"
+                                [monthNavigator]="true" [touchUI]="true" [showOnFocus]="false"  placeholder="dd/mm/yyyy" autocomplete="off"
+                                [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid('endDate')}"></p-calendar>
+                            <label for="endDate">End Date</label>
+                        </span>
+                        <small class="p-error block" *ngIf="isFieldInvalid('endDate')">{{ getErrorMessage('endDate')
+                            }}</small>
+                    </div>
                 </div>
             </div>
-            <div class="flex justify-content-end mb-3">
-                <p-button label="Cancel" severity="secondary" (onClick)="resetComponent()" class="mr-2"/>
+        </div>
+        <div class="grid">
+            <div class="col-6 flex justify-content-start">
+                <p-button label="Cancel" severity="secondary" (onClick)="hideDialog()" />
+            </div>
+            <div class="col-6 flex justify-content-end">
                 <button pButton type="submit" [disabled]="!financialYearForm.valid">
                     <ng-container *ngIf="isLoading; else fyLabel">
                         <i class="pi pi-spin pi-spinner mr-2"></i> Loading...
@@ -45,32 +70,24 @@
                     <ng-template #fyLabel><i class="pi pi-save mr-2"></i>Save</ng-template>
                 </button>
             </div>
-        </form>
-    </div>
-</div>
+        </div>
+    </form>
+</p-dialog>
 
 <p-dialog header="Dialog" [(visible)]="display" [modal]="true" showEffect="fade" [style]="{width: '60vw'}"
     [breakpoints]="{'960px': '75vw'}">
     <p-accordion>
-        <p-accordionTab header="Dto" class="line-height-3 m-0">
-            <pre class="p-2 border rounded bg-gray-100" style="white-space: pre-wrap;">{{ FinancialYearDtoJson }}</pre>
+        <p-accordionTab header="Form Values" class="line-height-3 m-0">
+            <pre class="p-2 border rounded bg-gray-100" style="white-space: pre-wrap;">{{ formJson }}</pre>
         </p-accordionTab>
-
         <p-accordionTab header="Add Model" class="line-height-3 m-0">
             <pre class="p-2 border rounded bg-gray-100"
                 style="white-space: pre-wrap;">{{ financialYearModelJson }}</pre>
         </p-accordionTab>
-
         <p-accordionTab header="Update Model" class="line-height-3 m-0">
             <pre class="p-2 border rounded bg-gray-100"
                 style="white-space: pre-wrap;">{{ financialYearUpdateModelJson }}</pre>
         </p-accordionTab>
-
-        <p-accordionTab header="Form Values" class="line-height-3 m-0">
-            <pre class="p-2 border rounded bg-gray-100" style="white-space: pre-wrap;">{{ formJson }}</pre>
-        </p-accordionTab>
-
-
         <p-accordionTab header="Form Status" class="line-height-3 m-0">
             <p><strong>Valid:</strong> {{ financialYearForm.valid }}</p>
             <p><strong>Touched:</strong> {{ financialYearForm.touched }}</p>

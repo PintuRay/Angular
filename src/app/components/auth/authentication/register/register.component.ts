@@ -372,7 +372,7 @@ export class RegisterComponent implements OnInit {
 			});
 		}
 	}
-	private async convertFormToFormData(formValue: any): Promise<FormData> {
+	private convertFormToFormData(formValue: any) {
 		this.formData = new FormData();
 		this.formData.append('Fk_TokenId', this.tokenId);
 		this.formData.append('RouteUls', this.returnUrl);
@@ -438,7 +438,7 @@ export class RegisterComponent implements OnInit {
 		return this.commonSvcs.getCountries().pipe(
 			takeUntil(this.destroy$),
 			// tap(response => console.log('API Response:', response)),
-			map(response => response.data.records as CountryDto[]),
+			map(response => response.data as CountryDto[]),
 			catchError(err => {
 				this.countries = [];
 				return of(this.countries);
@@ -449,7 +449,7 @@ export class RegisterComponent implements OnInit {
 		return this.commonSvcs.getStates(countryId).pipe(
 			takeUntil(this.destroy$),
 			//tap(response => console.log('API Response:', response)),
-			map(response => response.data.records as StateDto[]),
+			map(response => response.data as StateDto[]),
 			catchError(() => {
 				this.states = [];
 				return of(this.states);
@@ -460,7 +460,7 @@ export class RegisterComponent implements OnInit {
 		return this.commonSvcs.getDists(stateId).pipe(
 			takeUntil(this.destroy$),
 			//tap(response => console.log('API Response:', response)),
-			map((response) => response.data.records as DistDto[]),
+			map((response) => response.data as DistDto[]),
 			catchError(() => {
 				this.dists = [];
 				return of(this.dists);
@@ -488,8 +488,7 @@ export class RegisterComponent implements OnInit {
 			this.messageService.info('Please Enter Token');
 		}
 	}
-	public async signUp(): Promise<void> {
-
+	public signUp() {
 		if (this.registerForm.invalid) {
 			Object.keys(this.registerForm.controls).forEach(key => {
 				const control = this.registerForm.get(key);
@@ -500,9 +499,9 @@ export class RegisterComponent implements OnInit {
 		}
 		else {
 			this.isLoading = true;
-			const formData = await this.convertFormToFormData(this.registerForm.value);
+			const formData = this.convertFormToFormData(this.registerForm.value);
 			this.authSvcs.signUp(formData).pipe(takeUntil(this.destroy$)).subscribe({
-				next: async (response) => {
+				next: (response) => {
 					if (response.responseCode === 201) {
 						this.messageService.success('Registration successful');
 					}

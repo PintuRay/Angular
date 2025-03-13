@@ -30,13 +30,6 @@ const routes: Routes = [
                         (m) => m.FinancialYearModule
                     ),
             },
-            {
-                path: 'branch-financial-year', data: { breadcrumb: 'branch-financial-year' },
-                loadChildren: () =>
-                    import('../../branch-financial-year/branch-financial-year.module').then(
-                        (m) => m.BranchFinancialYearModule
-                    ),
-            },
             { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
         ],
     },

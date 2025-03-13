@@ -1,19 +1,26 @@
 import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { ConfigService } from '../../config.Service';
-import { BehaviorSubject, catchError, Observable, switchMap, throwError } from 'rxjs';
+import { BehaviorSubject, catchError, distinctUntilChanged, Observable, switchMap, throwError } from 'rxjs';
 import { Base } from '../../../model/base';
 import { PaginationParams } from '../../../model/paginationParams';
-import { FinancialYearModel, FinancialYearOperation, FinancialYearUpdateModel, RecoverFinancialYearOperation } from '../../../entity/financialYear';
+import { BulkFinancialYearOperation, FinancialYearModel, FinancialYearOperation, FinancialYearUpdateModel } from '../../../entity/financialYear';
 import { FinancialYearMessageService } from './financial-year-messsage.service';
 @Injectable()
 export class FinancialYearService {
   //#region Property Declaration
   private changeRecoverVisibilitySubject = new BehaviorSubject<boolean>(false);
   changeRecoverDialogVisibility$ = this.changeRecoverVisibilitySubject.asObservable();
-  private operationTypeSubject = new BehaviorSubject<string>('');
+  private addUpdateVisibilitySubject = new BehaviorSubject<boolean>(false);
+  changeAddUpdateDialogVisibility$ = this.addUpdateVisibilitySubject.asObservable();
+  private bulkAddUpdateVisibilitySubject = new BehaviorSubject<boolean>(false);
+  changeBulkAddUpdateDialogVisibility$ = this.bulkAddUpdateVisibilitySubject.asObservable();
   private financialYearSubject = new BehaviorSubject<FinancialYearOperation | null>(null);
-  private recoverFinancialYearSubject = new BehaviorSubject<RecoverFinancialYearOperation | null>(null);
+  private bulkFinancialYearSubject = new BehaviorSubject<BulkFinancialYearOperation | null>(null);
+  private recoverFinancialYearSubject = new BehaviorSubject<FinancialYearOperation | null>(null);
+  private bulkRecoverFinancialYearSubject = new BehaviorSubject<BulkFinancialYearOperation | null>(null);
+  private operationTypeSubject = new BehaviorSubject<string>('');
+  private bulkOperationTypeSubject = new BehaviorSubject<string>('');
   //#endregion
 
   //#region Constructor
@@ -81,13 +88,26 @@ export class FinancialYearService {
   //#endregion
 
   //#region component service
+  public showAddUpdatedDialog = () => this.addUpdateVisibilitySubject.next(true);
+  public hideAddUpdateDialog = () => this.addUpdateVisibilitySubject.next(false);
+  public showBulkAddUpdatedDialog = () => this.bulkAddUpdateVisibilitySubject.next(true);
+  public hideBulkAddUpdateDialog = () => this.bulkAddUpdateVisibilitySubject.next(false);
   public showRecoverDialog = () => this.changeRecoverVisibilitySubject.next(true);
   public hideRecoverDialog = () => this.changeRecoverVisibilitySubject.next(false);
+
   public setOperationType = (operationType: string) => this.operationTypeSubject.next(operationType);
-  public getOperationType = (): Observable<string> => this.operationTypeSubject.asObservable();
-  public setFinancialYear = (financialYearOperation: FinancialYearOperation): void => this.financialYearSubject.next(financialYearOperation);
+  public getOperationType = (): Observable<string> => this.operationTypeSubject.asObservable().pipe(distinctUntilChanged());
+  public setBulkOperationType = (operationType: string) => this.bulkOperationTypeSubject.next(operationType);
+  public getBulkOperationType = (): Observable<string> => this.bulkOperationTypeSubject.asObservable();
+
+  public setFinancialYear = (financialYearOperation: FinancialYearOperation | null): void => this.financialYearSubject.next(financialYearOperation);
   public getFinancialYear = (): Observable<FinancialYearOperation | null> => this.financialYearSubject.asObservable();
-  public setRecoverFinancialYear = (recoverFinancialYearOperation: RecoverFinancialYearOperation): void => this.recoverFinancialYearSubject.next(recoverFinancialYearOperation);
-  public getRecoverFinancialYear = (): Observable<RecoverFinancialYearOperation | null> => this.recoverFinancialYearSubject.asObservable();
+  public setBulkFinancialYear = (financialYearOperation: BulkFinancialYearOperation | null): void => this.bulkFinancialYearSubject.next(financialYearOperation);
+  public getBulkFinancialYear = (): Observable<BulkFinancialYearOperation | null> => this.bulkFinancialYearSubject.asObservable();
+
+  public setRecoverFinancialYear = (recoverFinancialYearOperation: FinancialYearOperation| null): void => this.recoverFinancialYearSubject.next(recoverFinancialYearOperation);
+  public getRecoverFinancialYear = (): Observable<FinancialYearOperation | null> => this.recoverFinancialYearSubject.asObservable();
+  public setBulkRecoverFinancialYear = (financialYearOperation: BulkFinancialYearOperation| null): void => this.bulkRecoverFinancialYearSubject.next(financialYearOperation);
+  public getBulkRecoverFinancialYear = (): Observable<BulkFinancialYearOperation | null> => this.bulkRecoverFinancialYearSubject.asObservable();
   //#endregion
 }

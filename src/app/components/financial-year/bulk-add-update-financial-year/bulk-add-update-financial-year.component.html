@@ -1,0 +1,99 @@
+<p-dialog [(visible)]="visible" [modal]="true" [style]="{width: '40vw'}" [draggable]="false" [resizable]="false"
+    (onHide)="hideDialog()">
+    <ng-template pTemplate="header">
+        <div class="flex align-items-center gap-2">
+            <span class="font-bold">{{operationType === 'add' ? 'Add' : 'Update'}} Financial Years</span>
+        </div>
+    </ng-template>
+    <ng-template pTemplate="content">
+        <form [formGroup]="financialYearForm">
+            <div formArrayName="financialYears">
+                <div *ngFor="let item of financialYearArray.controls; let i=index" [formGroupName]="i" class="mb-4">
+                    <div class="grid">
+                        <div class="col-12 mt-5">
+                            <div class="p-fluid p-formgrid grid">
+                                <div class="field col-12">
+                                    <h3>#{{i + 1}}
+                                        <button pButton type="button" icon="pi pi-trash"
+                                            (click)="removeFinancialYear(i)"
+                                            class="p-button-danger p-button-text"></button>
+                                    </h3>
+                                </div>
+                                <div class="field col-12 md:col-6">
+                                    <span class="p-float-label">
+                                        <p-dropdown [options]="filteredBranches" formControlName="branch"
+                                            [filter]="true" filterBy="branchName" [showClear]="true"
+                                            placeholder="Select Branch" optionLabel="branchName"
+                                            [style]="{'width':'100%'}" [class.ng-invalid]="isFieldInvalid(i, 'branch')"
+                                            [class.ng-dirty]="isFieldInvalid(i, 'branch')">
+                                        </p-dropdown>
+                                        <label for="branch">Branch</label>
+                                    </span>
+                                    <small class="p-error" *ngIf="isFieldInvalid(i, 'branch')">
+                                        {{getErrorMessage(i, 'branch')}}
+                                    </small>
+                                </div>
+                                <div class="field col-12 md:col-6">
+                                    <span class="p-float-label">
+                                        <p-inputMask mask="9999 - 9999" placeholder="xxxx - xxxx" id="financial_Year"
+                                            formControlName="financial_Year" autocomplete="off"
+                                            [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid(i,'financial_Year')}">
+                                        </p-inputMask>
+                                        <label for="financial_Year">Financial Year</label>
+                                    </span>
+                                    <small class="p-error block" *ngIf="isFieldInvalid(i,'financial_Year')">{{
+                                        getErrorMessage(i,'financial_Year') }}</small>
+                                </div>
+                                <div class="field col-12 md:col-6">
+                                    <span class="p-float-label">
+                                        <p-calendar [showIcon]="true" appDateFormat dateInputMask inputId="icon"
+                                            formControlName="startDate" name="startDate" [minYear]="1800"
+                                            [maxDate]="maxDate" [yearRange]="yearRange" dateFormat="dd/mm/yy"
+                                            [showButtonBar]="true" [yearNavigator]="true" [monthNavigator]="true"
+                                            [touchUI]="true" [showOnFocus]="false" placeholder="dd/mm/yyyy"
+                                            autocomplete="off"
+                                            [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid(i,'startDate')}"></p-calendar>
+                                        <label for="startDate">Start Date</label>
+                                    </span>
+                                    <small class="p-error block" *ngIf="isFieldInvalid(i,'startDate')">{{
+                                        getErrorMessage(i,'startDate')
+                                        }}</small>
+                                </div>
+                                <div class="field col-12 md:col-6">
+                                    <span class="p-float-label">
+                                        <p-calendar [showIcon]="true" appDateFormat dateInputMask inputId="icon"
+                                            formControlName="endDate" name="endDate" [minYear]="1800"
+                                            [maxDate]="maxDate" [yearRange]="yearRange" dateFormat="dd/mm/yy"
+                                            [showButtonBar]="true" [yearNavigator]="true" [monthNavigator]="true"
+                                            [touchUI]="true" [showOnFocus]="false" placeholder="dd/mm/yyyy"
+                                            autocomplete="off"
+                                            [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid(i,'endDate')}"></p-calendar>
+                                        <label for="endDate">End Date</label>
+                                    </span>
+                                    <small class="p-error block" *ngIf="isFieldInvalid(i,'endDate')">{{
+                                        getErrorMessage(i,'endDate')
+                                        }}</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </ng-template>
+
+    <ng-template pTemplate="footer">
+        <div class="flex w-full px-3" [ngClass]="{'justify-content-between': operationType === 'add', 'justify-content-end': operationType === 'edit'}">
+            <button *ngIf="operationType === 'add'" pButton type="button" label="Add More"
+            icon="fa-solid fa-circle-plus" (click)="addFinancialYear()"
+            class="p-button-success"></button>
+            <div class="flex gap-2">
+                <button pButton label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()">
+                </button>
+                <button pButton label="Save" icon="pi pi-check" class="p-button-primary" [loading]="isLoading"
+                    [disabled]="!financialYearForm.valid || !financialYearForm.dirty" (click)="submit()">
+                </button>
+            </div>
+        </div>
+    </ng-template>
+</p-dialog>

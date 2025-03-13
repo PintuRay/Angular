@@ -299,6 +299,8 @@ export class UserProfileComponent implements CanComponentDeactivate {
     } else {
       this.formData.append('ProfilePhoto', '');
     }
+    this.formData.append('fk_AdressId', this.updateUser.fk_AdressId);
+    this.formData.append('PhotoPath', this.updateUser.photoPath);
     this.formData.append('Address.AddressId', this.updateUser.address.addressId);
     this.formData.append('Address.Fk_CountryId', formValue.address.country?.countryId);
     this.formData.append('Address.Fk_StateId', formValue.address.state?.stateId);
@@ -324,7 +326,7 @@ export class UserProfileComponent implements CanComponentDeactivate {
     this.authorizeSvcs.getUserById(Id).pipe(
       switchMap((response) => {
         if (response.responseCode === 200) {
-          this.user = response.data.records as UserDto;
+          this.user = response.data as UserDto;
           return this.getCountries();
         } else {
           return of([]);
@@ -377,7 +379,7 @@ export class UserProfileComponent implements CanComponentDeactivate {
     return this.commonSvcs.getCountries().pipe(
       takeUntil(this.destroy$),
       // tap(response => console.log('API Response:', response)),
-      map(response => response.data.records as CountryDto[]),
+      map(response => response.data as CountryDto[]),
       catchError(err => {
         this.countries = [];
         return of(this.countries);
@@ -388,7 +390,7 @@ export class UserProfileComponent implements CanComponentDeactivate {
     return this.commonSvcs.getStates(countryId).pipe(
       takeUntil(this.destroy$),
       //tap(response => console.log('API Response:', response)),
-      map(response => response.data.records as StateDto[]),
+      map(response => response.data as StateDto[]),
       catchError(() => {
         this.states = [];
         return of(this.states);
@@ -399,7 +401,7 @@ export class UserProfileComponent implements CanComponentDeactivate {
     return this.commonSvcs.getDists(stateId).pipe(
       takeUntil(this.destroy$),
       //tap(response => console.log('API Response:', response)),
-      map((response) => response.data.records as DistDto[]),
+      map((response) => response.data as DistDto[]),
       catchError(() => {
         this.dists = [];
         return of(this.dists);

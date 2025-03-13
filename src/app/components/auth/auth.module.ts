@@ -20,6 +20,7 @@ import {FieldsValidationModule} from '../../utility/directives/fields-validation
 //import Services
 import { AuthenticationService } from '../../api/service/account/authentication/authentication.service';
 import { GenericMessageService } from 'src/app/api/service/generic-message.Service';
+import { FieldsMaskModule } from 'src/app/utility/directives/fields-mask/field-mask.module';
 
 @NgModule({
   declarations: [
@@ -40,7 +41,8 @@ import { GenericMessageService } from 'src/app/api/service/generic-message.Servi
     AuthRoutingModule,
     PrimeNgModule,
     FieldsRestrictionModule,
-    FieldsValidationModule
+    FieldsValidationModule,
+    FieldsMaskModule
   ],
   providers: [AuthenticationService, GenericMessageService]
 })
