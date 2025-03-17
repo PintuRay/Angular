@@ -93,19 +93,19 @@ export class ListFinancialYearComponent {
     this.financialYearSvcs.getFinancialYear()
       .pipe(takeUntil(this.destroy$))
       .subscribe(
-        operation => this.handleSingleOperation(operation)
+        operation => this.handleAddUpdateOperation(operation)
       );
     // Bulk Insert or Update
     this.financialYearSvcs.getBulkFinancialYear()
       .pipe(takeUntil(this.destroy$))
       .subscribe(
-        operation => this.handleBulkOperation(operation)
+        operation => this.handleBulkAddUpdateOperation(operation)
       );
     // Single Recover
     this.financialYearSvcs.getRecoverFinancialYear()
       .pipe(takeUntil(this.destroy$))
       .subscribe(
-        operation => this.handleSingleRecoverOperation(operation)
+        operation => this.handleRecoverOperation(operation)
       );
     // Bulk Recover
     this.financialYearSvcs.getBulkRecoverFinancialYear()
@@ -114,7 +114,7 @@ export class ListFinancialYearComponent {
         operation => this.handleBulkRecoverOperation(operation)
       );
   }
-  private handleSingleOperation(operation: FinancialYearOperation | null): void {
+  private handleAddUpdateOperation(operation: FinancialYearOperation | null): void {
     if (operation?.isSuccess) {
       if (operation.financialYear) {
         const index = this.financialYears.findIndex(item => item.financialYearId === operation.financialYear?.financialYearId);
@@ -130,7 +130,7 @@ export class ListFinancialYearComponent {
       this.messageService.success(operation.message);
     }
   }
-  private handleBulkOperation(operation: BulkFinancialYearOperation | null): void {
+  private handleBulkAddUpdateOperation(operation: BulkFinancialYearOperation | null): void {
     if (operation?.isSuccess) {
       if (operation.financialYears && operation.financialYears.length > 0) {
         let recordsAdded = 0;
@@ -152,7 +152,7 @@ export class ListFinancialYearComponent {
       this.messageService.success(operation.message);
     }
   }
-  private handleSingleRecoverOperation(operation: FinancialYearOperation | null): void {
+  private handleRecoverOperation(operation: FinancialYearOperation | null): void {
     if (operation?.isSuccess) {
       if (operation.financialYear) {
         this.financialYears = [...this.financialYears, operation.financialYear];

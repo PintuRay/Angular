@@ -17,30 +17,32 @@ interface ApiConfig {
 export class ConfigService {
     private apiConfig: ApiConfig = {
         apiEndpoints: {
-            auth: {
-                validateToken: '{apiUrl}Auth/ValidateToken',
-                isEmailInUse: '{apiUrl}Auth/IsEmailInUse',
-                isPhoneNumberInUse: '{apiUrl}Auth/IsPhoneNumberInUse',
-                isUserNameExist: '{apiUrl}Auth/IsUserNameExist',
-                signUp: '{apiUrl}Auth/SignUp',
-                verifyConfirmEmail: '{apiUrl}Auth/VerifyConfirmEmail',
-                resendConfirmEmail: '{apiUrl}Auth/ResendConfirmEmail',
+            authentication: {
+                login: '{apiUrl}Auth/Login',
+                loginWithOTP: '{apiUrl}Auth/SignInWithOTP',
                 forgotPassword: '{apiUrl}Auth/ForgotPassword',
                 resetPassword: '{apiUrl}Auth/ResetPassword',
                 changePassword: '{apiUrl}Auth/ChangePassword',
-                login: '{apiUrl}Auth/Login',
-                loginWithOTP: '{apiUrl}Auth/SignInWithOTP',
-                logout:'{apiUrl}Auth/LogOut',
+                verifyConfirmEmail: '{apiUrl}Auth/VerifyConfirmEmail',
+                resendConfirmEmail: '{apiUrl}Auth/ResendConfirmEmail',
                 verifyTwoFactorToken: '{apiUrl}Auth/VerifyTwoFactorToken',
                 sendTwoFactorToken: '{apiUrl}Auth/SendTwoFactorToken',
                 reSendTwoFactorToken: '{apiUrl}Auth/ReSendTwoFactorToken',
+                logout:'{apiUrl}Auth/LogOut',
+            },
+            autherization:{
+                getAllUserWithRolesAndClaims: '{apiUrl}Autherization/GetAllUserWithRolesAndClaims',
+                updateUserRoleAndClaims: '{apiUrl}Autherization/UpdateUserRoleAndClaims',
             },
             user: {
+                validateToken: '{apiUrl}User/ValidateToken',
+                isEmailInUse: '{apiUrl}User/IsEmailInUse',
+                isPhoneNumberInUse: '{apiUrl}User/IsPhoneNumberInUse',
+                isUserNameExist: '{apiUrl}User/IsUserNameExist',
+                signUp: '{apiUrl}User/SignUp',
                 getUserById:'{apiUrl}User/GetById',
                 getProfileImage:'{apiUrl}User/GetImage',
                 updateUser:'{apiUrl}User/Update',
-                getAllUserWithRolesAndClaims: '{apiUrl}User/GetAllUserWithRolesAndClaims',
-                updateUserRoleAndClaims: '{apiUrl}User/UpdateUserRoleAndClaims',
             },
             devloper: {
                 /*Branch*/
@@ -71,13 +73,23 @@ export class ConfigService {
                 deleteFinancialYear:'{apiUrl}FinancialYear/Delete',
                 bulkDeleteFinancialYear:'{apiUrl}FinancialYear/BulkDelete',
             },
-            admin: {},
+            admin: {
+                /*UserBranch*/
+                getUserBranches:'{apiUrl}UserBranch/Get',
+                createUserBranch:'{apiUrl}UserBranch/Create',
+                updateUserBranch:'{apiUrl}UserBranch/Update',
+                removeUserBranch:'{apiUrl}UserBranch/Remove',
+                getRemovedUserBranches:'{apiUrl}UserBranch/GetRemoved',
+                recoverUserBranch:'{apiUrl}UserBranch/Recover',
+                deleteUserBranch:'{apiUrl}UserBranch/Delete',
+            },
             common :{
                 getCountries: '{apiUrl}Common/Country/Get',
                 getStates:'{apiUrl}Common/State/Get',
                 getDists:'{apiUrl}Common/Dist/Get',
                 getBranches:'{apiUrl}Common/Branch/Get',
                 getFinancialYears:'{apiUrl}Common/FinancialYear/Get',
+                getUserBranches:'{apiUrl}Common/UserBranch/Get',
             }
         },
     };

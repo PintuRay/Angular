@@ -11,7 +11,6 @@ import { jwtDecode } from 'jwt-decode';
 import { ConfigService } from '../../config.Service';
 import { StorageModel } from 'src/app/api/model/storage-model';
 import { Router } from '@angular/router';
-import { PaginationParams } from 'src/app/api/model/paginationParams';
 import { GenericMessageService } from '../../generic-message.Service';
 
 @Injectable({
@@ -106,10 +105,6 @@ export class AuthenticationService {
     //#endregion
 
     //#region Api Service
-    private isEmailInUseParams = (email: string): HttpParams => new HttpParams().set('email', email);
-    private validateTokenParams = (token: string): HttpParams => new HttpParams().set('Token', token);
-    private isPhoneNumberInUseParams = (phNo: string): HttpParams => new HttpParams().set('phoneNumber', phNo);
-    private isUserNameExistParams = (userName: string): HttpParams => new HttpParams().set('userName', userName);
     private verifyConfirmEmailParams = (uid: string, token: string): HttpParams => new HttpParams().set('uid', uid).set('token', token);
     private resendConfirmEmailParams = (email: string, routeUrl: string): HttpParams => new HttpParams().set('email', email).set('routeUrl', routeUrl);
     private resendTwoFactorTokenParams = (mail: string): HttpParams => new HttpParams().set('mail', mail);
@@ -121,7 +116,7 @@ export class AuthenticationService {
         return throwError(() => error);
     }
     private createHttpRequest<T>(methodType: string, endpointKey: string, data?: any, params?: HttpParams, id?: string): Observable<Base> {
-        return this.configService.getEndpoint('auth', endpointKey).pipe(
+        return this.configService.getEndpoint('authentication', endpointKey).pipe(
             switchMap(endpoint => {
                 let url = endpoint;
                 if (id) {
@@ -145,16 +140,10 @@ export class AuthenticationService {
             catchError(this.handleApiError.bind(this))
         );
     }
-
-    validateToken = (token: string): Observable<Base> => this.createHttpRequest('GET', 'validateToken', {}, this.validateTokenParams(token));
-    isEmailInUse = (email: string): Observable<Base> => this.createHttpRequest('GET', 'isEmailInUse', {}, this.isEmailInUseParams(email));
-    isPhoneNumberInUse = (phNo: string): Observable<Base> => this.createHttpRequest('GET', 'isPhoneNumberInUse', {}, this.isPhoneNumberInUseParams(phNo));
-    isUserNameExist = (userName: string): Observable<Base> => this.createHttpRequest('GET', 'isUserNameExist', {}, this.isUserNameExistParams(userName));
-    signUp = (user: any): Observable<Base> => this.createHttpRequest('POST', 'signUp', user);
-    verifyConfirmEmail = (uid: string, token: string): Observable<Base> => this.createHttpRequest('GET', 'verifyConfirmEmail', {}, this.verifyConfirmEmailParams(uid, token));
-    resendConfirmEmail = (email: string, routeUrl: string): Observable<Base> => this.createHttpRequest('GET', 'resendConfirmEmail', {}, this.resendConfirmEmailParams(email, routeUrl));
     login = (user: SignInModel): Observable<Base> => this.createHttpRequest('POST', 'login', user);
     loginWithOTP = (data: SignIn2faModel): Observable<Base> => this.createHttpRequest('POST', 'loginWithOTP', data);
+    verifyConfirmEmail = (uid: string, token: string): Observable<Base> => this.createHttpRequest('GET', 'verifyConfirmEmail', {}, this.verifyConfirmEmailParams(uid, token));
+    resendConfirmEmail = (email: string, routeUrl: string): Observable<Base> => this.createHttpRequest('GET', 'resendConfirmEmail', {}, this.resendConfirmEmailParams(email, routeUrl));
     resendTwoFactorToken = (mail: string): Observable<Base> => this.createHttpRequest('GET', 'reSendTwoFactorToken', {}, this.resendTwoFactorTokenParams(mail));
     sendTwoFactorToken = (uid: string): Observable<Base> => this.createHttpRequest('GET', 'sendTwoFactorToken', {}, this.sendTwoFactorTokenParams(uid));
     verifyTwoFactorToken = (data: SignIn2faModel): Observable<Base> => this.createHttpRequest('POST', 'verifyTwoFactorToken', data);
@@ -164,6 +153,7 @@ export class AuthenticationService {
     //#endregion
 
     //#region Component Service
+
     handleLoginResponse(response: Base, email: string): void {
         switch (response.responseCode) {
             case 200:

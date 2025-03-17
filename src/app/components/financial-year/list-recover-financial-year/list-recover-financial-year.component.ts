@@ -22,10 +22,10 @@ export class ListRecoverFinancialYearComponent {
   public canUpdate: boolean = false;
   public isDevloper: boolean = false;
   subscription!: Subscription;
-  public financialYears: FinancialYearDto[];
-  public selectedfinancialYears: FinancialYearDto[];
-  public pagination: PaginationParams;
-  public cols: any[];
+  public financialYears: FinancialYearDto[] = [];
+  public selectedfinancialYears: FinancialYearDto[]=[];
+  public pagination: PaginationParams = new PaginationParams();
+  public cols: any[] = [];
   public totalRecords: number = 0;
   private readonly destroy$ = new Subject<void>();
   //#endregion 
@@ -36,12 +36,7 @@ export class ListRecoverFinancialYearComponent {
     private authSvcs: AuthenticationService,
     private confirmationService: ConfirmationService,
     private messageService: FinancialYearMessageService,
-  ) {
-    this.financialYears = [];
-    this.cols = [];
-    this.selectedfinancialYears = [];
-    this.pagination = new PaginationParams();
-  }
+  ) { }
   //#endregion 
 
   //#region Lifecycle Hooks
@@ -60,6 +55,8 @@ export class ListRecoverFinancialYearComponent {
     );
   }
   ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
     this.dialogSub?.unsubscribe();
   }
   //#endregion 

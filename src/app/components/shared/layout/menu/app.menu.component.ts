@@ -23,8 +23,6 @@ export class AppMenuComponent implements OnInit {
                 ]
             },
             {
-                label: 'Devloper',
-                icon: 'pi pi-th-large',
                 items: [
                     {
                         label: 'Devloper',
@@ -36,7 +34,6 @@ export class AppMenuComponent implements OnInit {
                                 routerLink: ['/branch/list-branch']
                             },
                             {
-                              
                                 label: 'Financial Year',
                                 icon: 'fa-solid fa-calendar',
                                 routerLink: ['/financial-year/list-financial-year']
@@ -45,6 +42,21 @@ export class AppMenuComponent implements OnInit {
                     },
                 ]
             },
+            {
+                items: [
+                    {
+                        label: 'Admin',
+                        icon: 'fa-brands fa-connectdevelop',
+                        items: [
+                            {
+                                label: 'User Branch Allocation',
+                                icon: 'fa-solid fa-code-branch',
+                                routerLink: ['/user-branch/list-user-branch']
+                            } 
+                        ]
+                    },
+                ]
+            }
           
         ];
     }

@@ -30,6 +30,13 @@ const routes: Routes = [
                         (m) => m.FinancialYearModule
                     ),
             },
+            {
+                path: 'user-branch', data: { breadcrumb: 'user-branch' },
+                loadChildren: () =>
+                    import('../../user-branch/user-branch.module').then(
+                        (m) => m.UserBranchModule
+                    ),
+            },
             { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
         ],
     },
